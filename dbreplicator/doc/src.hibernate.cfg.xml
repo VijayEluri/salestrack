@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+    <session-factory name="srcSessionFactory">
+    	<property name="connection.url">jdbc:oracle:thin:@192.168.15.7:1521:orcl</property>
+		<property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+		<property name="connection.username">tort</property>
+		<property name="connection.password">111</property>
+        
+		<property name="dialect">org.hibernate.dialect.Oracle10gDialect</property>
+        <property name="show_sql">true</property>
+        <mapping class="com.tort.trade.model.Good"/>        
+    </session-factory>
+
+</hibernate-configuration>
+

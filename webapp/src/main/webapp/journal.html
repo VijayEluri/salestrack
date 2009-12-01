@@ -1,0 +1,183 @@
+<html>
+<head>
+<meta content="text/html; charset=utf-8">
+<script type="text/javascript" src="js/jquery-1.3.1.js"></script>
+</head>
+<body>
+<table style="width: 100%; text-align: center;">
+	<div style="width: 100%;">
+		<table class="mainmenu" style="background-color: #EFEFEF; width: 100%;">
+			<tr>
+				<td>
+				<table>
+					<tr>
+						<td style="padding-left: 10px; padding-right: 10px; font-weight: bold;">Журналы продаж</td>
+						<td style="padding-left: 10px; padding-right: 10px;"><a href="#" style="color: #009CFF;">Остаток</a></td>
+						<td style="padding-left: 10px; padding-right: 10px;"><a href="#" style="color: #009CFF;">Вал</a></td>
+						<td style="padding-left: 10px; padding-right: 10px;"><a href="#" style="color: #009CFF;">Продавцы</a></td>
+					</tr>
+				</table>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<table>
+					<tr>
+						<td style="padding-left: 10px; padding-right: 10px; font-weight: bold;">Гена</td>
+						<td style="padding-left: 10px; padding-right: 10px;"><a href="#" style="color: #009CFF;">Валя</a></td>
+						<td style="padding-left: 10px; padding-right: 10px;"><a href="#" style="color: #009CFF;">Саша</a></td>
+						<td style="padding-left: 10px; padding-right: 10px;"><a href="#" style="color: #009CFF;">Маша</a></td>
+						<td style="padding-left: 10px; padding-right: 10px;"><a href="#" style="color: #009CFF;">Оля</a></td>
+						<td style="padding-left: 10px; padding-right: 10px;"><a href="#" style="color: #009CFF;">Лена</a></td>
+					</tr>
+				</table>
+				</td>
+			</tr>
+		</table>		
+	</div>
+	<div style="width: 100%;">
+		<table>
+		<tr>
+		<!-- PRICE -->
+		<td style="height: 100%;">
+			<div style="text-align: left; margin-top: 20px; margin-bottom: 5px; height: 20px;">
+				<input type="text" style="width: 18em;" class="filter" id="filter" onkeydown="return goodsSearchFilter(event);" onkeyup="refreshGoods();"/>
+				<span>257</span>
+			</div>
+			<div style="height: 630px;">
+				<table class="price" border="1px" id="goods">
+					<tr>
+						<th>№</th>
+						<th>Товар</th>
+					</tr>									
+				</table>
+			</div>			
+		</td>
+		<td style="width: 30px;"></td>
+		<!-- JOURNAL -->
+		<td style="height: 100%;">
+			<div style="text-align: left; margin-top: 20px; margin-bottom: 5px; height: 20px;">
+				<span>C <input type="text" value="11.05.09"/> По <input type="text" value="18.05.09"/></span>
+				<span><input type="button" value="Сохранить"/></span>
+			</div>
+			<div style="height: 630px;">
+				<table border="1px;" class="journal">
+					<tr>
+						<th>Дата</th>
+						<th style="width: 300px;">Товар</th>
+						<th>Сколько, Кому, Почем</th>
+						<th></th>
+					</tr>
+					<tr>
+						<td>11.05.09</td>						
+						<td>Сарафан в горошек</td>
+						<td><input type="text" value="+3В,-1С,1$250" style="width: 30em;"></td>
+						<td><a href="#" onclick="confirm('Подтвердите удаление');"/>Удалить</td>
+					</tr>				
+				</table>
+			</div>			
+		</td>
+		</tr>
+		</table>
+	</div>
+	<div style="background-color: #EFEFEF; text-align: left; width: 100%;" class="error">
+		Ошибка ввода: джинсы синие полосатые, 15 мая, неизвестный продавец
+	</div>
+</table>
+</body>
+</html>
+<script>
+	var goods = [];	
+				
+	refreshGoods();
+	focusFilter();
+	
+	function focusNewTransition(){
+		jQuery("input[class=newTransition]").focus();
+	}
+	
+	function addNewTransition(label){
+		jQuery("table[class=journal]").append("<tr><td>11.05.09</td><td>" + label + "</td><td><input type='text' class='newTransition' style='width: 30em;' onkeypress='return transitionInputFilter(event);'></td><td><a href='#' onclick='confirm(\"Подтвердите удаление\");'>Удалить</a></td></tr>");
+	}
+	
+	function increaseDay(){
+		day += 1;
+	}
+	
+	function transitionInputFilter(e){
+		if(e.keyCode == 13){
+			jQuery("input[class=filter]").val("");
+			focusFilter();
+		}			
+	}
+	
+	function focusFilter(){
+		jQuery("input[class=filter]").focus();
+	}
+	
+	function goodsSearchFilter(e){
+		var keynum;
+		if(window.event) // IE
+  		{
+  			keynum = e.keyCode;
+  		}else if(e.which){ // Netscape/Firefox/Opera 
+  			keynum = e.which;
+  		}
+		var keychar = String.fromCharCode(keynum);
+		var numcheck = /\d/;
+		
+		if(!numcheck.test(keychar)){			
+			return true;
+		}else{			
+			jQuery("td[class=priceItem][number=" + keychar + "]").click();
+			return false;						
+		}				
+	}
+	
+	function clearGoods(){
+		jQuery("#goods").empty();
+	}
+	
+	function addGoods(){
+		jQuery.each(goods, function(i, good){
+				var id="";
+				if(i <= 9)
+					id = i;
+				addGood(good, id);
+		});
+	}
+	
+	function setupGoodsEventHandlers(){
+		jQuery("td[class=priceItem]").click(function(){
+			addNewTransition(this.innerHTML);		
+			focusNewTransition();
+		});
+	}
+	
+	function updateGoods(){	
+		clearGoods();			
+		addGoods();
+		setupGoodsEventHandlers();		
+	}
+	
+	function goodsFilter(){
+		return jQuery("#filter").val();
+	}		
+	
+	function addGood(good, number){		
+		jQuery("#goods").append("<tr><td>" + number + "</td><td class='priceItem' number='" + number + "'>" + good._name + "</td></tr>");
+	}
+	
+	var requestInProgress = false;
+	var finalUpdate = false;
+	function refreshGoods(){		
+			jQuery.ajax({
+				url: "getGoods",			
+				data: "filter=" + goodsFilter(),
+				type: "GET",
+				dataType: "json",
+				error: function(){jQuery("div[class=error]").text("Ошибка получения прайса");},
+				success: function(data){goods = data; updateGoods();}
+			});			
+	}		
+</script>

@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" 
+         version="2.5">
+   
+   <session-config>
+       <session-timeout>180</session-timeout>
+   </session-config>
+   
+   <servlet>
+   	 <servlet-name>getGoodsServlet</servlet-name>
+   	 <servlet-class>com.tort.trade.journals.GetGoodsServlet</servlet-class>
+   </servlet>
+   
+   <servlet-mapping>
+   	<servlet-name>getGoodsServlet</servlet-name>
+   	<url-pattern>getGoods</url-pattern>
+   </servlet-mapping>
+</web-app>
