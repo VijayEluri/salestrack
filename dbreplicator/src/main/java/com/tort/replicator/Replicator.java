@@ -4,32 +4,37 @@ import java.util.List;
 
 import org.hibernate.ReplicationMode;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 
-import com.tort.replicator.HibernateHelper;
-import com.tort.trade.model.Good;
+import com.tort.trade.model.Transition;
 
 public class Replicator {
+	private Session _srcSession;
+	private Session _destSession;
+	
 	public static void main(String[] args) {
-		replicateData(loadData());
+		new Replicator().replicate();
 	}
 
-	private static void replicateData(List<Good> goods) {
-		Session destSession = new HibernateHelper().getDestSessionFactory().openSession();
-		Transaction tx2 = destSession.beginTransaction();
-		for (Good good : goods) {			
-			destSession.replicate(good, ReplicationMode.LATEST_VERSION);
+	private void replicate() {
+		_srcSession = new HibernateHelper().getSrcSessionFactory().openSession();
+		_destSession = new HibernateHelper().getDestSessionFactory().openSession();		
+		
+		replicateData(loadData(Transition.class));
+		
+		_srcSession.close();
+		_destSession.close();
+	}
+
+	private <T> void replicateData(List<T> classes) {
+		for (T clazz : classes) {			
+			_destSession.replicate(clazz, ReplicationMode.LATEST_VERSION);
 		}
-		tx2.commit();
-		destSession.close();
 	}
 
-	private static List<Good> loadData() {
-		Session srcSession = new HibernateHelper().getSrcSessionFactory().openSession();
-		Transaction tx1 = srcSession.beginTransaction();
-		List<Good> goods = srcSession.createCriteria(Good.class).list();
-		tx1.commit();
-		srcSession.close();
+	@SuppressWarnings("unchecked")
+	private <T> List<T> loadData(Class<?> T) {		
+		List<T> goods = _srcSession.createCriteria(T).list();				
+		
 		return goods;
 	}
 }

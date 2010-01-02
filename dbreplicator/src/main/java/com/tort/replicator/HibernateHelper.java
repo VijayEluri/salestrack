@@ -11,8 +11,8 @@ public class HibernateHelper {
 	private static SessionFactory destSessionFactory;
 
 	public SessionFactory getSrcSessionFactory() {
-		File file = new File(".");
-		System.out.println(file.getAbsolutePath());
+		log(new File(".").getAbsolutePath());
+		
 		if(srcSessionFactory == null){						
 			srcSessionFactory = new AnnotationConfiguration()
 									.configure(new File("src.hibernate.cfg.xml"))
@@ -20,6 +20,10 @@ public class HibernateHelper {
 		}
 		
 		return srcSessionFactory;
+	}
+
+	private void log(String path) {
+		System.out.println(path);
 	}
 
 	public SessionFactory getDestSessionFactory() {
