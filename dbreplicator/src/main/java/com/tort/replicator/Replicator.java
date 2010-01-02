@@ -17,12 +17,14 @@ public class Replicator {
 
 	private void replicate() {
 		_srcSession = new HibernateHelper().getSrcSessionFactory().openSession();
-		_destSession = new HibernateHelper().getDestSessionFactory().openSession();		
+		_destSession = new HibernateHelper().getDestSessionFactory().openSession();
 		
 		replicateData(loadData(Transition.class));
-		
-		_srcSession.close();
+				
+		_destSession.flush();
+		_srcSession.flush();
 		_destSession.close();
+		_srcSession.close();
 	}
 
 	private <T> void replicateData(List<T> classes) {
@@ -33,8 +35,8 @@ public class Replicator {
 
 	@SuppressWarnings("unchecked")
 	private <T> List<T> loadData(Class<?> T) {		
-		List<T> goods = _srcSession.createCriteria(T).list();				
+		List<T> classes = _srcSession.createCriteria(T).list();				
 		
-		return goods;
+		return classes;
 	}
 }
