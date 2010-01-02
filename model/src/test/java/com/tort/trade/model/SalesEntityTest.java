@@ -11,11 +11,4 @@ public class SalesEntityTest extends EntityTest{
 		_session.save(new Sales("sales name"));
 		_session.flush();
 	}
-
-	@Override
-	protected List<Class> getClasses() {
-		return Arrays.asList(new Class[]{
-				Sales.class
-		});
-	}
 }

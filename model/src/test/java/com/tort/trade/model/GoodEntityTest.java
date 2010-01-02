@@ -1,8 +1,5 @@
 package com.tort.trade.model;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.testng.annotations.Test;
 
 @Test
@@ -13,12 +10,5 @@ public class GoodEntityTest extends EntityTest{
 		
 		_session.save(good);
 		_session.flush();
-	}
-
-	@Override
-	protected List<Class> getClasses() {		
-		return Arrays.asList(new Class[]{
-				Good.class
-		});
 	}
 }

@@ -1,9 +1,7 @@
 package com.tort.trade.model;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import org.testng.annotations.Test;
 
@@ -31,12 +29,6 @@ public class TransitionEntityTest extends EntityTest{
 		transition.setQuant(1L);
 		
 		_session.save(transition);
-	}
-
-	@Override
-	protected List<Class> getClasses() {
-		return Arrays.asList(new Class[]{
-			Transition.class	
-		});
+		_session.flush();
 	}
 }
