@@ -34,6 +34,14 @@
 					<finalName>dbreplicator</finalName>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2-beta-5</version>
+				<configuration>
+					<descriptor>assembly.xml</descriptor>
+				</configuration>				
+			</plugin>
 		</plugins>
 	</build>
 
@@ -56,7 +64,7 @@
 		<dependency>
 			<groupId>com.tort.trade</groupId>
 			<artifactId>model</artifactId>
-			<version>DEV-SNAPSHOT</version>
+			<version>DEV-SNAPSHOT</version>			
 		</dependency>
 	</dependencies>
 </project>
