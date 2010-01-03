@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.hibernate.ReplicationMode;
 import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import com.tort.trade.model.Transition;
 
@@ -18,11 +19,13 @@ public class Replicator {
 	private void replicate() {
 		_srcSession = new HibernateHelper().getSrcSessionFactory().openSession();
 		_destSession = new HibernateHelper().getDestSessionFactory().openSession();
+		Transaction srcTx = _srcSession.beginTransaction();
+		Transaction destTx = _destSession.beginTransaction();
 		
 		replicateData(loadData(Transition.class));
-				
-		_destSession.flush();
-		_srcSession.flush();
+		
+		destTx.commit();
+		srcTx.commit();
 		_destSession.close();
 		_srcSession.close();
 	}
