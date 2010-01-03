@@ -40,7 +40,17 @@
 				<version>2.2-beta-5</version>
 				<configuration>
 					<descriptor>assembly.xml</descriptor>
-				</configuration>				
+					<goal>assembly</goal>
+				</configuration>
+				<executions>
+					<execution>				
+						<id>assembly</id>
+						<phase>package</phase>		
+						<goals>
+							<goal>assembly</goal>
+						</goals>
+					</execution>
+				</executions>				
 			</plugin>
 		</plugins>
 	</build>

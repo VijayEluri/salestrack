@@ -5,8 +5,14 @@
 <id>assembly</id>
 <formats>
 	<format>tar.gz</format>
+	<format>dir</format>	
 </formats>
-<fileSets>
+<dependencySets>
+	<dependencySet>
+		<scope>runtime</scope>
+	</dependencySet>
+</dependencySets>
+<fileSets>	
 	<fileSet>
 		<outputDirectory>.</outputDirectory>
 		<directory>${project.build.directory}</directory>
