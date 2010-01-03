@@ -73,5 +73,10 @@
 			<artifactId>model</artifactId>
 			<version>DEV-SNAPSHOT</version>			
 		</dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<scope>runtime</scope>
+		</dependency>		
 	</dependencies>
 </project>

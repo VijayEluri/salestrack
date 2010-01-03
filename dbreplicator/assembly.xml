@@ -4,11 +4,10 @@
   
 <id>assembly</id>
 <formats>
-	<format>tar.gz</format>
 	<format>dir</format>	
 </formats>
 <dependencySets>
-	<dependencySet>
+	<dependencySet>		
 		<scope>runtime</scope>
 	</dependencySet>
 </dependencySets>
@@ -22,18 +21,15 @@
 	</fileSet>
 	<fileSet>
 		<outputDirectory>.</outputDirectory>
-		<directory>${project.build.directory}/dependency/</directory>
-		<includes>
-			<include>*.jar</include>
-		</includes>
-	</fileSet>
-	<fileSet>
-		<outputDirectory>.</outputDirectory>
 		<directory>lib</directory>		
 	</fileSet>
 	<fileSet>
 		<outputDirectory>.</outputDirectory>
 		<directory>script</directory>		
+	</fileSet>
+	<fileSet>
+		<outputDirectory>.</outputDirectory>
+		<directory>src/main/resources</directory>
 	</fileSet>
 </fileSets>
 </assembly>
