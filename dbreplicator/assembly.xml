@@ -23,6 +23,10 @@
 	</fileSet>
 	<fileSet>
 		<outputDirectory>.</outputDirectory>
+		<directory>lib</directory>		
+	</fileSet>
+	<fileSet>
+		<outputDirectory>.</outputDirectory>
 		<directory>script</directory>		
 	</fileSet>
 </fileSets>
