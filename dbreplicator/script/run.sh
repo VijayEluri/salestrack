@@ -1,2 +1,3 @@
 #!/bin/sh
-java -cp dbreplicator.jar;*.jar com.tort.replicator.Replicator
+
+java -Xms256m -Xmx512m -cp dbreplicator.jar;* com.tort.replicator.Replicator

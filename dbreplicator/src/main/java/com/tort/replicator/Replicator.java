@@ -7,6 +7,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import com.tort.trade.model.Transition;
+import com.tort.trade.model.Sales;
+import com.tort.trade.model.Good;
 
 public class Replicator {
 	private Session _srcSession;
@@ -22,6 +24,8 @@ public class Replicator {
 		Transaction srcTx = _srcSession.beginTransaction();
 		Transaction destTx = _destSession.beginTransaction();
 		
+		replicateData(loadData(Sales.class));
+		replicateData(loadData(Good.class));
 		replicateData(loadData(Transition.class));
 		
 		destTx.commit();
