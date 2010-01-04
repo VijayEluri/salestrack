@@ -9,16 +9,18 @@ import org.hibernate.Transaction;
 import com.tort.trade.model.Transition;
 import com.tort.trade.model.Sales;
 import com.tort.trade.model.Good;
+import java.sql.Connection;
+import java.sql.Statement;
 
 public class Replicator {
 	private Session _srcSession;
 	private Session _destSession;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
 		new Replicator().replicate();
 	}
 
-	private void replicate() {
+	private void replicate() throws Exception{
 		_srcSession = new HibernateHelper().getSrcSessionFactory().openSession();
 		_destSession = new HibernateHelper().getDestSessionFactory().openSession();
 		Transaction srcTx = _srcSession.beginTransaction();
@@ -30,6 +32,10 @@ public class Replicator {
 		
 		destTx.commit();
 		srcTx.commit();
+		Connection connection = _destSession.connection();
+		Statement statement = connection.createStatement();
+		statement.execute("SHUTDOWN");
+		statement.close();
 		_destSession.close();
 		_srcSession.close();
 	}
