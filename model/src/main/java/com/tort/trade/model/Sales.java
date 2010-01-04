@@ -11,7 +11,6 @@ import org.hibernate.validator.NotNull;
 
 @Entity
 @Table(name = "DEP")
-@SequenceGenerator(name = "salesGenerator", sequenceName = "sales_seq")
 public class Sales {
 	private Long _id;
 	private String _name;
@@ -26,7 +25,6 @@ public class Sales {
 	
 	@Id
 	@Column(name = "DEP_SEQ")
-	@GeneratedValue(generator = "salesGenerator")
 	public Long getId() {
 		return _id;
 	}

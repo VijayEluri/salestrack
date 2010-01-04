@@ -4,7 +4,7 @@
 	<groupId>com.tort.trade</groupId>
 	<artifactId>model</artifactId>
 	<name>model</name>
-	<version>DEV-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>jar</packaging>
 	<parent>
     	<groupId>com.tort.trade</groupId>

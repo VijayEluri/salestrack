@@ -15,8 +15,7 @@ import javax.persistence.Table;
 import org.hibernate.validator.NotNull;
 
 @Entity
-@Table(name = "TRADE")
-@SequenceGenerator(name = "transitionGenerator", sequenceName = "transitionSeq")
+@Table(name = "TRADE_SRC")
 public class Transition {
 	private Long _id;
 	private Sales _from;
@@ -28,8 +27,7 @@ public class Transition {
 	private BigDecimal _price;
 	
 	@Id
-	@Column(name = "TRD_SEQ")
-	@GeneratedValue(generator = "transitionGenerator")
+	@Column(name = "TRD_SEQ")	
 	public Long getId() {
 		return _id;
 	}
