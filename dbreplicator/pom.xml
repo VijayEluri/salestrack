@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>com.tort.trade</groupId>
 			<artifactId>model</artifactId>
-			<version>DEV-SNAPSHOT</version>			
+			<version>1.0</version>			
 		</dependency>
 		<dependency>
 			<groupId>org.hsqldb</groupId>
