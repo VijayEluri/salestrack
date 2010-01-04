@@ -31,6 +31,11 @@
 						<target>1.6</target>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.4.3</version>										
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -63,10 +68,10 @@
 				<version>1.8.0.10</version>				
 			</dependency>
 			<dependency>
-			<groupId>javassist</groupId>
-			<artifactId>javassist</artifactId>
-			<version>3.8.0.GA</version>			
-		</dependency>
+				<groupId>javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>3.8.0.GA</version>			
+			</dependency>			
 		</dependencies>
 	</dependencyManagement>
 	
