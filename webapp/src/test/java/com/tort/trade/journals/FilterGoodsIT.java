@@ -12,8 +12,7 @@ import com.thoughtworks.selenium.DefaultSelenium;
 @Test(groups = {"functional"})
 public class FilterGoodsIT {
 	public void testFilterGoods() throws Exception {
-		DefaultSelenium selenium = new DefaultSelenium("localhost", 4444, "*firefox", "http://localhost:8080/");
-		selenium.setSpeed("1000");
+		DefaultSelenium selenium = new DefaultSelenium("localhost", 4444, "*firefox", "http://localhost:8080/");		
 		selenium.start();
 		
 		selenium.open("/webapp/journal.html");
@@ -27,6 +26,11 @@ public class FilterGoodsIT {
 		selenium.focus("filter");
 		selenium.type("filter", "дж с");
 		selenium.keyUp("filter", "с");
+		for (int second = 0;; second++) {
+			if (second >= 60) fail("timeout");
+			try { if (selenium.isElementPresent("//table[@id='goods']//tr[10]")) break; } catch (Exception e) {}
+			Thread.sleep(1000);
+		}
 		assertFalse(selenium.isElementPresent("//table[@id='goods']//tr[11]"));
 		assertEquals(selenium.getTable("goods.0.1"), "дж стеганые");
 		
