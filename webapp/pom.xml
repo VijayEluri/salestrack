@@ -37,7 +37,10 @@
 						<phase>pre-integration-test</phase>
 						<goals>
 							<goal>run</goal>
-						</goals>						
+						</goals>
+						<configuration>
+							<daemon>true</daemon>
+						</configuration>						
 					</execution>
 					<execution>
 						<id>stop-jetty</id>
@@ -51,8 +54,7 @@
 						</configuration>						
 					</execution>					
 				</executions>
-				<configuration>
-					<daemon>true</daemon>
+				<configuration>					
 					<scanIntervalSeconds>5</scanIntervalSeconds>					    				  				
 				</configuration>
 			</plugin>

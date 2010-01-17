@@ -2,6 +2,7 @@
 <head>
 <meta content="text/html; charset=utf-8">
 <script type="text/javascript" src="js/jquery-1.3.1.js"></script>
+<script type="text/javascript" src="js/journal.js"></script>
 </head>
 <body>
 <table style="width: 100%; text-align: center;">
@@ -41,7 +42,7 @@
 		<!-- PRICE -->
 		<td style="height: 100%;">
 			<div style="text-align: left; margin-top: 20px; margin-bottom: 5px; height: 20px;">
-				<input type="text" style="width: 18em;" class="filter" id="filter" onkeydown="return goodsSearchFilter(event);" onkeyup="refreshGoods();"/>
+				<input type="text" style="width: 18em;" class="filter" id="filter" onkeydown="return journal.goodsSearchFilter(event);" onkeyup="journal.refreshGoods();"/>
 				<span>257</span>
 			</div>
 			<div style="height: 630px;">
@@ -87,97 +88,5 @@
 </body>
 </html>
 <script>
-	var goods = [];	
-				
-	refreshGoods();
-	focusFilter();
-	
-	function focusNewTransition(){
-		jQuery("input[class=newTransition]").focus();
-	}
-	
-	function addNewTransition(label){
-		jQuery("table[class=journal]").append("<tr><td>11.05.09</td><td>" + label + "</td><td><input type='text' class='newTransition' style='width: 30em;' onkeypress='return transitionInputFilter(event);'></td><td><a href='#' onclick='confirm(\"Подтвердите удаление\");'>Удалить</a></td></tr>");
-	}
-	
-	function increaseDay(){
-		day += 1;
-	}
-	
-	function transitionInputFilter(e){
-		if(e.keyCode == 13){
-			jQuery("input[class=filter]").val("");
-			focusFilter();
-		}			
-	}
-	
-	function focusFilter(){
-		jQuery("input[class=filter]").focus();
-	}
-	
-	function goodsSearchFilter(e){
-		var keynum;
-		if(window.event) // IE
-  		{
-  			keynum = e.keyCode;
-  		}else if(e.which){ // Netscape/Firefox/Opera 
-  			keynum = e.which;
-  		}
-		var keychar = String.fromCharCode(keynum);
-		var numcheck = /\d/;
-		
-		if(!numcheck.test(keychar)){			
-			return true;
-		}else{			
-			jQuery("td[class=priceItem][number=" + keychar + "]").click();
-			return false;						
-		}				
-	}
-	
-	function clearGoods(){
-		jQuery("#goods").empty();
-	}
-	
-	function addGoods(){
-		jQuery.each(goods, function(i, good){
-				var id="";
-				if(i <= 9)
-					id = i;
-				addGood(good, id);
-		});
-	}
-	
-	function setupGoodsEventHandlers(){
-		jQuery("td[class=priceItem]").click(function(){
-			addNewTransition(this.innerHTML);		
-			focusNewTransition();
-		});
-	}
-	
-	function updateGoods(){	
-		clearGoods();			
-		addGoods();
-		setupGoodsEventHandlers();		
-	}
-	
-	function goodsFilter(){
-		return jQuery("#filter").val();
-	}		
-	
-	function addGood(good, number){		
-		jQuery("#goods").append("<tr><td>" + number + "</td><td class='priceItem' number='" + number + "'>" + good._name + "</td></tr>");
-	}
-	
-	var requestInProgress = false;
-	var finalUpdate = false;
-	function refreshGoods(){		
-			jQuery.ajax({
-				url: "getGoods",			
-				data: "filter=" + goodsFilter(),
-				type: "GET",
-				dataType: "json",
-				error: function(){jQuery("div[class=error]").text("Ошибка получения прайса");},
-				success: function(data){goods = data; updateGoods();}
-			});			
-	}		
+	journal.init();		
 </script>
