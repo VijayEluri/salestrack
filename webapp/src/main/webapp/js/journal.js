@@ -77,8 +77,8 @@ journal = function() {
 			error: function(){jQuery("div[class=error]").text("Ошибка сохранения передач");},
 			success: function(saved){
 				saved.forEach(function(item){
-					var textbox = jQuery("table[class=journal] > tbody > tr[transition_lid = " + item + "]").get(0);
-					textbox.childNodes[2].childNodes[0].disabled = true;
+					var tr = jQuery("table[class=journal] > tbody > tr[transition_lid = " + item + "]").get(0);
+					tr.childNodes[2].childNodes[0].disabled = true;
 				});
 			}
 		});
@@ -88,6 +88,9 @@ journal = function() {
 		init: function(){		
 				journal.refreshGoods();
 				focusFilter();								 				
+		},
+		clear: function(){
+			jQuery("table[class=journal] > tbody > tr:has(td > input:disabled)").remove();
 		},
 		transitionInputFilter: function (e, transitionLid){
 				if(e.keyCode == 13){
