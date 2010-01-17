@@ -4,7 +4,7 @@
 	<groupId>com.tort.trade</groupId>
 	<artifactId>model</artifactId>
 	<name>model</name>
-	<version>1.0</version>
+	<version>DEV-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<parent>
     	<groupId>com.tort.trade</groupId>
@@ -24,14 +24,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>			
-		</dependency>
-		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<version>5.10</version>
-			<classifier>jdk15</classifier>									
-			<scope>test</scope>
-		</dependency>
+		</dependency>		
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>			
