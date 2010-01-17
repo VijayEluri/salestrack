@@ -13,8 +13,18 @@
    	 <servlet-class>com.tort.trade.journals.GetGoodsServlet</servlet-class>
    </servlet>
    
+   <servlet>
+   	 <servlet-name>saveAllServlet</servlet-name>
+   	 <servlet-class>com.tort.trade.journals.SaveAllServlet</servlet-class>
+   </servlet>
+   
    <servlet-mapping>
    	<servlet-name>getGoodsServlet</servlet-name>
    	<url-pattern>getGoods</url-pattern>
+   </servlet-mapping>
+   
+   <servlet-mapping>
+   	<servlet-name>saveAllServlet</servlet-name>
+   	<url-pattern>saveAll</url-pattern>
    </servlet-mapping>
 </web-app>

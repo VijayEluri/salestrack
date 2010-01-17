@@ -5,13 +5,13 @@ journal = function() {
 		jQuery("input[class=filter]").focus();
 	};
 	
-	var addNewTransition = function (label){
-		jQuery("table[class=journal]").append("<tr><td>11.05.09</td><td>" + label + "</td><td><input type='text' class='newTransition' style='width: 30em;' onkeypress='return journal.transitionInputFilter(event);'></td><td><a href='#' onclick='confirm(\"Подтвердите удаление\");'>Удалить</a></td></tr>");
+	var addNewTransition = function (label, goodId){		
+		jQuery("table[class=journal]").append("<tr good_id='" + goodId + "'><td>11.05.09</td><td>" + label + "</td><td><input type='text' class='newTransition' style='width: 30em;' onkeypress='return journal.transitionInputFilter(event);'></td><td><a href='#' onclick='confirm(\"Подтвердите удаление\");'>Удалить</a></td></tr>");
 	};
 	
 	var setupGoodsEventHandlers = function (){
 		jQuery("td[class=priceItem]").click(function(){
-			addNewTransition(this.innerHTML);		
+			addNewTransition(this.innerHTML, this.getAttribute("good_id"));		
 			focusNewTransition();
 		});
 	};
@@ -44,20 +44,30 @@ journal = function() {
 	};
 	
 	var addGood = function (good, number){		
-		jQuery("#goods").append("<tr><td>" + number + "</td><td class='priceItem' number='" + number + "'>" + good._name + "</td></tr>");
+		jQuery("#goods").append("<tr><td>" + number + "</td><td class='priceItem' number='" + number + "' good_id='" + good._id + "'>" + good._name + "</td></tr>");
+	};	
+	
+	var getNewTransitions = function (){
+		var transitions = [{}];
+		jQuery("table[class=journal] > tbody > tr:has(td)").each(function(){
+			var transition = new Object();
+			transition.goodId = this.getAttribute("good_id"); 
+			transition.text = this.childNodes[2].childNodes[0].value;			
+			transitions.push(transition);
+		});
 	};
 	
-	return {
+	return {		
 		init: function(){
-				focusFilter();				
-				 alert("journal init");				 
+				journal.refreshGoods();
+				focusFilter();								 				
 		},
 		transitionInputFilter: function (e){
 					if(e.keyCode == 13){
 						jQuery("input[class=filter]").val("");
-						focusFilter();
+						focusFilter();						
 					}			
-		},
+		},	
 		refreshGoods: function (){		
 			jQuery.ajax({
 				url: "getGoods",			
@@ -85,6 +95,16 @@ journal = function() {
 				jQuery("td[class=priceItem][number=" + keychar + "]").click();
 				return false;						
 			}				
+		},
+		saveAll: function (){
+			jQuery.ajax({
+				url: "saveAll",			
+				data: getNewTransitions(),
+				type: "POST",
+				dataType: "json",
+				error: function(){jQuery("div[class=error]").text("Ошибка сохранения передач");},
+				success: function(data){alert("Сохранено");}
+			});
 		}
 	}
 }();

@@ -59,7 +59,7 @@
 		<td style="height: 100%;">
 			<div style="text-align: left; margin-top: 20px; margin-bottom: 5px; height: 20px;">
 				<span>C <input type="text" value="11.05.09"/> По <input type="text" value="18.05.09"/></span>
-				<span><input type="button" value="Сохранить"/></span>
+				<span><input type="button" value="Сохранить" onclick="journal.saveAll();"/></span>
 			</div>
 			<div style="height: 630px;">
 				<table border="1px;" class="journal">
@@ -68,13 +68,7 @@
 						<th style="width: 300px;">Товар</th>
 						<th>Сколько, Кому, Почем</th>
 						<th></th>
-					</tr>
-					<tr>
-						<td>11.05.09</td>						
-						<td>Сарафан в горошек</td>
-						<td><input type="text" value="+3В,-1С,1$250" style="width: 30em;"></td>
-						<td><a href="#" onclick="confirm('Подтвердите удаление');"/>Удалить</td>
-					</tr>				
+					</tr>									
 				</table>
 			</div>			
 		</td>
