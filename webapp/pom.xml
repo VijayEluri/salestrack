@@ -10,7 +10,6 @@
     	<groupId>com.tort.trade</groupId>
     	<artifactId>project</artifactId>
     	<version>DEV-SNAPSHOT</version>
-    	<relativePath>..</relativePath>
   	</parent>
 
 	<build>
@@ -77,7 +76,7 @@
 				</executions>
 				<configuration>
 					<useTestClasspath>true</useTestClasspath>
-					<scanIntervalSeconds>5</scanIntervalSeconds>					    				  				
+					<scanIntervalSeconds>0</scanIntervalSeconds>										    				  				
 				</configuration>
 			</plugin>
 

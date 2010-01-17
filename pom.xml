@@ -17,8 +17,8 @@
 		<module>webapp</module>
 		<module>dbreplicator</module>
 	</modules>
-
-	<build>
+	
+	<build>		
 		<pluginManagement>
 			<plugins>
 				<plugin>

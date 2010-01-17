@@ -10,7 +10,6 @@
     	<groupId>com.tort.trade</groupId>
     	<artifactId>project</artifactId>
     	<version>DEV-SNAPSHOT</version>
-    	<relativePath>..</relativePath>
   	</parent>
 
 	<dependencies>
