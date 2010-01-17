@@ -68,7 +68,10 @@
               				<goal>verify</goal>
             			</goals>
           			</execution>                	
-                </executions>               
+                </executions>     
+                <configuration>
+                	<encoding>utf-8</encoding>
+                </configuration>          
             </plugin>
 		</plugins>
 	</build>
