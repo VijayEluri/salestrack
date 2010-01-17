@@ -15,7 +15,28 @@
 
 	<build>
 		<defaultGoal>package</defaultGoal>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/main/resources</directory>
+				<filtering>true</filtering>				
+			</resource>									
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>${basedir}/src/test/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.4.1</version>
+				<configuration>
+					<encoding>utf-8</encoding>
+				</configuration>
+			</plugin>
+		
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -54,7 +75,8 @@
 						</configuration>						
 					</execution>					
 				</executions>
-				<configuration>					
+				<configuration>
+					<useTestClasspath>true</useTestClasspath>
 					<scanIntervalSeconds>5</scanIntervalSeconds>					    				  				
 				</configuration>
 			</plugin>
@@ -103,20 +125,15 @@
             			</goals>
           			</execution>                	
                 </executions>               
-            </plugin>
+            </plugin>            
 		</plugins>
 	</build>
 
-	<repositories>
+	<repositories>		
 		<repository>
-			<id>finatex</id>
-			<url>http://maven.finatex.ru/repo</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
+			<id>gson</id>
+			<url>http://google-gson.googlecode.com/svn/mavenrepo/</url>
+			<name>gson</name>
 		</repository>
 	</repositories>
 
@@ -137,7 +154,7 @@
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>1.1</version>
+			<version>1.4</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
