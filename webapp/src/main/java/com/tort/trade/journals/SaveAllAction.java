@@ -8,7 +8,7 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class SaveAllAction {
+public class SaveAllAction implements Action {
 
 	private List<TransitionTO> _transitions;
 
@@ -27,7 +27,7 @@ public class SaveAllAction {
 		for (TransitionTO transition : _transitions) {
 			saved.add(transition.getLid());
 		}
-				
+					
 		return new Gson().toJson(saved).getBytes();
 	}
 
