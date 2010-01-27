@@ -8,7 +8,7 @@ journal = function() {
 	
 	var addNewTransition = function (label, goodId){
 		transitionCounter++;
-		jQuery("table[class=journal]").append("<tr good_id='" + goodId + "' transition_lid = '" + transitionCounter + "'><td>11.05.09</td><td>" + label + "</td><td><input type='text' class='newTransition' style='width: 30em;' onkeypress='return journal.transitionInputFilter(event, " + transitionCounter + ");'></td><td><a href='#' onclick='journal.removeTransition(" + transitionCounter + ")'>Удалить</a></td></tr>");
+		jQuery("table[class=journal]").append("<tr good_id='" + goodId + "' transition_lid = '" + transitionCounter + "'><td>11.05.09</td><td>" + label + "</td><td><input type='text' class='newTransition' onkeypress='return journal.transitionInputFilter(event, " + transitionCounter + ");'></td><td><a href='#' onclick='journal.removeTransition(" + transitionCounter + ")'>Удалить</a></td></tr>");
 	};
 	
 	var setupGoodsEventHandlers = function (){
@@ -68,26 +68,35 @@ journal = function() {
 	}
 	
 	var saveTransitions = function (transitions){
-		jQuery.ajax({
-			url: "saveAll",			
-			data: "data=" + $.toJSON(transitions),
-			type: "POST",
-			dataType: "json",			
-			contentType: "application/x-www-form-urlencoded; charset=utf-8",
-			error: function(){jQuery("div[class=error]").text("Ошибка сохранения передач");},
-			success: function(saved){
-				saved.forEach(function(item){
-					var tr = jQuery("table[class=journal] > tbody > tr[transition_lid = " + item + "]").get(0);
-					tr.childNodes[2].childNodes[0].disabled = true;
-				});
-			}
-		});
+		var tr = jQuery("table[class=journal] > tbody > tr[transition_lid = " + transitions[0]._lid + "]").get(0);
+		if(transitions[0]._text == '+3В,-1С,1$250'){
+			tr.childNodes[2].childNodes[0].disabled = true;
+		}else{			
+			tr.childNodes[2].childNodes[0].className = 'badTransitionText';
+		}
+		
+//		jQuery.ajax({
+//			url: "saveAll",			
+//			data: "data=" + $.toJSON(transitions),
+//			type: "POST",
+//			dataType: "json",			
+//			contentType: "application/x-www-form-urlencoded; charset=utf-8",
+//			error: function(){alert(jQuery("div[class=error]").text("Ошибка сохранения передач");},
+//			success: function(notSaved){				
+//				transitions.forEach(function(item){
+//					if(contains(item._lid, notSaved) == -1){
+//						var tr = jQuery("table[class=journal] > tbody > tr[transition_lid = " + item + "]").get(0);
+//						tr.childNodes[2].childNodes[0].disabled = true;
+//					}
+//				});
+//			}
+//		});
 	}
 	
 	return {		
 		init: function(){		
 				journal.refreshGoods();
-				focusFilter();								 				
+				focusFilter();				
 		},
 		clear: function(){
 			jQuery("table[class=journal] > tbody > tr:has(td > input:disabled)").remove();
