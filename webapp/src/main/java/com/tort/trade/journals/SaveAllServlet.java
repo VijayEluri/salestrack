@@ -9,10 +9,15 @@ import javax.servlet.http.HttpServletResponse;
 
 public class SaveAllServlet  extends HttpServlet{
 	
+	private TransitionConverter _converter;
+
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {		
+			throws ServletException, IOException {				
 	
-		resp.getOutputStream().write(new SaveAllAction(req.getParameterMap()).act());
+		CreateTransitionConversation conversation = (CreateTransitionConversation) req.getSession().getAttribute("createTransitionConversation");
+		
+		SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession(), _converter);
+		resp.getOutputStream().write(action.act());
 	}
 }

@@ -187,7 +187,17 @@
             <artifactId>selenium-java-client-driver</artifactId>
             <version>1.0.1</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>org.easymock</groupId>
+        	<artifactId>easymock</artifactId>
+        	<version>2.5.2</version>
         </dependency>        
+        <dependency>
+        	<groupId>org.easymock</groupId>
+        	<artifactId>easymockclassextension</artifactId>
+        	<version>2.5.2</version>
+        </dependency>
 	</dependencies>
 
 	<scm>
