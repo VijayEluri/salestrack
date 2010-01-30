@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class SaveAllServlet  extends HttpServlet{
 	
-	private TransitionConverter _converter;
+	private TransitionConverter _converter = new TransitionConverterImpl();
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)

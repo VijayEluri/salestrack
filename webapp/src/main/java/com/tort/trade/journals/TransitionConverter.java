@@ -1,8 +1,10 @@
 package com.tort.trade.journals;
 
+import java.util.List;
+
 import com.tort.trade.model.Transition;
 
 public interface TransitionConverter {
 
-	public Transition convertToEntity(TransitionTO transitionTO);
+	public List<Transition> convertToEntity(TransitionTO transitionTO) throws ConvertTransitionException;
 }

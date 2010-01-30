@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 @Test(groups = {"functional"})
 public class FilterGoodsIT extends FunctionalTest{
 	public void testFilterGoods() throws Exception {				
-		_selenium.open("/webapp/journal.html");
+		_selenium.open("/webapp/journal");
 		for (int second = 0;; second++) {
 			if (second >= 60) fail("timeout");
 			try { if (_selenium.isElementPresent("//table[@id='goods']//tr[20]")) break; } catch (Exception e) {}

@@ -7,7 +7,8 @@ import org.testng.annotations.Test;
 @Test(groups = {"functional"})
 public class NewTransitionsIT extends FunctionalTest{
 	public void positive() throws InterruptedException{
-		_selenium.open("/webapp/journal.html");
+		_selenium.setSpeed("1000");
+		_selenium.open("/webapp/journal");
 		for (int second = 0;; second++) {
 			if (second >= 60) fail("timeout");
 			try { if (_selenium.isElementPresent("//table[@id='goods']//tr[20]")) break; } catch (Exception e) {}
@@ -18,7 +19,7 @@ public class NewTransitionsIT extends FunctionalTest{
 		_selenium.type("//tr[2]/td[3]/input", "+3В,-1С,1$250");
 		_selenium.keyPress("//tr[2]/td[3]/input", "\\13");
 		for (int second = 0;; second++) {
-			if (second >= 60) fail("timeout");
+			if (second >= 10) fail("timeout");
 			try { if (!_selenium.isEditable("//tr[2]/td[3]/input")) break; } catch (Exception e) {}
 			Thread.sleep(1000);
 		}		

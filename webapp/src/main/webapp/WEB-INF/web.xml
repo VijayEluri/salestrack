@@ -18,6 +18,11 @@
    	 <servlet-class>com.tort.trade.journals.SaveAllServlet</servlet-class>
    </servlet>
    
+   <servlet>
+   	<servlet-name>journalServlet</servlet-name>
+   	<servlet-class>com.tort.trade.journals.JournalServlet</servlet-class>
+   </servlet>
+   
    <servlet-mapping>
    	<servlet-name>getGoodsServlet</servlet-name>
    	<url-pattern>getGoods</url-pattern>
@@ -27,4 +32,13 @@
    	<servlet-name>saveAllServlet</servlet-name>
    	<url-pattern>saveAll</url-pattern>
    </servlet-mapping>
+   
+   <servlet-mapping>
+   	<servlet-name>journalServlet</servlet-name>
+   	<url-pattern>journal</url-pattern>
+   </servlet-mapping>
+   
+   <welcome-file-list>
+   	<welcome-file>index.html</welcome-file>
+   </welcome-file-list>   
 </web-app>

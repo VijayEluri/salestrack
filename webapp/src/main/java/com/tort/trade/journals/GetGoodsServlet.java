@@ -24,7 +24,8 @@ public class GetGoodsServlet extends HttpServlet{
 		ParamValidator paramValidator = new ParamValidator();
 		paramValidator.checkParams(req);
 		
-		Session session = new SessionFactoryUtil().getSessionFactory().openSession();
+		CreateTransitionConversation conversation = (CreateTransitionConversation) req.getSession().getAttribute("createTransitionConversation");
+		Session session = conversation.getHibernateSession();;
 		
 		Criteria criteria = session.createCriteria(Good.class);
 		criteria.add(Restrictions.like("name", paramValidator.getFilter(), MatchMode.START));
@@ -32,10 +33,7 @@ public class GetGoodsServlet extends HttpServlet{
 		List<Good> goods = criteria.list();
 		
 		Gson gson = new Gson();				
-		resp.getOutputStream().write(gson.toJson(goods).getBytes());
-		resp.flushBuffer();
-		
-		session.close();
+		resp.getOutputStream().write(gson.toJson(goods).getBytes());		
 	}
 
 
