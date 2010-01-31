@@ -15,7 +15,7 @@ public class SaveAllServlet  extends HttpServlet{
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {				
 	
-		CreateTransitionConversation conversation = (CreateTransitionConversation) req.getSession().getAttribute("createTransitionConversation");
+		TransitionConversation conversation = (TransitionConversation) req.getSession().getAttribute(Constants.CONVERSATION);
 		
 		SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession(), _converter);
 		resp.getOutputStream().write(action.act());

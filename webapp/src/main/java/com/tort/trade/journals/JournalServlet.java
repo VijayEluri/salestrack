@@ -15,9 +15,9 @@ public class JournalServlet  extends HttpServlet{
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		Session session = new SessionFactoryUtil().getSessionFactory().openSession();
 		
-		CreateTransitionConversation conversation = new CreateTransitionConversation();
+		TransitionConversation conversation = new TransitionConversation();
 		conversation.setHibernateSession(session);
-		req.getSession().setAttribute("createTransitionConversation", conversation);
+		req.getSession().setAttribute(Constants.CONVERSATION, conversation);
 		
 		resp.sendRedirect("journal.html");
 	}

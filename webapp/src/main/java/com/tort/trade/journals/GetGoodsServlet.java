@@ -24,7 +24,7 @@ public class GetGoodsServlet extends HttpServlet{
 		ParamValidator paramValidator = new ParamValidator();
 		paramValidator.checkParams(req);
 		
-		CreateTransitionConversation conversation = (CreateTransitionConversation) req.getSession().getAttribute("createTransitionConversation");
+		TransitionConversation conversation = (TransitionConversation) req.getSession().getAttribute(Constants.CONVERSATION);
 		Session session = conversation.getHibernateSession();;
 		
 		Criteria criteria = session.createCriteria(Good.class);

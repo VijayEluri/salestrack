@@ -2,7 +2,7 @@ package com.tort.trade.journals;
 
 import org.hibernate.Session;
 
-public class CreateTransitionConversation {
+public class TransitionConversation {
 	private Session _hibernateSession;
 
 	public Session getHibernateSession() {
