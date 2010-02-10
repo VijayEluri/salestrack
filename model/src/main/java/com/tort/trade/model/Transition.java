@@ -5,11 +5,9 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import org.hibernate.validator.NotNull;
@@ -22,9 +20,9 @@ public class Transition {
 	private Sales _to;
 	private Long _quant;
 	private Date _date;
-	private Sales _journal;
+	private Sales _me;
 	private Good _good;
-	private BigDecimal _price;
+	private BigDecimal _price = BigDecimal.ZERO;
 	
 	@Id
 	@Column(name = "TRD_SEQ")	
@@ -76,11 +74,11 @@ public class Transition {
 	@NotNull
 	@ManyToOne
 	@JoinColumn(name = "TRD_JREF")
-	public Sales getJournal() {
-		return _journal;
+	public Sales getMe() {
+		return _me;
 	}
-	public void setJournal(Sales journal) {
-		_journal = journal;
+	public void setMe(Sales me) {
+		_me = me;
 	}
 	
 	@NotNull

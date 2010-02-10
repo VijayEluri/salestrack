@@ -23,6 +23,11 @@ public class Sales {
 		_name = name;
 	}
 	
+	public Sales(Long id, String name) {
+		_id = id;
+		_name = name;
+	}
+
 	@Id
 	@Column(name = "DEP_SEQ")
 	public Long getId() {

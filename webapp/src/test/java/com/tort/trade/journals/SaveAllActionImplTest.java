@@ -1,9 +1,6 @@
 package com.tort.trade.journals;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.*;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.fail;
 
@@ -16,7 +13,6 @@ import org.hibernate.Session;
 import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.tort.trade.model.Transition;
 
 @Test
@@ -62,7 +58,9 @@ public class SaveAllActionImplTest extends ActionTest {
 		expect(session.save(isA(Transition.class))).andStubReturn(1L);
 		try {
 			expect(converter.convertToEntity(isA(TransitionTO.class))).andThrow(new ConvertTransitionException());
-			expect(converter.convertToEntity(isA(TransitionTO.class))).andReturn(new ArrayList<Transition>());
+			ArrayList<Transition> transitions = new ArrayList<Transition>();
+			transitions.add(new Transition());
+			expect(converter.convertToEntity(isA(TransitionTO.class))).andReturn(transitions);
 			expect(converter.convertToEntity(isA(TransitionTO.class))).andThrow(new ConvertTransitionException());
 		} catch (ConvertTransitionException e) {
 			e.printStackTrace();

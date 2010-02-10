@@ -8,16 +8,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class SaveAllServlet  extends HttpServlet{
-	
-	private TransitionConverter _converter = new TransitionConverterImpl();
-
+		
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {				
 	
 		TransitionConversation conversation = (TransitionConversation) req.getSession().getAttribute(Constants.CONVERSATION);
 		
-		SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession(), _converter);
+		TransitionConverter converter = new TransitionConverterImpl(conversation.getHibernateSession(), conversation.getMe());
+		SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession(), converter);
 		resp.getOutputStream().write(action.act());
 	}
 }
