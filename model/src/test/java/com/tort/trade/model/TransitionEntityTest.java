@@ -23,7 +23,6 @@ public class TransitionEntityTest extends EntityTest{
 		_session.save(good);
 		
 		Transition transition = new Transition();
-		transition.setId(4L);
 		transition.setDate(new Date());
 		transition.setFrom(from);
 		transition.setTo(to);		
