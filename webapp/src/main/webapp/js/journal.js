@@ -70,7 +70,7 @@ journal = function() {
 	var saveTransitions = function (transitions){		
 		jQuery.ajax({
 			url: "saveAll",			
-			data: "data=" + $.toJSON(transitions).replace('+', '###'),
+			data: "data=" + $.toJSON(transitions).replace(/\+/g, '###'),
 			type: "POST",
 			dataType: "json",						
 			contentType: "application/x-www-form-urlencoded; charset=utf-8",
