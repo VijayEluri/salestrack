@@ -61,10 +61,11 @@ public class SaveAllActionImplTest extends ActionTest {
 			ArrayList<Transition> transitions = new ArrayList<Transition>();
 			transitions.add(new Transition());
 			expect(converter.convertToEntity(isA(TransitionTO.class))).andReturn(transitions);
-			expect(converter.convertToEntity(isA(TransitionTO.class))).andThrow(new ConvertTransitionException());
+			expect(converter.convertToEntity(isA(TransitionTO.class))).andThrow(new ConvertTransitionException());			
 		} catch (ConvertTransitionException e) {
 			e.printStackTrace();
 		}
+		session.flush();
 		replay(converter, session);
 		
 		return action;

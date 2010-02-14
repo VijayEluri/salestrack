@@ -41,7 +41,9 @@ public class SaveAllAction implements Action {
 				errors.add(new TransitionErrorTO(transitionTO.getLid(), e.getMessage()));							
 			}
 		}
-
+		
+		_session.flush();
+	
 		return new Gson().toJson(errors).getBytes();
 	}
 }

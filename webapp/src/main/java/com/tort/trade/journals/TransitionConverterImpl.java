@@ -22,6 +22,12 @@ public class TransitionConverterImpl implements TransitionConverter {
 	private Session _session;
 	
 	public TransitionConverterImpl(Session session, Sales me) {
+		if(session == null)
+			throw new IllegalArgumentException("session is null");
+		
+		if(me == null)
+			throw new IllegalArgumentException("me is null");
+		
 		_me = me;
 		_session = session;
 	}
@@ -38,7 +44,7 @@ public class TransitionConverterImpl implements TransitionConverter {
 			Transition transition = new Transition();
 			Matcher matcher = _pattern.matcher(transitionString);
 			if(!matcher.find())
-				throw new ConvertTransitionException();
+				throw new ConvertTransitionException("Передача " + transitionString + " неверна");
 						
 			String sign = matcher.group(1);
 			Long number = 0L;
@@ -61,12 +67,12 @@ public class TransitionConverterImpl implements TransitionConverter {
 			transition.setPrice(price);
 			transition.setQuant(new Long(number));
 			if(INCOME.equals(sign)){
-				transition.setFrom(loadSales(alias));
+				transition.setFrom(loadSales(alias, sign));
 				transition.setTo(_me);
 			} 
 			if(OUTCOME.equals(sign)){
 				transition.setFrom(_me);
-				transition.setTo(loadSales(alias));
+				transition.setTo(loadSales(alias, sign));
 			}	
 			
 			transitions.add(transition);
@@ -80,7 +86,11 @@ public class TransitionConverterImpl implements TransitionConverter {
 		return (Good) _session.load(Good.class, goodId);
 	}
 
-	private Sales loadSales(String dest) {
+	private Sales loadSales(String dest, String sign) {
+		if("$".equals(dest)){
+			dest = sign + dest;
+		}
+		
 		return ((SalesAlias) _session.load(SalesAlias.class, dest)).getSales();
 	}
 }

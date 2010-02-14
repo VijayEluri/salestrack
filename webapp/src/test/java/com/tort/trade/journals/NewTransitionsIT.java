@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 @Test(groups = {"functional"})
 public class NewTransitionsIT extends FunctionalTest{
 	public void positive() throws InterruptedException{
-		_selenium.setSpeed("1000");
 		_selenium.open("/webapp/journal");
 		for (int second = 0;; second++) {
 			if (second >= 60) fail("timeout");
@@ -16,7 +15,7 @@ public class NewTransitionsIT extends FunctionalTest{
 		}
 
 		_selenium.keyDown("filter", "4");
-		_selenium.type("//tr[2]/td[3]/input", "+3В,-1С,1$250");
+		_selenium.type("//tr[2]/td[3]/input", "+3В,-1С,+1$250");
 		_selenium.keyPress("//tr[2]/td[3]/input", "\\13");
 		for (int second = 0;; second++) {
 			if (second >= 10) fail("timeout");

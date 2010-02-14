@@ -17,6 +17,7 @@ public class SaveAllServlet  extends HttpServlet{
 		
 		TransitionConverter converter = new TransitionConverterImpl(conversation.getHibernateSession(), conversation.getMe());
 		SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession(), converter);
+		
 		resp.getOutputStream().write(action.act());
 	}
 }
