@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.hibernate.Session;
 
+import com.tort.trade.model.Sales;
+
 public class JournalServlet  extends HttpServlet{
 
 	@Override
@@ -17,6 +19,7 @@ public class JournalServlet  extends HttpServlet{
 		
 		TransitionConversation conversation = new TransitionConversation();
 		conversation.setHibernateSession(session);
+		conversation.setMe((Sales) session.load(Sales.class, 3L));
 		req.getSession().setAttribute(Constants.CONVERSATION, conversation);
 		
 		resp.sendRedirect("journal.html");
