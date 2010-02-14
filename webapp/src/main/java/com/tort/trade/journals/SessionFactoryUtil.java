@@ -4,6 +4,9 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 
 import com.tort.trade.model.Good;
+import com.tort.trade.model.Sales;
+import com.tort.trade.model.SalesAlias;
+import com.tort.trade.model.Transition;
 
 public class SessionFactoryUtil {
 
@@ -12,6 +15,9 @@ public class SessionFactoryUtil {
 	static{
 		__sessionFactory = new AnnotationConfiguration().configure()
 		.addAnnotatedClass(Good.class)
+		.addAnnotatedClass(SalesAlias.class)
+		.addAnnotatedClass(Sales.class)
+		.addAnnotatedClass(Transition.class)
 		.buildSessionFactory();
 	}
 
