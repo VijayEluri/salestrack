@@ -11,7 +11,11 @@ table.journal input.badTransitionText {
 table.menu td {
 	padding-left: 10px; 
 	padding-right: 10px;
-	color: rgb(0, 156, 255);	 	
+	color: rgb(0, 156, 255);			 	
+}
+
+table.menu td:hover {
+	font-weight: bold;
 }
 
 table.menu td.active {
