@@ -13,6 +13,7 @@ import org.hibernate.Session;
 import org.testng.annotations.Test;
 
 import com.google.gson.Gson;
+import com.tort.trade.model.Sales;
 import com.tort.trade.model.Transition;
 
 @Test
@@ -20,7 +21,7 @@ public class SaveAllActionImplTest extends ActionTest {
 	
 	public void newActionNegative(){
 		try{
-			new SaveAllAction(new HashMap<String, String[]>(), null, null);
+			new SaveAllAction(new HashMap<String, String[]>(), null);
 			fail();
 		} catch (IllegalArgumentException e) {
 
@@ -29,9 +30,14 @@ public class SaveAllActionImplTest extends ActionTest {
 	
 	public void newActionPositive(){
 		Map<String, String[]> params = new HashMap<String, String[]>();
-		params.put("data", new String[]{"[{_goodId: 1, _text: \"драссте вам\", _lid: 1}]"});		
+		params.put("data", new String[]{"[{_goodId: 1, _text: \"драссте вам\", _lid: 1}]"});
+		params.put("me", new String[]{"1"});
 		
-		new  SaveAllAction(params, null, null);
+		Session session = createMock(Session.class);
+		expect(session.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales());
+		replay(session);
+		
+		new  SaveAllAction(params, session);
 	}
 	
 	public void actImpl(){
@@ -51,7 +57,8 @@ public class SaveAllActionImplTest extends ActionTest {
 		TransitionConverter converter = createMock(TransitionConverter.class);
 		
 		Map<String, String[]> params = new HashMap<String, String[]>();
-		params.put("data", new String[]{"[{_goodId: 5, _text: \"bad_data\", _lid: 5}, {_goodId: 1, _text: \"good_data\", _lid: 1}, {_goodId: 2, _text: \"bad_data\", _lid: 2}]"});		
+		params.put("data", new String[]{"[{_goodId: 5, _text: \"bad_data\", _lid: 5}, {_goodId: 1, _text: \"good_data\", _lid: 1}, {_goodId: 2, _text: \"bad_data\", _lid: 2}]"});
+		params.put("me", new String[]{"1"});
 		
 		SaveAllAction action = new  SaveAllAction(params, session, converter);
 		

@@ -13,10 +13,8 @@ public class SaveAllServlet  extends HttpServlet{
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {				
 	
-		TransitionConversation conversation = (TransitionConversation) req.getSession().getAttribute(Constants.CONVERSATION);
-		
-		TransitionConverter converter = new TransitionConverterImpl(conversation.getHibernateSession(), conversation.getMe());
-		SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession(), converter);
+		TransitionConversation conversation = (TransitionConversation) req.getSession().getAttribute(Constants.CONVERSATION);		
+		SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession());
 		
 		resp.getOutputStream().write(action.act());
 	}

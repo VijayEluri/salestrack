@@ -19,7 +19,6 @@ public class JournalServlet  extends HttpServlet{
 		
 		TransitionConversation conversation = new TransitionConversation();
 		conversation.setHibernateSession(session);
-		conversation.setMe((Sales) session.load(Sales.class, 3L));
 		req.getSession().setAttribute(Constants.CONVERSATION, conversation);
 		
 		resp.sendRedirect("journal.html");

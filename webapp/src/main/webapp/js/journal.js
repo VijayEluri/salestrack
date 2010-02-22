@@ -1,6 +1,7 @@
 journal = function() {
 	var goods = [];
-	var transitionCounter = 0;	
+	var transitionCounter = 0;
+	var menu;
 	
 	var focusFilter = function (){
 		jQuery("input[class=filter]").focus();
@@ -70,7 +71,7 @@ journal = function() {
 	var saveTransitions = function (transitions){		
 		jQuery.ajax({
 			url: "saveAll",			
-			data: "data=" + $.toJSON(transitions).replace(/\+/g, '###'),
+			data: "me=" + menu.getMe() + "&data=" + $.toJSON(transitions).replace(/\+/g, '###'),
 			type: "POST",
 			dataType: "json",						
 			contentType: "application/x-www-form-urlencoded; charset=utf-8",
@@ -100,7 +101,8 @@ journal = function() {
 	}
 	
 	return {		
-		init: function(){				
+		init: function(activeMenuId){
+				menu = new Menu(activeMenuId);
 				journal.refreshGoods();
 				focusFilter();				
 		},

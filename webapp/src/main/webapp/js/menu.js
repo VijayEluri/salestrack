@@ -1,4 +1,4 @@
-var menu = function() {
+function Menu(activeMenu) {
 	var currentActiveMenu;
 	
 	var initMenu = function (activeMenuId){
@@ -16,9 +16,11 @@ var menu = function() {
 		jQuery(currentActiveMenu).addClass("active");
 	}
 	
+	initMenu(activeMenu);
+	
 	return {
-		init: function(activeMenu){		
-			initMenu(activeMenu);
+		getMe: function() {
+			return jQuery(currentActiveMenu).attr("name");
 		}
 	}
-}();
+};

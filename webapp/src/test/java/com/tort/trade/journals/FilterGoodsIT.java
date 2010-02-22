@@ -10,10 +10,10 @@ import org.testng.annotations.Test;
 
 @Test(groups = {"functional"})
 public class FilterGoodsIT extends FunctionalTest{
-	public void testFilterGoods() throws Exception {				
-		_selenium.open("/webapp/journal");
+	public void testFilterGoods() throws Exception {
+		_selenium.open("/webapp/journal");		
 		for (int second = 0;; second++) {
-			if (second >= 60) fail("timeout");
+			if (second >= 10) fail("timeout");
 			try { if (_selenium.isElementPresent("//table[@id='goods']//tr[20]")) break; } catch (Exception e) {}
 			Thread.sleep(1000);
 		}
@@ -23,7 +23,7 @@ public class FilterGoodsIT extends FunctionalTest{
 		_selenium.type("filter", "дж с");
 		_selenium.keyUp("filter", "с");
 		for (int second = 0;; second++) {
-			if (second >= 60) fail("timeout");
+			if (second >= 10) fail("timeout");
 			try { if (_selenium.isElementPresent("//table[@id='goods']//tr[10]")) break; } catch (Exception e) {}
 			Thread.sleep(1000);
 		}
