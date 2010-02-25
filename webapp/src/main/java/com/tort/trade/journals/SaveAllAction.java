@@ -60,7 +60,7 @@ public class SaveAllAction implements Action {
 		return meId;
 	}
 
-	public byte[] act() {
+	public List<TransitionErrorTO> act() {
 		ArrayList<TransitionErrorTO> errors = new ArrayList<TransitionErrorTO>();
 		for (TransitionTO transitionTO : _transitions) {
 			try {
@@ -75,6 +75,6 @@ public class SaveAllAction implements Action {
 		
 		_session.flush();
 	
-		return new Gson().toJson(errors).getBytes();
+		return errors;
 	}
 }

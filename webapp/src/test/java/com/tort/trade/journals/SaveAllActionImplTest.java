@@ -1,8 +1,7 @@
 package com.tort.trade.journals;
 
 import static org.easymock.EasyMock.*;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.fail;
+import static org.testng.AssertJUnit.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +11,6 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.testng.annotations.Test;
 
-import com.google.gson.Gson;
 import com.tort.trade.model.Sales;
 import com.tort.trade.model.Transition;
 
@@ -43,13 +41,10 @@ public class SaveAllActionImplTest extends ActionTest {
 	public void actImpl(){
 		Action action = positiveSetUp();
 		
-		List<TransitionErrorTO> transitionTOs = new ArrayList<TransitionErrorTO>();
-		transitionTOs.add(new TransitionErrorTO(5L, new ConvertTransitionException().getMessage()));
-		transitionTOs.add(new TransitionErrorTO(2L, new ConvertTransitionException().getMessage()));
+		List<TransitionErrorTO> result = action.act();		
 		
-		byte[] result = action.act();		
-		
-		assertEquals(new Gson().toJson(transitionTOs).getBytes(), result);
+		assertNotNull(result);
+		assertEquals(2, result.size());
 	}
 	
 	protected Action positiveSetUp() {
