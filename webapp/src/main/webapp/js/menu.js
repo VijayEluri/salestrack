@@ -10,10 +10,13 @@ function Menu(activeMenu) {
 		});
 	}
 	
-	var selectMenu = function (menuItem){
+	var selectMenu = function (menuItem){		
 		jQuery(currentActiveMenu).removeClass("active");
 		currentActiveMenu = menuItem;
 		jQuery(currentActiveMenu).addClass("active");
+		var me = jQuery(currentActiveMenu).attr("name");
+		jQuery("table[class=journal] > tbody > tr[me!=" + me + "]").hide();
+		jQuery("table[class=journal] > tbody > tr[me=" + me + "]").show();
 	}
 	
 	initMenu(activeMenu);

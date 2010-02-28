@@ -7,14 +7,17 @@ journal = function() {
 		jQuery("input[class=filter]").focus();
 	};
 	
-	var addNewTransition = function (label, goodId){
+	var addNewTransition = function (label, goodId, me){
 		transitionCounter++;
-		jQuery("table[class=journal]").append("<tr good_id='" + goodId + "' transition_lid = '" + transitionCounter + "'><td>11.05.09</td><td>" + label + "</td><td><input type='text' class='newTransition' onkeypress='return journal.transitionInputFilter(event, " + transitionCounter + ");'></td><td><a href='#' onclick='journal.removeTransition(" + transitionCounter + ")'>Удалить</a></td></tr>");
+		jQuery("table[class=journal]").append("<tr good_id='" + goodId + "' transition_lid='" + transitionCounter + "' me='" + me + "'><td>11.05.09</td><td>" + label + "</td><td><input type='text' class='newTransition' onkeypress='return journal.transitionInputFilter(event, " + transitionCounter + ");'></td><td><a href='#' onclick='journal.removeTransition(" + transitionCounter + ")'>Удалить</a></td></tr>");
 	};
 	
 	var setupGoodsEventHandlers = function (){
-		jQuery("td[class=priceItem]").click(function(){
-			addNewTransition(this.innerHTML, this.getAttribute("good_id"));		
+		jQuery("td[class=priceItem]").click(function(){			
+			var goodName = jQuery(this).html();
+			var goodId = jQuery(this).attr("good_id");			
+			var me = jQuery("table[id=journals] > tbody > tr > td[class=active]").attr("name");
+			addNewTransition(goodName, goodId, me);		
 			focusNewTransition();
 		});
 	};
@@ -78,7 +81,7 @@ journal = function() {
 			error: function(){jQuery("div[class=error]").text("Ошибка сохранения передач");},
 			success: function(errors){				
 				transitions.forEach(function(item){
-					var tr = jQuery("table[class=journal] > tbody > tr[transition_lid = " + item._lid + "]").get(0);
+					var tr = jQuery("table[class=journal] > tbody > tr[transition_lid = " + item._lid + "]:visible").get(0);
 					if(contain(errors, item._lid)){
 						tr.childNodes[2].childNodes[0].className = 'badTransitionText';
 					}else{
