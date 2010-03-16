@@ -15,7 +15,7 @@ public class TransitionConverterImplTest extends TransitionConverterTest{
 	
 	public void newConverterNullSession(){
 		try{
-			new TransitionConverterImpl(null, new Sales());
+			new TransitionConverterImpl(null, new Sales("test"));
 			fail();
 		}catch (IllegalArgumentException e) {
 			

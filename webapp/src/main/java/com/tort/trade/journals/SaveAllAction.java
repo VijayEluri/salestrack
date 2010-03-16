@@ -14,34 +14,29 @@ import com.tort.trade.model.Transition;
 
 public class SaveAllAction implements Action {
 
-	private List<TransitionTO> _transitions;
-	private TransitionConverter _converter;
-	private Session _session;
+	private final List<TransitionTO> _transitions;
+	private final Session _session;
+	private final Long _meId;
+	private final TransitionConverterLookup _converterLookup;
 
-	public SaveAllAction(Map<String, String[]> params, Session session) {
+	public SaveAllAction(Map<String, String[]> params, Session session, TransitionConverterLookup converterLookup) {
+		if(params == null)
+			throw new IllegalArgumentException("params is null");
+		
 		String encodedTransitions = extractData(params);				
-		Long meId = extractMeId(params);
+		_meId = extractMeId(params);
+		
+		if(session == null)
+			throw new IllegalArgumentException("session is null");
+		
+		if(converterLookup == null)
+			throw new IllegalArgumentException("converterLookup is null");
 
 
 		Type listType = new TypeToken<List<TransitionTO>>() {}.getType();
 		_transitions = new Gson().fromJson(encodedTransitions, listType);		
 		_session = session;
-		
-		Sales me = (Sales) _session.load(Sales.class, meId);
-		TransitionConverter converter = new TransitionConverterImpl(session, me);
-		_converter = converter;
-	}
-
-	public SaveAllAction(Map<String, String[]> params, Session session, TransitionConverter converter) {
-		String encodedTransitions = extractData(params);				
-		Long meId = extractMeId(params);
-
-
-		Type listType = new TypeToken<List<TransitionTO>>() {}.getType();
-		_transitions = new Gson().fromJson(encodedTransitions, listType);		
-		_session = session;
-		
-		_converter = converter;
+		_converterLookup = converterLookup;
 	}
 
 	private String extractData(Map<String, String[]> params) {
@@ -61,10 +56,13 @@ public class SaveAllAction implements Action {
 	}
 
 	public List<TransitionErrorTO> act() {
+		Sales me = (Sales) _session.load(Sales.class, _meId);
+		TransitionConverter converter = _converterLookup.getTransitionConverter(_session, me);
+		
 		ArrayList<TransitionErrorTO> errors = new ArrayList<TransitionErrorTO>();
 		for (TransitionTO transitionTO : _transitions) {
 			try {
-				List<Transition> transitions = _converter.convertToEntity(transitionTO);
+				List<Transition> transitions = converter.convertToEntity(transitionTO);
 				for (Transition transition : transitions) {
 					_session.save(transition);					
 				}
