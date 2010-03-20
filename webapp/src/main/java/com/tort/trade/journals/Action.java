@@ -1,13 +1,10 @@
 package com.tort.trade.journals;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public interface Action {
+public interface Action<Result> {
 
 	/**
 	 * @return errors, if any
 	 */
-	List<TransitionErrorTO> act();
+	Result act();
 
 }

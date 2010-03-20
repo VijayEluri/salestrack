@@ -97,7 +97,7 @@ public class SaveAllActionImplTest extends ActionTest {
 	}
 	
 	public void actImpl(){
-		Action action = positiveSetUp();
+		Action<List<TransitionErrorTO>> action = positiveSetUp();
 		
 		List<TransitionErrorTO> result = action.act();		
 		

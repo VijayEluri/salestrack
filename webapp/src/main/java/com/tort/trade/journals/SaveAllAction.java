@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import com.tort.trade.model.Sales;
 import com.tort.trade.model.Transition;
 
-public class SaveAllAction implements Action {
+public class SaveAllAction implements Action<List<TransitionErrorTO>> {
 
 	private final List<TransitionTO> _transitions;
 	private final Session _session;
