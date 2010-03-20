@@ -4,7 +4,7 @@ import org.hibernate.Session;
 
 import com.tort.trade.model.Sales;
 
-public class TransitionConverterLookupImpl implements TransitionConverterLookup {
+public class TransitionConverterLookupNoScoped implements TransitionConverterLookup {
 
 	@Override
 	public TransitionConverter getTransitionConverter(Session session, Sales me) {

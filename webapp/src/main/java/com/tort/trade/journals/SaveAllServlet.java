@@ -18,7 +18,7 @@ public class SaveAllServlet  extends HttpServlet{
 			throws ServletException, IOException {				
 	
 		TransitionConversation conversation = (TransitionConversation) req.getSession().getAttribute(Constants.CONVERSATION);		
-		SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession(), new TransitionConverterLookupImpl());
+		SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession(), new TransitionConverterLookupNoScoped());
 		
 		List<TransitionErrorTO> errors = action.act();
 		
