@@ -8,14 +8,10 @@ import org.testng.annotations.Test;
 @Test
 public class TransitionEntityTest extends EntityTest{
 	public void newTransition(){
-		Sales from = new Sales();
-		from.setId(1L);
-		from.setName("name");
+		Sales from = new Sales(1L, "name");
 		_session.save(from);
 		
-		Sales to = new Sales();
-		to.setId(2L);
-		to.setName("name");
+		Sales to = new Sales(2L, "name");
 		_session.save(to);
 		
 		Good good = new Good();
