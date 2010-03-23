@@ -1,5 +1,9 @@
 @CHARSET "UTF-8";
 
+div {
+	width: 100%;
+}
+
 table.journal input {
 	width: 30em;
 }
