@@ -1,5 +1,10 @@
 @CHARSET "UTF-8";
 
+a {
+	color: rgb(0, 156, 255);
+	text-decoration: none;
+}
+
 div {
 	width: 100%;
 }
