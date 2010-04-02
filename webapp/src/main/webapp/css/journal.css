@@ -1,10 +1,5 @@
 @CHARSET "UTF-8";
 
-a {
-	color: rgb(0, 156, 255);
-	text-decoration: none;
-}
-
 div {
 	width: 100%;
 }
@@ -15,19 +10,4 @@ table.journal input {
 
 table.journal input.badTransitionText {
 	background-color: rgb(255, 136, 136);
-}
-
-table.menu td {
-	padding-left: 10px; 
-	padding-right: 10px;
-	color: rgb(0, 156, 255);			 	
-}
-
-table.menu td:hover {
-	font-weight: bold;
-}
-
-table.menu td.active {
-	font-weight: bold; 	
-	color: rgb(0, 0, 0);
 }
