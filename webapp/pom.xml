@@ -175,9 +175,19 @@
 			<url>http://google-gson.googlecode.com/svn/mavenrepo/</url>
 			<name>gson</name>
 		</repository>
+		<repository>
+			<id>htmlcleaner</id>
+			<url>http://dist.wso2.org/maven2</url>
+			<name>htmlcleaner</name>
+		</repository>
 	</repositories>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.htmlcleaner</groupId>
+			<artifactId>htmlcleaner</artifactId>
+			<version>1.55</version>
+		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
