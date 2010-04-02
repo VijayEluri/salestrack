@@ -12,24 +12,24 @@ public class ChangeCurrentJournalIT extends FunctionalTest {
 	public void changeJournal() throws InterruptedException{
 		_selenium.open("/webapp/journal");		
 			
-		assertEquals(_selenium.getAttribute("//table[@id='journals']//tr[1]/td[1]@class"), "active");
+		assertEquals(_selenium.getAttribute("//table[@id='sales']//tr[1]/td[1]@class"), "active");
 		
 		try{
-			_selenium.getAttribute("//table[@id='journals']//tr[1]/td[2]@class");
+			_selenium.getAttribute("//table[@id='sales']//tr[1]/td[2]@class");
 			fail();
 		} catch (SeleniumException e){
 			
 		}
 		
 		
-		_selenium.click("//table[@id='journals']/tbody/tr[1]/td[2]");
+		_selenium.click("//table[@id='sales']/tbody/tr[1]/td[2]");
 		
 		try{
-			_selenium.getAttribute("//table[@id='journals']//tr[1]/td[1]@class");
+			_selenium.getAttribute("//table[@id='sales']//tr[1]/td[1]@class");
 			fail();
 		} catch (SeleniumException e){
 			
 		}
-		assertEquals(_selenium.getAttribute("//table[@id='journals']//tr[1]/td[2]@class"), "active");
+		assertEquals(_selenium.getAttribute("//table[@id='sales']//tr[1]/td[2]@class"), "active");
 	}
 }

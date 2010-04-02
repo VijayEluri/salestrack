@@ -1,5 +1,7 @@
 package com.tort.trade.journals;
 
+import static org.testng.Assert.fail;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
@@ -17,5 +19,13 @@ public class FunctionalTest {
 	@AfterClass
 	public void tearDownFunctional() {
 		_selenium.stop();
+	}
+	
+	protected void waitForElement(String element) throws InterruptedException {
+		for (int second = 0;; second++) {
+			if (second >= 10) fail("timeout");
+			try { if (_selenium.isElementPresent(element)) break; } catch (Exception e) {}
+			Thread.sleep(1000);
+		}
 	}
 }
