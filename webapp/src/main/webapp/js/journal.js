@@ -16,7 +16,7 @@ journal = function() {
 		jQuery("td[class=priceItem]").click(function(){			
 			var goodName = jQuery(this).html();
 			var goodId = jQuery(this).attr("good_id");			
-			var me = jQuery("table[id=sales] > tbody > tr > td[class=active]").attr("name");
+			var me = menu.getMe();
 			addNewTransition(goodName, goodId, me);		
 			focusNewTransition();
 		});
