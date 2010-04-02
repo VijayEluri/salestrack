@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class SaveAllServlet extends HttpServlet{
 		
-	private final static JsonView<TransitionErrorTO> _view = new JsonView<TransitionErrorTO>();
+	private final static JsonView<List<TransitionErrorTO>> _view = new JsonView<List<TransitionErrorTO>>();
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
