@@ -106,6 +106,11 @@ journal = function() {
 	return {		
 		init: function(activeMenuId){
 				menu = new Menu(activeMenuId);
+				menu.bind(function(me){
+					jQuery("table[class=journal] > tbody > tr[me!=" + me + "]").hide();
+					jQuery("table[class=journal] > tbody > tr[me=" + me + "]").show();
+				});
+			
 				journal.refreshGoods();
 				focusFilter();				
 		},

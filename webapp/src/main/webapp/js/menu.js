@@ -1,7 +1,9 @@
 function Menu(activeMenu) {
 	var currentActiveMenu;
+	var listener = function(){};
 	
 	var initMenu = function (activeMenuId){
+		loadSalesFragmentMarkup();
 		currentActiveMenu = jQuery("table[id=sales] > tbody > tr > td[name=" + activeMenuId + "]").get(0);
 		selectMenu(currentActiveMenu);
 		
@@ -10,13 +12,16 @@ function Menu(activeMenu) {
 		});
 	}
 	
+	var loadSalesFragmentMarkup = function (){
+		
+	}
+	
 	var selectMenu = function (menuItem){		
 		jQuery(currentActiveMenu).removeClass("active");
 		currentActiveMenu = menuItem;
 		jQuery(currentActiveMenu).addClass("active");
 		var me = jQuery(currentActiveMenu).attr("name");
-		jQuery("table[class=journal] > tbody > tr[me!=" + me + "]").hide();
-		jQuery("table[class=journal] > tbody > tr[me=" + me + "]").show();
+		listener(me);
 	}
 	
 	initMenu(activeMenu);
@@ -24,6 +29,9 @@ function Menu(activeMenu) {
 	return {
 		getMe: function() {
 			return jQuery(currentActiveMenu).attr("name");
+		},
+		bind: function (argListener) {
+			listener = argListener;
 		}
 	}
 };
