@@ -12,13 +12,10 @@ import org.testng.annotations.Test;
 public class FilterGoodsIT extends FunctionalTest{
 	public void testFilterGoods() throws Exception {
 		_selenium.open("/webapp/journal");		
-		for (int second = 0;; second++) {
-			if (second >= 10) fail("timeout");
-			try { if (_selenium.isElementPresent("//table[@id='goods']//tr[20]")) break; } catch (Exception e) {}
-			Thread.sleep(1000);
-		}
+		String element = "//table[@id='goods']//tr[20]";
+		waitForElement(element);
 		assertEquals(_selenium.getTable("goods.0.1"), "джинсы труба голубая");
-		assertTrue(_selenium.isElementPresent("//table[@id='goods']//tr[20]"));
+		assertTrue(_selenium.isElementPresent(element));
 		_selenium.focus("filter");
 		_selenium.type("filter", "дж с");
 		_selenium.keyUp("filter", "с");
