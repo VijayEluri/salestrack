@@ -2,10 +2,10 @@ function Menu(activeMenu) {
 	var currentActiveMenu;
 	
 	var initMenu = function (activeMenuId){
-		currentActiveMenu = jQuery("table[id=journals] > tbody > tr > td[name=" + activeMenuId + "]").get(0);
+		currentActiveMenu = jQuery("table[id=sales] > tbody > tr > td[name=" + activeMenuId + "]").get(0);
 		selectMenu(currentActiveMenu);
 		
-		jQuery("table[id=journals] > tbody > tr > td").click(function (){
+		jQuery("table[id=sales] > tbody > tr > td").click(function (){
 			selectMenu(this);
 		});
 	}
