@@ -3,10 +3,8 @@ var balance = function(){
 	var goodBalances = [{name: "jeans", balance: "10"}, {name: "shirt", balance: "5"}];
 	
 	var updateBalance = function (me){
-		jQuery("#balance > tbody").html("");
-		jQuery.each(getGoodBalances(me), function(){
-			jQuery("#balance > tbody").append("<tr><td>" + this.name + "</td><td>" + this.balance + "</td></tr>");
-		});
+		jQuery("#balance > tbody").empty();
+		requestBalance(me);
 	}
 	
 	var getGoodBalances = function(me){
@@ -17,11 +15,26 @@ var balance = function(){
 		return goodBalances;
 	}
 	
+	var requestBalance = function(me){
+		jQuery.ajax({
+			url: "balance",			
+			data: "me=" + menu.getMe(),
+			type: "GET",
+			contentType: "application/x-www-form-urlencoded; charset=utf-8",
+			dataType: "json",						
+			error: function(){jQuery("div[class=error]").text("Ошибка сохранения передач");},
+			success: function(balances){
+				jQuery.each(balances, function(){
+					jQuery("#balance > tbody").append("<tr><td>" + this._good._name + "</td><td>" + this._balance + "</td></tr>");
+				});
+			}
+		});
+	}
+	
 	return {
 		init: function (activeMenuId){
 			menu = new Menu(activeMenuId);
-			menu.bind(function(me){updateBalance(me);});
-			updateBalance();
+			menu.bind(function(activeMenuId){updateBalance(activeMenuId);});
 		}
 	}
 }();
