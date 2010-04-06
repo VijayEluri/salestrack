@@ -2,8 +2,7 @@ function Menu(activeMenu) {
 	var currentActiveMenu;
 	var listener = function(){};
 	
-	var initMenu = function (activeMenuId){
-		loadSalesFragmentMarkup();
+	var afterLoad = function (activeMenuId){
 		currentActiveMenu = jQuery("table[id=sales] > tbody > tr > td[name=" + activeMenuId + "]").get(0);
 		selectMenu(currentActiveMenu);
 		
@@ -12,8 +11,14 @@ function Menu(activeMenu) {
 		});
 	}
 	
-	var loadSalesFragmentMarkup = function (){
-		
+	var initMenu = function (activeMenuId){
+		loadSalesFragmentMarkup(activeMenuId);
+	}
+	
+	var loadSalesFragmentMarkup = function (activeMenuId){
+		jQuery("#salesMenuFragmentWrapper").load("salesMenuFragment.html", [], function(){
+			afterLoad(activeMenuId);
+		});
 	}
 	
 	var selectMenu = function (menuItem){		
