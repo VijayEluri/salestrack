@@ -6,6 +6,7 @@ public class JournalQueryFactoryImpl implements JournalQueryFactory {
 	public String getBalanceQuery() {
 		return "select new com.tort.trade.journals.GoodBalance(transition.good, sum(transition.quant)) " +
 				"from Transition transition " +
+				"where transition.me = :me " +
 				"group by transition.good.id ";
 	}
 

@@ -7,9 +7,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.testng.annotations.Test;
+
+import com.tort.trade.model.Sales;
 
 @Test
 public class BalanceActionTest extends ActionTest {
@@ -21,10 +24,12 @@ public class BalanceActionTest extends ActionTest {
 
 	private Session createSession() {
 		Query query = createMock(Query.class);
+		expect(query.setParameter(eq("me"), isA(Sales.class))).andReturn(query);
 		expect(query.list()).andReturn(new ArrayList<GoodBalance>());
 		replay(query);
 		
 		Session session = createMock(Session.class);
+		expect(session.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales(1L, "test"));
 		expect(session.createQuery(isA(String.class))).andReturn(query);
 		replay(session);
 		return session;
@@ -45,7 +50,6 @@ public class BalanceActionTest extends ActionTest {
 		return queryFactory;
 	}
 	
-	@Test
 	public void newBalanceActionNullSession(){
 		try{
 			new BalanceAction(null, createQueryFactory(), createParams());
@@ -55,7 +59,6 @@ public class BalanceActionTest extends ActionTest {
 		}
 	}
 	
-	@Test
 	public void newBalanceActionNullQueryFactory(){
 		try{
 			new BalanceAction(createSession(), null, createParams());
@@ -65,7 +68,6 @@ public class BalanceActionTest extends ActionTest {
 		}
 	}
 	
-	@Test
 	public void newBalanceActionNullParams(){
 		try {
 			new BalanceAction(createSession(), createQueryFactory(), null);
@@ -75,7 +77,6 @@ public class BalanceActionTest extends ActionTest {
 		}
 	}
 	
-	@Test
 	public void newBalanceActionEmptyParams(){
 		try {
 			Map params = new HashMap();
@@ -87,7 +88,6 @@ public class BalanceActionTest extends ActionTest {
 		}
 	}
 	
-	@Test
 	public void newBalanceActionNullMeParam(){
 		try{
 			Map<String, String[]> params = new HashMap<String, String[]>();
@@ -96,6 +96,19 @@ public class BalanceActionTest extends ActionTest {
 			new BalanceAction(createSession(), createQueryFactory(), params);
 			fail();
 		} catch (IllegalArgumentException e) {
+			
+		}
+	}
+	
+	public void newBalanceActionUnexistantMe(){
+		try{
+			Session session = createMock(Session.class);
+			expect(session.load(eq(Sales.class), isA(Long.class))).andThrow(new HibernateException("no sales with such id"));
+			replay(session);
+			
+			new BalanceAction(session, createQueryFactory(), createParams());
+			fail();
+		} catch (HibernateException e) {
 			
 		}
 	}
