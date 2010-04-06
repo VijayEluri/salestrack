@@ -12,11 +12,11 @@ public class GoodBalance {
 		_balance = balance;
 	}
 
-	public Good get_good() {
+	public Good getGood() {
 		return _good;
 	}
 
-	public long get_balance() {
+	public long getBalance() {
 		return _balance;
 	}
 }
