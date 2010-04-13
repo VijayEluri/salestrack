@@ -7,12 +7,12 @@ import static org.testng.AssertJUnit.*;
 public class GoodsBalanceIT extends FunctionalTest {
 	public void getBalance() throws InterruptedException{
 		_selenium.open("/webapp/journal");
-		_selenium.click("//a[@name='balance']");
+		_selenium.click("//td[@name='balance']/a");
 		waitForElement("//td[@name='6']");
 		_selenium.click("//td[@name='6']");
 		
 		waitForElement("//table[@id='balance']//tr[5]");
 		
-		assertEquals("Goods balance", _selenium.getTitle());
+		assertEquals("Остатки", _selenium.getTitle());
 	}
 }

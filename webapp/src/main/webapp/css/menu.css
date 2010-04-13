@@ -20,3 +20,9 @@ table.menu td.active {
 	color: rgb(0, 0, 0);
 	text-decoration: none;
 }
+
+table.menu td.active a {
+	font-weight: bold;
+	color: rgb(0, 0, 0);
+	text-decoration: none;
+}

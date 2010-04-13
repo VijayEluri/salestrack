@@ -33,8 +33,8 @@ var balance = function(){
 	
 	return {
 		init: function (activeMenuId){
-			menu = new Menu(activeMenuId);
-			menu.bind(function(activeMenuId){updateBalance(activeMenuId);});
+			menu = new Menu("balance", activeMenuId);
+			menu.getSalesMenu().bind(function(activeMenuId){updateBalance(activeMenuId);});
 		}
 	}
 }();
