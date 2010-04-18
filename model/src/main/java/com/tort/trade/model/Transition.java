@@ -14,6 +14,7 @@ import javax.persistence.Table;
 
 import org.hibernate.validator.NotNull;
 
+@SuppressWarnings({"UnusedDeclaration"})
 @Entity
 @Table(name = "TRADE_SRC")
 public class Transition {
@@ -24,9 +25,10 @@ public class Transition {
 	private Date _date;
 	private Sales _me;
 	private Good _good;
-	private BigDecimal _price = BigDecimal.ZERO;
-	
-	@Id
+	private BigDecimal _sellPrice = BigDecimal.ZERO;
+    private BigDecimal _buyPrice = BigDecimal.ZERO;
+
+    @Id
 	@Column(name = "TRD_SEQ")
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	public Long getId() {
@@ -96,10 +98,18 @@ public class Transition {
 	
 	@NotNull
 	@Column(name = "TRD_PRICE")
-	public BigDecimal getPrice() {
-		return _price;
+	public BigDecimal getSellPrice() {
+		return _sellPrice;
 	}
-	public void setPrice(BigDecimal price) {
-		_price = price;
-	}	
+	public void setSellPrice(BigDecimal sellPrice) {
+		_sellPrice = sellPrice;
+	}
+
+    public BigDecimal getBuyPrice() {
+        return _buyPrice;
+    }
+
+    public void setBuyPrice(BigDecimal buyPrice) {
+        _buyPrice = buyPrice;
+    }
 }

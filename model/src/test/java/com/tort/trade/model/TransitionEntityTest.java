@@ -24,7 +24,7 @@ public class TransitionEntityTest extends EntityTest{
 		transition.setTo(to);		
 		transition.setGood(good);
 		transition.setMe(from);
-		transition.setPrice(BigDecimal.TEN);
+		transition.setSellPrice(BigDecimal.TEN);
 		transition.setQuant(1L);
 		
 		_session.save(transition);
