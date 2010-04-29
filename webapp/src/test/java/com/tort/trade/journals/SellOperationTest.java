@@ -9,6 +9,7 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 import static org.easymock.EasyMock.*;
+import static org.easymock.classextension.EasyMock.*;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
