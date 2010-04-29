@@ -23,9 +23,13 @@ public class TransitionOperationFactoryImpl implements TransitionOperationFactor
         if (matcher.matches())
             return new TransitionOperation(_session, _me, new TransitionOperation.Matcher(matcher));
 
-        matcher = SellOperation.Matcher.PATTERN.matcher(transitionString);
+        matcher = SellOperation.FullMatcher.PATTERN.matcher(transitionString);
         if(matcher.matches())
-            return new SellOperation(_session, _me, new SellOperation.Matcher(matcher));
+            return new SellOperation(_session, _me, new SellOperation.FullMatcher(matcher));
+
+        matcher = SellOperation.ShortMatcher.PATTERN.matcher(transitionString);
+        if(matcher.matches())
+        return new SellOperation(_session, _me, new SellOperation.ShortMatcher(matcher));
 
         matcher = IncomeOperation.Matcher.PATTERN.matcher(transitionString);
         if(matcher.matches())

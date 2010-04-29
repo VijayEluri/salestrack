@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 import java.math.BigDecimal;
 
 import static org.easymock.EasyMock.*;
-import static org.easymock.classextension.EasyMock.*;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
@@ -28,7 +27,7 @@ public class SellOperationTest extends OperationTest {
         expect(session.load(eq(Good.class), anyLong())).andReturn(new Good());
         replay(session);
 
-        SellOperation.Matcher matcher = createMock(SellOperation.Matcher.class);
+        SellOperation.FullMatcher matcher = createMock(SellOperation.FullMatcher.class);
         expect(matcher.getSellPrice()).andReturn(new BigDecimal(250));
         expect(matcher.getQuant()).andReturn(3L);
         replay(matcher);
