@@ -6,57 +6,34 @@ import com.tort.trade.model.SalesAlias;
 import com.tort.trade.model.Transition;
 import org.hibernate.Session;
 
-import java.math.BigDecimal;
 import java.util.Date;
-import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class TransitionOperation {
+public class TransitionOperation extends BaseOperation {
     public static final String OUTCOME = "-";
     public static final String INCOME = "+";
-    private final Session _session;
-    private final Sales _me;
     private final Matcher _matcher;
 
     public TransitionOperation(Session session, Sales me, Matcher matcher) {
-
-        _session = session;
-        _me = me;
+        super(session, me);
         _matcher = matcher;
     }
 
-    private Good loadGood(Long goodId) {
-        return (Good) _session.load(Good.class, goodId);
-	}
-
-    private Sales loadSales(String dest, String sign) {
-		if("$".equals(dest)){
-			dest = sign + dest;
-		}
-
-        return ((SalesAlias) _session.load(SalesAlias.class, dest)).getSales();
-	}
-
+    @Override
     public Transition createTransition(TransitionTO transitionTO) {
-        String sign = _matcher.group(1);
+        String sign = _matcher.getSign();
         long number;
         try{
-            number = Long.parseLong(_matcher.group(2));
+            number = Long.parseLong(_matcher.getNumber());
         } catch (NumberFormatException e) {
             number = 0L;
         }
-        String alias = _matcher.group(3);
-        BigDecimal price;
-        try{
-            price = new BigDecimal(_matcher.group(4));
-        } catch (NullPointerException e) {
-            price = BigDecimal.ZERO;
-        }
+        String alias = _matcher.getAlias();
 
         Transition transition = new Transition();
         transition.setDate(new Date());
         transition.setMe(_me);
         transition.setGood(loadGood(transitionTO.getGoodId()));
-        transition.setSellPrice(price);
         transition.setQuant(number);
         if(INCOME.equals(sign)){
             transition.setFrom(loadSales(alias, sign));
@@ -67,5 +44,26 @@ public class TransitionOperation {
             transition.setTo(loadSales(alias, sign));
         }
         return transition;
+    }
+
+    public static class Matcher {
+        private final java.util.regex.Matcher _matcher;
+        public static final Pattern PATTERN = Pattern.compile("^([+-])(\\d+)([ВС])$");
+
+        public Matcher(java.util.regex.Matcher matcher) {
+            _matcher = matcher;
+        }
+
+        public String getSign() {
+            return _matcher.group(1);
+        }
+
+        public String getNumber() {
+            return _matcher.group(2);
+        }
+
+        public String getAlias() {
+            return _matcher.group(3);
+        }
     }
 }

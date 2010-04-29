@@ -15,7 +15,7 @@ public class NewTransitionsIT extends FunctionalTest{
 		}
 
 		_selenium.keyDown("filter", "4");
-		_selenium.type("//table[@class='journal']//tr[2]/td[3]/input", "+3В,-1С,+1$250");
+		_selenium.type("//table[@class='journal']//tr[2]/td[3]/input", "+3В,-1С,250*1");
 		_selenium.keyPress("//table[@class='journal']//tr[2]/td[3]/input", "\\13");
 		for (int second = 0;; second++) {
 			if (second >= 10) fail("timeout");

@@ -8,7 +8,7 @@ public class TransitionConverterLookupNoScoped implements TransitionConverterLoo
 
 	@Override
 	public TransitionConverter getTransitionConverter(Session session, Sales me) {
-		return new TransitionConverterImpl(session, me);
+		return new TransitionConverterImpl(new TransitionOperationFactoryImpl(session, me));
 	}
 
 }

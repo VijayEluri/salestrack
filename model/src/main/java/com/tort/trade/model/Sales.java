@@ -14,7 +14,11 @@ import org.hibernate.validator.NotNull;
 public class Sales {
 	private Long _id;
 	private String _name;
-	
+
+    public Sales(){
+
+    }
+    
 	public Sales(String name) {
 		_name = name;
 	}

@@ -105,6 +105,7 @@ public class Transition {
 		_sellPrice = sellPrice;
 	}
 
+    @Column(name = "TRD_BUYPRICE")
     public BigDecimal getBuyPrice() {
         return _buyPrice;
     }

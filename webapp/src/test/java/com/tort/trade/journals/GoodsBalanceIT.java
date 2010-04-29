@@ -6,6 +6,7 @@ import static org.testng.AssertJUnit.*;
 @Test(groups = {"functional"})
 public class GoodsBalanceIT extends FunctionalTest {
 	public void getBalance() throws InterruptedException{
+        _selenium.setSpeed("1000");
 		_selenium.open("/webapp/journal");
 		_selenium.click("//td[@name='balance']/a");
 		waitForElement("//td[@name='6']");
