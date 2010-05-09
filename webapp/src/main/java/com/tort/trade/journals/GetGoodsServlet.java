@@ -1,6 +1,7 @@
 package com.tort.trade.journals;
 
 import com.google.gson.Gson;
+import com.tort.trade.journals.filtering.GoodsFilter;
 import com.tort.trade.model.Good;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -26,7 +27,7 @@ public class GetGoodsServlet extends HttpServlet{
 
         final Query query = session.createQuery(new GoodsQueryFactory().getFilteredGoodsQuery(paramValidator.getFilter()));
         query.setMaxResults(MAX_RESULTS);
-        final List<Good> goods = query.list();
+        final List<Good> goods = new GoodsFilter(query.list(), paramValidator.getFilter()).filter();
 
         Gson gson = new Gson();
 		resp.getOutputStream().write(gson.toJson(goods).getBytes());		

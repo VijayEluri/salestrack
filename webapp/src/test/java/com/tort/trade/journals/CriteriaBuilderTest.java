@@ -14,4 +14,20 @@ public class CriteriaBuilderTest {
         assertNotNull(criterias);
         assertEquals(criterias, " where goodname like 'дж% т% т%'");
     }
+
+    public void testCreateEmptyCriterias(){
+        final CriteriaBuilder builder = new CriteriaBuilder("goodname", "");
+        final String criterias = builder.createCriterias();
+
+        assertNotNull(criterias);
+        assertEquals(criterias, "");
+    }
+
+    public void testCreateSimpleCriteria(){
+        final CriteriaBuilder builder = new CriteriaBuilder("goodname", "дж");
+        final String criterias = builder.createCriterias();
+
+        assertNotNull(criterias);
+        assertEquals(criterias, " where goodname like 'дж%'");
+    }
 }

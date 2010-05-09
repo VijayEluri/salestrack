@@ -16,6 +16,9 @@ public class CriteriaBuilder {
     }
 
     public String createCriterias() {
+        if(_query.isEmpty())
+            return "";
+
         String result = null;
         for (String word : _query.split("\\s")) {
             if (result == null) {
