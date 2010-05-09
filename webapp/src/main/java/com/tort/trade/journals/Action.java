@@ -1,10 +1,10 @@
 package com.tort.trade.journals;
 
-public interface Action<Result> {
+public interface Action {
 
 	/**
 	 * @return errors, if any
 	 */
-	Result act();
+	View act();
 
 }

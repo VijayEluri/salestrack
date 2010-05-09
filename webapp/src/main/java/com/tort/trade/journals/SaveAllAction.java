@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken;
 import com.tort.trade.model.Sales;
 import com.tort.trade.model.Transition;
 
-public class SaveAllAction implements Action<List<TransitionErrorTO>> {
+public class SaveAllAction implements Action {
 
 	private final List<TransitionTO> _transitions;
 	private final Session _session;
@@ -39,15 +39,17 @@ public class SaveAllAction implements Action<List<TransitionErrorTO>> {
 		_converterLookup = converterLookup;
 	}
 
-	private String extractData(Map<String, String[]> params) {
+	@SuppressWarnings({"UnnecessaryLocalVariable"})
+    private String extractData(Map<String, String[]> params) {
 		if (params.get("data") == null)
 			throw new IllegalArgumentException("data is null");
-		
+
 		String encodedTransitions = params.get("data")[0].replaceAll("###", "+");
 		return encodedTransitions;
 	}
 
-	private Long extractMeId(Map<String, String[]> params) {
+	@SuppressWarnings({"UnnecessaryLocalVariable"})
+    private Long extractMeId(Map<String, String[]> params) {
 		if (params.get("me") == null || params.get("me").length == 0)
 			throw new IllegalArgumentException("me is null");
 		
@@ -55,7 +57,7 @@ public class SaveAllAction implements Action<List<TransitionErrorTO>> {
 		return meId;
 	}
 
-	public List<TransitionErrorTO> act() {
+	public View act() {
 		Sales me = (Sales) _session.load(Sales.class, _meId);
 		TransitionConverter converter = _converterLookup.getTransitionConverter(_session, me);
 		
@@ -73,6 +75,6 @@ public class SaveAllAction implements Action<List<TransitionErrorTO>> {
 		
 		_session.flush();
 	
-		return errors;
+		return new JsonView<ArrayList<TransitionErrorTO>>(errors);
 	}
 }

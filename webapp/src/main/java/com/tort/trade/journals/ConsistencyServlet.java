@@ -14,6 +14,7 @@ public class ConsistencyServlet extends HttpServlet {
         List<DiffTO> model = new ArrayList<DiffTO>();
         model.add(new DiffTO(3, "Джинсы", "-2В"));
 
-        resp.getOutputStream().write(new JsonView<List<DiffTO>>().render(model));
+        new JsonView<List<DiffTO>>(model).render(resp);
     }
+
 }
