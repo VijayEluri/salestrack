@@ -27,6 +27,16 @@
    	<servlet-name>balanceServlet</servlet-name>
    	<servlet-class>com.tort.trade.journals.BalanceServlet</servlet-class>
    </servlet>
+
+    <servlet>
+        <servlet-name>ConsistencyServlet</servlet-name>
+        <servlet-class>com.tort.trade.journals.ConsistencyServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ConsistencyServlet</servlet-name>
+        <url-pattern>getConsistency</url-pattern>
+    </servlet-mapping>
    
    <servlet-mapping>
    	<servlet-name>getGoodsServlet</servlet-name>
