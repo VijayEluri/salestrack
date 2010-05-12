@@ -1,17 +1,21 @@
 package com.tort.trade.journals;
 
 public class DiffTO {
-    private Integer _me;
+    private Long _me;
     private String _good;
-    private String _diff;
+    private Long _diff;
 
-    public DiffTO(Integer me, String good, String diff) {
+    public DiffTO(){
+        
+    }
+
+    public DiffTO(Long me, String good, Long diff) {
         _me = me;
         _good = good;
         _diff = diff;
     }
 
-    public Integer getMe() {
+    public Long getMe() {
         return _me;
     }
 
@@ -19,7 +23,7 @@ public class DiffTO {
         return _good;
     }
 
-    public String getDiff() {
+    public Long getDiff() {
         return _diff;
     }
 }
