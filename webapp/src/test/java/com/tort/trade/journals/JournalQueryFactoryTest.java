@@ -17,4 +17,12 @@ public class JournalQueryFactoryTest extends QueryTest{
 		
 		assertNotNull(query.list());
 	}
+
+
+    public void consistencyQuery(){
+        final Query query = _session.createQuery(_queryFactory.getConsistencyQuery());
+        query.setParameter("me", new Sales(2L, "test"));
+
+        assertNotNull(query.list());
+    }
 }

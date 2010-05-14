@@ -5,7 +5,6 @@ import static org.testng.AssertJUnit.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
@@ -24,7 +23,7 @@ public class SaveAllActionImplTest extends ActionTest {
 			
 			new SaveAllAction(params, null, null);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException ignored) {
 
 		}
 	}
@@ -36,7 +35,7 @@ public class SaveAllActionImplTest extends ActionTest {
 			
 			new SaveAllAction(params, null, null);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException ignored) {
 
 		}
 	}
@@ -49,7 +48,7 @@ public class SaveAllActionImplTest extends ActionTest {
 			
 			new SaveAllAction(params, null, null);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException ignored) {
 
 		}
 	}
@@ -58,7 +57,7 @@ public class SaveAllActionImplTest extends ActionTest {
 		try {
 			new SaveAllAction(null, createMock(Session.class), createMock(TransitionConverterLookup.class));
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException ignored) {
 			
 		}
 	}
@@ -67,7 +66,7 @@ public class SaveAllActionImplTest extends ActionTest {
 		try {
 			new SaveAllAction(createParams(), null, createMock(TransitionConverterLookup.class));
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException ignored) {
 			
 		}
 	}
@@ -76,7 +75,7 @@ public class SaveAllActionImplTest extends ActionTest {
 		try{
 			new SaveAllAction(createParams(), createMock(Session.class), null);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException ignored) {
 			
 		}
 	}
@@ -97,15 +96,15 @@ public class SaveAllActionImplTest extends ActionTest {
 	}
 	
 	public void actImpl(){
-		Action<List<TransitionErrorTO>> action = positiveSetUp();
+		Action action = positiveSetUp();
 		
-		List<TransitionErrorTO> result = action.act();		
+		View result = action.act();		
 		
 		assertNotNull(result);
-		assertEquals(2, result.size());
 	}
 	
-	protected Action positiveSetUp() {
+	@SuppressWarnings({"ThrowableInstanceNeverThrown"})
+    protected Action positiveSetUp() {
 		Session mockSession = createMock(Session.class);
 		TransitionConverter converter = createMock(TransitionConverter.class);
 		TransitionConverterLookup converterLookup = createMock(TransitionConverterLookup.class);
