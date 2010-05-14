@@ -16,13 +16,14 @@ public class JournalQueryFactoryImpl implements JournalQueryFactory {
                 "sum(case when transition.me = transition.to then transition.quant " +
                 "    when transition.me = transition.from then (transition.quant*-1) end)) " +
                 "from Transition transition " +
-                "where transition.me.id > 2 " +
+                "where transition.me = :me " +
                 "and transition.from.id > 2 " +
                 "and transition.to.id > 2 " +
                 "group by transition.good.name, transition.me.id " +
                 "having sum(case when transition.me = transition.to then transition.quant " +
                 "           when transition.me = transition.from then (transition.quant*-1) end) != 0 " +
-                " order by transition.good.name";
+                " order by abs(sum(case when transition.me = transition.to then transition.quant " +
+                "           when transition.me = transition.from then (transition.quant*-1) end)) desc, transition.good.name asc";
     }
 
 }

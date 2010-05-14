@@ -1,5 +1,6 @@
 package com.tort.trade.journals;
 
+import com.tort.trade.model.Sales;
 import org.hibernate.Session;
 
 import javax.servlet.ServletException;
@@ -16,7 +17,7 @@ public class ConsistencyServlet extends HttpServlet {
         TransitionConversation conversation = (TransitionConversation) req.getSession().getAttribute("conversation");
         Session session = conversation.getHibernateSession();
 
-        new ConsistencyAction(session, queryFactory).act().render(resp);
+        new ConsistencyAction(session, queryFactory, req.getParameterMap()).act().render(resp);
     }
 
 }
