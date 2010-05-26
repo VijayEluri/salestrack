@@ -1,57 +1,43 @@
 var editSales = function() {
     var mainMenu;
     var sales = [
-            new Sale("Оля", "О"),
-            new Sale("Саша", "С")
+            new Sale(0, "Оля", "О"),
+            new Sale(1, "Саша", "С")
     ];
-    var name;
-    var alias;
 
     var editSale = function(i) {
         var sale = sales[i];
         sale.edit();
-        renderSale(i);
-        jQuery("input[focus]").focus();
-        jQuery("input[focus]").select();
     };
 
     var commitEdit = function(i) {
-        var name = jQuery("#sales > tbody > tr[index=" + i + "] > td[name=name] > input").val();
-        jQuery("#sales > tbody > tr[index=" + i + "] > td[name=name]").html(name);
-        var alias = jQuery("#sales > tbody > tr[index=" + i + "] > td[name=alias] > input").val();
-        jQuery("#sales > tbody > tr[index=" + i + "] > td[name=alias]").html(alias);
-        jQuery("#sales > tbody > tr[index=" + i + "] > td[name=link]").html("<a href='#' onclick='editSales.edit(" + i + ");'>Изменить</a>&nbsp;|&nbsp;<a href='#' onclick='editSales.remove(" + i + ")'>Удалить</a>");
+        var sale = sales[i];
+        sale.commit();
     };
 
     var cancelEdit = function(i) {
         var sale = sales[i];
         sale.cancel();
-        renderSale(i);
     };
 
     var render = function() {
         jQuery("#sales > tbody > tr:has(td)").remove();
         jQuery.each(sales, function(i, sale) {
-            appendSale(i);
+            createNewTR(i);
+            sale.render();
         });
     };
 
-    var appendSale = function(i) {
-        var sale = sales[i];
+    var createNewTR = function(i) {
         jQuery("#sales > tbody").append("<tr index='" + i + "'></tr>");
-        renderSale(i);
-    };
-
-    var renderSale = function(i) {
-        var sale = sales[i];
-        jQuery("#sales > tbody > tr[index=" + i + "]").html(sale.render(i));
     };
 
     var addSale = function() {
         var length = sales.length;
-        sales.push({name: "", alias: ""});
-        appendSale(length, sales[length]);
-        editSale(length);
+        var sale = new Sale(length, "", "");
+        sales.push(sale);
+        createNewTR(length);
+        sale.init();
     };
 
     var removeSale = function(i) {
@@ -84,37 +70,44 @@ var editSales = function() {
     }
 }();
 
-function Sale(name, alias) {
-    var i;
-    var name = name;
-    var alias = alias;
+function Sale(aI, aName, aAlias) {
+    var name = aName;
+    var alias = aAlias;
     var state = new ViewState();
 
+    var render = function() {
+        jQuery("#sales > tbody > tr[index=" + aI + "]").html(state.render(aI, name, alias));
+    };
+
+    var focusAndSelect = function(){
+        jQuery("input[focus]").focus();
+        jQuery("input[focus]").select();
+    };
+
     return {
-        render: function(newI) {
-            i = newI;
-            return state.render(i, name, alias);
-        },
-        getName: function(){
-            return name;
-        },
-        getAlias: function(){
-            return alias;
-        },
-        setName: function(newName){
-            name = newName;
-        },
-        setAlias: function(newAlias){
-            alias = newAlias;
+        render: function() {
+            render();
         },
         edit: function(){
-            state = new EditState();
+            state = editState;
+            render();
+            focusAndSelect();
         },
-        view: function(){
-            state = new ViewState();
+        init: function(){
+            state = newState;
+            render();
+            focusAndSelect();
         },
         cancel: function(){
-            state = new ViewState();
+            state = viewState;
+            render();
+        },
+        commit: function(){
+            name = jQuery("#sales > tbody > tr[index=" + aI + "] > td[name=name] > input").val();
+            alias = jQuery("#sales > tbody > tr[index=" + aI + "] > td[name=alias] > input").val();
+
+            state = viewState;
+            render();
         }
     }
 }
@@ -125,7 +118,7 @@ function ViewState() {
                             return "<td style='height: 29px;'>" + i + "</td>" +
                             "<td name='name'>" + name + "</td>" +
                             "<td name='alias'>" + alias + "</td>" +
-                            "<td name='link'><a href='#' onclick='editSales.edit(" + i + ");'>Изменить</a>&nbsp;|&nbsp;<a href='#' onclick='editSales.remove(" + i + ")'>Удалить</a></td>"; 
+                            "<td name='link'><a href='#' onclick='editSales.edit(" + i + ");'>Изменить</a>&nbsp;|&nbsp;<a href='#' onclick='editSales.remove(" + i + ")'>Удалить</a></td>";
         }
     }
 }
@@ -141,3 +134,18 @@ function EditState() {
     }
 }
 
+
+function NewState() {
+    return {
+        render: function(i, name, alias) {
+                            return "<td style='height: 29px;'>" + i + "</td>" +
+                            "<td name='name'><input focus style='width: 9em;' value='" + name + "'/></td>" +
+                            "<td name='alias'><input style='width: 9em;' value='" + alias + "'/></td>" +
+                            "<td name='link'><a href='#' onclick='editSales.commit(" + i + ");'>Принять</a>&nbsp;|&nbsp;<a href='#' onclick='editSales.remove(" + i + ")'>Отменить</a></td>";
+        }
+    }
+}
+
+var newState = new NewState();
+var viewState = new ViewState();
+var editState = new EditState();
