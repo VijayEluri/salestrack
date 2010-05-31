@@ -23,24 +23,22 @@ var editSales = function() {
     var getSales = function(){
         jQuery.ajax({
             url: "editSales",
+            data: "command=get",
             type: "GET",
             dataType: "json",
-            contentType: "text/html; charset=utf-8",
             error: function(){alert("Сервер недоступен")},
             success: function(aSales){
-                aSales.forEach(function(aSale){
-                    sales.push(new Sale(aSale._id, aSale._name, aSale._alias));
+                jQuery("#sales > tbody > tr:has(td)").remove();
+                jQuery.each(aSales, function(i, sale) {
+                    createNewTR(i);
+                    sale.render();
                 });
             }
         });
-    }
+    };
 
     var render = function() {
-        jQuery("#sales > tbody > tr:has(td)").remove();
-        jQuery.each(getSales(), function(i, sale) {
-            createNewTR(i);
-            sale.render();
-        });
+        getSales();
     };
 
     var createNewTR = function(i) {
