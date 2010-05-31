@@ -20,9 +20,24 @@ var editSales = function() {
         sale.cancel();
     };
 
+    var getSales = function(){
+        jQuery.ajax({
+            url: "editSales",
+            type: "GET",
+            dataType: "json",
+            contentType: "text/html; charset=utf-8",
+            error: function(){alert("Сервер недоступен")},
+            success: function(aSales){
+                aSales.forEach(function(aSale){
+                    sales.push(new Sale(aSale._id, aSale._name, aSale._alias));
+                });
+            }
+        });
+    }
+
     var render = function() {
         jQuery("#sales > tbody > tr:has(td)").remove();
-        jQuery.each(sales, function(i, sale) {
+        jQuery.each(getSales(), function(i, sale) {
             createNewTR(i);
             sale.render();
         });
