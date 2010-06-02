@@ -1,22 +1,19 @@
 var editSales = function() {
     var mainMenu;
-    var sales = [
-            new Sale(0, "Оля", "О"),
-            new Sale(1, "Саша", "С")
-    ];
+    var _sales = [];
 
     var editSale = function(i) {
-        var sale = sales[i];
+        var sale = _sales[i];
         sale.edit();
     };
 
     var commitEdit = function(i) {
-        var sale = sales[i];
+        var sale = _sales[i];
         sale.commit();
     };
 
     var cancelEdit = function(i) {
-        var sale = sales[i];
+        var sale = _sales[i];
         sale.cancel();
     };
 
@@ -27,10 +24,13 @@ var editSales = function() {
             type: "GET",
             dataType: "json",
             error: function(){alert("Сервер недоступен")},
-            success: function(aSales){
+            success: function(sales){
+                _sales = [];
                 jQuery("#sales > tbody > tr:has(td)").remove();
-                jQuery.each(aSales, function(i, sale) {
-                    createNewTR(i);
+                jQuery.each(sales, function(i, saleTO) {
+                    var sale = new Sale(saleTO._id, saleTO._name, saleTO._alias);
+                    _sales.push(sale);
+                    createNewTR(saleTO._id);           
                     sale.render();
                 });
             }
@@ -46,9 +46,9 @@ var editSales = function() {
     };
 
     var addSale = function() {
-        var length = sales.length;
+        var length = _sales.length;
         var sale = new Sale(length, "", "");
-        sales.push(sale);
+        _sales.push(sale);
         createNewTR(length);
         sale.init();
     };

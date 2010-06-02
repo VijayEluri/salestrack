@@ -9,6 +9,10 @@ import java.util.ArrayList;
 public class GetSalesAction implements Action {
     @Override
     public View act() {
-        return new JsonView(new ArrayList());
+        final ArrayList<SaleTO> sales = new ArrayList<SaleTO>();
+        sales.add(new SaleTO(1L, "Миша", "М"));
+        sales.add(new SaleTO(2L, "Вася", "В"));
+
+        return new JsonView<ArrayList<SaleTO>>(sales);
     }
 }
