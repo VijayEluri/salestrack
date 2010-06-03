@@ -24,10 +24,15 @@ var editSales = function() {
             type: "GET",
             dataType: "json",
             error: function(){alert("Сервер недоступен")},
-            success: function(sales){
+            success: function(response){
+                if(response._error != null){
+                    alert(response._error);
+                    return;
+                }
+
                 _sales = [];
                 jQuery("#sales > tbody > tr:has(td)").remove();
-                jQuery.each(sales, function(i, saleTO) {
+                jQuery.each(response, function(i, saleTO) {
                     var sale = new Sale(saleTO._id, saleTO._name, saleTO._alias);
                     _sales.push(sale);
                     createNewTR(saleTO._id);           
