@@ -10,6 +10,7 @@ public class ActionFactory {
     public static final String COMMAND_PARAM = "command";
     public static final String GET_COMMAND = "get";
     private Session _session;
+    public static final String REMOVE_COMMAND = "remove";
 
     public ActionFactory(Map<String, String[]> params, Session session) {
         if(params == null)
@@ -23,18 +24,17 @@ public class ActionFactory {
     }
 
     public Action createAction() {
-        if(_params.get(COMMAND_PARAM) == null)
+        final String command = ((String[])_params.get(COMMAND_PARAM))[0];
+
+        if(command == null)
             return new ErrorAction(COMMAND_PARAM + " absent");
 
-        if(unknownCommand())
-            return new ErrorAction("unknown command");
+        if(REMOVE_COMMAND.equals(command))
+            return new RemoveSaleAction(_params);
 
-        return new GetSalesAction(new JournalQueryFactoryImpl(), _session);
-    }
+        if(GET_COMMAND.equals(command))
+            return new GetSalesAction(new JournalQueryFactoryImpl(), _session);
 
-    private boolean unknownCommand() {
-        final String[] command = _params.get(COMMAND_PARAM);
-
-        return !command[0].equals(GET_COMMAND);
+        return new ErrorAction("unknown command");
     }
 }

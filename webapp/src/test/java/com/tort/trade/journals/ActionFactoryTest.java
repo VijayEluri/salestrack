@@ -56,4 +56,16 @@ public class ActionFactoryTest {
         assertNotNull(action);
         assertTrue(action instanceof GetSalesAction);
     }
+
+    public void createRemoveSaleAction(){
+        Map<String, String[]> params = new HashMap<String, String[]>();
+        params.put(ActionFactory.COMMAND_PARAM, new String[]{ActionFactory.REMOVE_COMMAND});
+
+        final ActionFactory actionFactory = new ActionFactory(params);
+
+        final Action action = actionFactory.createAction();
+
+        assertNotNull(action);
+        assertTrue(action instanceof RemoveSaleAction);
+    }
 }

@@ -12,6 +12,6 @@ public class RemoveSaleAction implements Action{
 
     @Override
     public View act() {
-        return new JsonView(new ArrayList<ErrorTO>());
+        return new JsonView(new ErrorTO("sale is unremovable"));
     }
 }
