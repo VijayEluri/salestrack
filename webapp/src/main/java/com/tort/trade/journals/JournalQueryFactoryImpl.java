@@ -26,4 +26,9 @@ public class JournalQueryFactoryImpl implements JournalQueryFactory {
                 "           when transition.me = transition.from then (transition.quant*-1) end)) desc, transition.good.name asc";
     }
 
+    @Override
+    public String getSales() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
 }
