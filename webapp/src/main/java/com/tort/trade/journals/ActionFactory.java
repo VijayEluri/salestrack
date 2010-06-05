@@ -24,10 +24,11 @@ public class ActionFactory {
     }
 
     public Action createAction() {
-        final String command = ((String[])_params.get(COMMAND_PARAM))[0];
-
-        if(command == null)
+        final String[] commandParam = _params.get(COMMAND_PARAM);
+        if(commandParam == null)
             return new ErrorAction(COMMAND_PARAM + " absent");
+
+        final String command = ((String[]) commandParam)[0];
 
         if(REMOVE_COMMAND.equals(command))
             return new RemoveSaleAction(_params);

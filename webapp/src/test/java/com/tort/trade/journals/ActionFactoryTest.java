@@ -61,7 +61,7 @@ public class ActionFactoryTest {
         Map<String, String[]> params = new HashMap<String, String[]>();
         params.put(ActionFactory.COMMAND_PARAM, new String[]{ActionFactory.REMOVE_COMMAND});
 
-        final ActionFactory actionFactory = new ActionFactory(params);
+        final ActionFactory actionFactory = new ActionFactory(params, createMock(Session.class));
 
         final Action action = actionFactory.createAction();
 

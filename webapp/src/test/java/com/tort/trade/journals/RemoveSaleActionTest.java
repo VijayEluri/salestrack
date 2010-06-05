@@ -9,8 +9,8 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+@Test
 public class RemoveSaleActionTest {
-    @Test
     public void act() throws Exception {
         Map<String, String[]> params = new HashMap<String, String[]>();
         params.put("id", new String[]{"1"});
@@ -23,7 +23,6 @@ public class RemoveSaleActionTest {
         assertTrue(view instanceof JsonView);
     }
 
-    @Test
     public void newActionNullParams(){
         try {
             new RemoveSaleAction(null);
@@ -32,25 +31,24 @@ public class RemoveSaleActionTest {
         }
     }
 
-    @Test
-    public void newActionNullIdParam(){
+    public void actNullIdParam(){
         Map<String, String[]> params = new HashMap<String, String[]>();
 
-        try {
-            new RemoveSaleAction(params);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
+        final RemoveSaleAction action = new RemoveSaleAction(params);
+        final View view = action.act();
+
+        assertNotNull(view);
+        assertTrue(view instanceof ErrorView);
     }
 
-    @Test
     public void newActionMalformedIdParam(){
         Map<String, String[]> params = new HashMap();
+        params.put(RemoveSaleAction.ID_PARAM, new String[]{"malformed id"});
 
-        try {
-            new RemoveSaleAction(params);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
+        final RemoveSaleAction action = new RemoveSaleAction(params);
+        final View view = action.act();
+
+        assertNotNull(view);
+        assertTrue(view instanceof ErrorView);
     }
 }
