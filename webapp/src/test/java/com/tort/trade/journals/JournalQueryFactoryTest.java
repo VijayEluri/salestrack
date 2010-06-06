@@ -25,4 +25,10 @@ public class JournalQueryFactoryTest extends QueryTest{
 
         assertNotNull(query.list());
     }
+
+    public void getSales(){
+        final Query query = _session.createQuery(_queryFactory.getSales());
+
+        assertNotNull(query.list());
+    }
 }

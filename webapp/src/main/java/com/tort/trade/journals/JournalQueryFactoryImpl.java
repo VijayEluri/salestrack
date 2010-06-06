@@ -28,7 +28,9 @@ public class JournalQueryFactoryImpl implements JournalQueryFactory {
 
     @Override
     public String getSales() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return "select new com.tort.trade.journals.editsales.SaleTO(alias.sales.id, alias.sales.name, alias.id)" +
+                "from SalesAlias alias " +
+                "where alias.sales.id > 2";
     }
 
 }
