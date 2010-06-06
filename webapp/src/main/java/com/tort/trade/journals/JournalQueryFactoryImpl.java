@@ -7,6 +7,7 @@ public class JournalQueryFactoryImpl implements JournalQueryFactory {
 		return "select new com.tort.trade.journals.GoodBalance(transition.good, sum(transition.quant)) " +
 				"from Transition transition " +
 				"where transition.me = :me " +
+                "and transition.date <= :today " +
 				"group by transition.good.id ";
 	}
 

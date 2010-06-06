@@ -4,6 +4,7 @@ import static org.easymock.EasyMock.*;
 import static org.testng.AssertJUnit.*;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ public class BalanceActionTest extends ActionTest {
 	private Session createSession() {
 		Query query = createMock(Query.class);
 		expect(query.setParameter(eq("me"), isA(Sales.class))).andReturn(query);
+        expect(query.setParameter(eq("today"), isA(Date.class))).andReturn(query);
 		expect(query.list()).andReturn(new ArrayList<GoodBalance>());
 		replay(query);
 		
@@ -38,6 +40,7 @@ public class BalanceActionTest extends ActionTest {
 	private Map createParams() {
 		Map<String, String[]> params = new HashMap<String, String[]>();
 		params.put("me", new String[]{"1"});
+        params.put("today", new String[]{"01/02/03"});
 		
 		return params;
 	}
@@ -81,7 +84,6 @@ public class BalanceActionTest extends ActionTest {
 		try {
 			Map params = new HashMap();
 			new BalanceAction(createSession(), createQueryFactory(), params);
-			
 			fail();
 		} catch(IllegalArgumentException e){
 			
@@ -99,8 +101,19 @@ public class BalanceActionTest extends ActionTest {
 			
 		}
 	}
+
+    public void actNullTodayParam() {
+        Map<String, String[]> params = new HashMap();
+        params.put("me", new String[]{"1"});
+
+        try {
+            new BalanceAction(createSession(), createQueryFactory(), params);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+    }
 	
-	public void newBalanceActionUnexistantMe(){
+	public void newBalanceActionUnExistentMe(){
 		try{
 			Session session = createMock(Session.class);
 			expect(session.load(eq(Sales.class), isA(Long.class))).andThrow(new HibernateException("no sales with such id"));

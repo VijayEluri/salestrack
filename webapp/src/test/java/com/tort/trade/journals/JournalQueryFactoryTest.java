@@ -5,6 +5,8 @@ import org.testng.annotations.Test;
 
 import com.tort.trade.model.Sales;
 
+import java.util.Date;
+
 import static org.testng.AssertJUnit.*;
 
 @Test(groups = {"integration"})
@@ -14,6 +16,7 @@ public class JournalQueryFactoryTest extends QueryTest{
 	public void balanceQuery(){
 		Query query = _session.createQuery(_queryFactory.getBalanceQuery());
 		query.setParameter("me", new Sales(1L, "test"));
+        query.setParameter("today", new Date());
 		
 		assertNotNull(query.list());
 	}
