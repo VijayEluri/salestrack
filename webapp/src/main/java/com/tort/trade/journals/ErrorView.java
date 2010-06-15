@@ -15,6 +15,6 @@ public class ErrorView implements View {
 
     @Override
     public void render(HttpServletResponse resp) throws IOException {
-        resp.getOutputStream().write(_message.getBytes());
+        resp.sendError(HttpServletResponse.SC_NOT_FOUND, _message);
     }
 }

@@ -121,11 +121,27 @@ function Sale(aI, aName, aAlias) {
             render();
         },
         commit: function(){
-            name = jQuery("#sales > tbody > tr[index=" + aI + "] > td[name=name] > input").val();
-            alias = jQuery("#sales > tbody > tr[index=" + aI + "] > td[name=alias] > input").val();
+            var newName = jQuery("#sales > tbody > tr[index=" + aI + "] > td[name=name] > input").val();
+            var newAlias = jQuery("#sales > tbody > tr[index=" + aI + "] > td[name=alias] > input").val();
 
-            state = viewState;
-            render();
+            jQuery.ajax({
+                url: "editSales",
+                data: "command=update&id=new",
+                type: "POST",
+                dataType: "json",
+                error: function(error){
+                    alert(error.statusText);
+                },
+                success: function(sale){
+                    if(response._error != null){
+                        alert(response._error);
+                        return;
+                    }
+
+                    state = viewState;
+                    render();
+                }
+            });
         }
     }
 }

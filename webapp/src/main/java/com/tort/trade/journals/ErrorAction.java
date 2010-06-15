@@ -9,6 +9,6 @@ public class ErrorAction implements Action{
 
     @Override
     public View act() {
-        return new JsonView<ErrorTO>(new ErrorTO(_message));
+        return new ErrorView(_message);
     }
 }
