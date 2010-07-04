@@ -3,7 +3,6 @@ package com.tort.trade.journals;
 import com.tort.trade.journals.editsales.GetSalesAction;
 import org.hibernate.Session;
 
-import java.util.Arrays;
 import java.util.Map;
 
 public class ActionFactory {
@@ -13,6 +12,8 @@ public class ActionFactory {
     private Session _session;
     public static final String REMOVE_COMMAND = "remove";
     private static final String UPDATE_COMMAND = "update";
+    private static final String SALE_ID_PARAM = "saleId";
+    private static final String SALE_NAME = "saleName";
 
     public ActionFactory(Map<String, String[]> params, Session session) {
         if(params == null)
@@ -30,7 +31,7 @@ public class ActionFactory {
         if(commandParam == null)
             return new ErrorAction(COMMAND_PARAM + " absent");
 
-        final String command = ((String[]) commandParam)[0];
+        final String command = commandParam[0];
 
         if(REMOVE_COMMAND.equals(command))
             return new RemoveSaleAction(_params);
@@ -39,7 +40,18 @@ public class ActionFactory {
             return new GetSalesAction(new JournalQueryFactoryImpl(), _session);
 
         if(UPDATE_COMMAND.equals(command)){
-            return new UpdateSaleAction();
+            final String[] saleIdParam = _params.get(SALE_ID_PARAM);
+            if(saleIdParam == null)
+                return new ErrorAction("saleId is null");
+
+            final String[] newNameParam = _params.get(SALE_NAME);
+            if(newNameParam == null)
+                return new ErrorAction("sale name is null");
+
+            final Long saleId = new Long(saleIdParam[0]);
+            final String newName = newNameParam[0];
+
+            return new UpdateSaleAction(_session, saleId, newName);
         }
 
         return new ErrorAction("unknown command");

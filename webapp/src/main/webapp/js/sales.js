@@ -34,7 +34,7 @@ var editSales = function() {
                 jQuery("#sales > tbody > tr:has(td)").remove();
                 jQuery.each(response, function(i, saleTO) {
                     var sale = new Sale(saleTO._id, saleTO._name, saleTO._alias);
-                    _sales.push(sale);
+                    _sales[saleTO._id] = sale;
                     createNewTR(saleTO._id);           
                     sale.render();
                 });
@@ -126,19 +126,22 @@ function Sale(aI, aName, aAlias) {
 
             jQuery.ajax({
                 url: "editSales",
-                data: "command=update&id=new",
+                data: "command=update&saleId=" + aI + "&saleName=" + newName,
                 type: "POST",
                 dataType: "json",
                 error: function(error){
                     alert(error.statusText);
                 },
-                success: function(sale){
+                success: function(response){
                     if(response._error != null){
                         alert(response._error);
                         return;
                     }
 
+                    name = response._name;
+                    alias = response._alias;
                     state = viewState;
+                    
                     render();
                 }
             });
