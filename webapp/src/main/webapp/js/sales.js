@@ -126,8 +126,9 @@ function Sale(aI, aName, aAlias) {
 
             jQuery.ajax({
                 url: "editSales",
-                data: "command=update&saleId=" + aI + "&saleName=" + newName,
+                data: "command=update&saleId=" + aI + "&saleName=" + newName + "&saleAlias=" + newAlias,
                 type: "POST",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
                 dataType: "json",
                 error: function(error){
                     alert(error.statusText);

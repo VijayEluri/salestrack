@@ -14,6 +14,7 @@ public class ActionFactory {
     private static final String UPDATE_COMMAND = "update";
     private static final String SALE_ID_PARAM = "saleId";
     private static final String SALE_NAME = "saleName";
+    private static final String SALE_ALIAS = "saleAlias";
 
     public ActionFactory(Map<String, String[]> params, Session session) {
         if(params == null)
@@ -48,10 +49,15 @@ public class ActionFactory {
             if(newNameParam == null)
                 return new ErrorAction("sale name is null");
 
+            final String[] newAliasParam = _params.get(SALE_ALIAS);
+            if(newAliasParam == null)
+                return new ErrorAction("sale alias is null");
+
             final Long saleId = new Long(saleIdParam[0]);
             final String newName = newNameParam[0];
-
-            return new UpdateSaleAction(_session, saleId, newName);
+            final String newAlias = newAliasParam[0];
+            
+            return new UpdateSaleAction(_session, saleId, newName, newAlias);
         }
 
         return new ErrorAction("unknown command");
