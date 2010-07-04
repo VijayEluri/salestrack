@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 public class SalesAliasEntityTest  extends EntityTest {
 	public void save(){
 		Sales sales = new Sales(1L, "testSales");
-		
+
 		_session.save(sales);
 		
 		SalesAlias alias = new SalesAlias();

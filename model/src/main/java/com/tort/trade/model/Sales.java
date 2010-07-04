@@ -1,19 +1,15 @@
 package com.tort.trade.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-
 import org.hibernate.validator.NotNull;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "DEP")
 public class Sales {
 	private Long _id;
 	private String _name;
+    private SalesAlias _alias;
 
     public Sales(){
 
@@ -45,4 +41,13 @@ public class Sales {
 	public void setName(String name) {
 		_name = name;
 	}
+
+    @OneToOne(mappedBy = "sales")
+    public SalesAlias getAlias() {
+        return _alias;
+    }
+
+    public void setAlias(final SalesAlias alias) {
+        _alias = alias;
+    }
 }

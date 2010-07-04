@@ -1,11 +1,9 @@
 package com.tort.trade.journals;
 
 import com.tort.trade.model.Sales;
-import com.tort.trade.model.SalesAlias;
 import com.tort.trade.model.Transition;
 import org.hibernate.Session;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.regex.Pattern;

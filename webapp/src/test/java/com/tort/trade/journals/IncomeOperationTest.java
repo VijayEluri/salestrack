@@ -2,7 +2,6 @@ package com.tort.trade.journals;
 
 import com.tort.trade.model.Good;
 import com.tort.trade.model.Sales;
-import com.tort.trade.model.SalesAlias;
 import com.tort.trade.model.Transition;
 import org.hibernate.Session;
 import org.testng.annotations.Test;

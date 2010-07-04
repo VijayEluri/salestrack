@@ -1,8 +1,6 @@
 package com.tort.trade.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 public class SalesAlias {
@@ -17,7 +15,7 @@ public class SalesAlias {
 		
 	}
 
-	@ManyToOne
+	@OneToOne
 	public Sales getSales() {
 		return _sales;
 	}
