@@ -52,9 +52,10 @@ var editSales = function() {
 
     var addSale = function() {
         var length = _sales.length;
-        var sale = new Sale(length, "", "");
-        _sales.push(sale);
-        createNewTR(length);
+        var id = length + 100;
+        var sale = new Sale(id, "", "");
+        _sales[id] = sale;
+        createNewTR(id);
         sale.init();
     };
 
@@ -126,7 +127,7 @@ function Sale(aI, aName, aAlias) {
 
             jQuery.ajax({
                 url: "editSales",
-                data: "command=update&saleId=" + aI + "&saleName=" + newName + "&saleAlias=" + newAlias,
+                data: "command=" + state.getCommand() + "&saleId=" + aI + "&saleName=" + newName + "&saleAlias=" + newAlias,
                 type: "POST",
                 contentType: "application/x-www-form-urlencoded; charset=utf-8",
                 dataType: "json",
@@ -168,6 +169,9 @@ function EditState() {
                             "<td name='name'><input focus style='width: 9em;' value='" + name + "'/></td>" +
                             "<td name='alias'><input style='width: 9em;' value='" + alias + "'/></td>" +
                             "<td name='link'><a href='#' onclick='editSales.commit(" + i + ");'>Принять</a>&nbsp;|&nbsp;<a href='#' onclick='editSales.cancel(" + i + ")'>Отменить</a></td>";
+        },
+        getCommand: function(){
+            return "update";
         }
     }
 }
@@ -180,6 +184,9 @@ function NewState() {
                             "<td name='name'><input focus style='width: 9em;' value='" + name + "'/></td>" +
                             "<td name='alias'><input style='width: 9em;' value='" + alias + "'/></td>" +
                             "<td name='link'><a href='#' onclick='editSales.commit(" + i + ");'>Принять</a>&nbsp;|&nbsp;<a href='#' onclick='editSales.remove(" + i + ")'>Отменить</a></td>";
+        },
+        getCommand: function(){
+            return "create";
         }
     }
 }
