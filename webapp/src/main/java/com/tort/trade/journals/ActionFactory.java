@@ -3,6 +3,7 @@ package com.tort.trade.journals;
 import com.tort.trade.journals.editsales.GetSalesAction;
 import org.hibernate.Session;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public class ActionFactory {
@@ -11,6 +12,7 @@ public class ActionFactory {
     public static final String GET_COMMAND = "get";
     private Session _session;
     public static final String REMOVE_COMMAND = "remove";
+    private static final String UPDATE_COMMAND = "update";
 
     public ActionFactory(Map<String, String[]> params, Session session) {
         if(params == null)
@@ -35,6 +37,10 @@ public class ActionFactory {
 
         if(GET_COMMAND.equals(command))
             return new GetSalesAction(new JournalQueryFactoryImpl(), _session);
+
+        if(UPDATE_COMMAND.equals(command)){
+            return new UpdateSaleAction();
+        }
 
         return new ErrorAction("unknown command");
     }
