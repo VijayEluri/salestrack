@@ -34,8 +34,8 @@ var editSales = function() {
                 jQuery("#sales > tbody > tr:has(td)").remove();
                 jQuery.each(response, function(i, saleTO) {
                     var sale = new Sale(saleTO._id, saleTO._name, saleTO._alias);
-                    _sales[saleTO._id] = sale;
-                    createNewTR(saleTO._id);           
+                    _sales[sale.getVisibleId()] = sale;
+                    createNewTR(sale.getVisibleId());
                     sale.render();
                 });
             }
@@ -51,11 +51,9 @@ var editSales = function() {
     };
 
     var addSale = function() {
-        var length = _sales.length;
-        var id = length + 100;
-        var sale = new Sale(id, "", "");
-        _sales[id] = sale;
-        createNewTR(id);
+        var sale = new Sale("new", "", "");
+        _sales[sale.getVisibleId()] = sale;
+        createNewTR(sale.getVisibleId());
         sale.init();
     };
 
@@ -89,13 +87,16 @@ var editSales = function() {
     }
 }();
 
-function Sale(aI, aName, aAlias) {
+var visibleIdCounter = 0;
+function Sale(aId, aName, aAlias) {
+    var visibleId = visibleIdCounter++;
+    var id = aId;
     var name = aName;
     var alias = aAlias;
     var state = new ViewState();
 
     var render = function() {
-        jQuery("#sales > tbody > tr[index=" + aI + "]").html(state.render(aI, name, alias));
+        jQuery("#sales > tbody > tr[index=" + visibleId + "]").html(state.render(visibleId, name, alias));
     };
 
     var focusAndSelect = function(){
@@ -122,12 +123,12 @@ function Sale(aI, aName, aAlias) {
             render();
         },
         commit: function(){
-            var newName = jQuery("#sales > tbody > tr[index=" + aI + "] > td[name=name] > input").val();
-            var newAlias = jQuery("#sales > tbody > tr[index=" + aI + "] > td[name=alias] > input").val();
+            var newName = jQuery("#sales > tbody > tr[index=" + visibleId + "] > td[name=name] > input").val();
+            var newAlias = jQuery("#sales > tbody > tr[index=" + visibleId + "] > td[name=alias] > input").val();
 
             jQuery.ajax({
                 url: "editSales",
-                data: "command=" + state.getCommand() + "&saleId=" + aI + "&saleName=" + newName + "&saleAlias=" + newAlias,
+                data: "command=" + state.getCommand() + "&saleId=" + id + "&saleName=" + newName + "&saleAlias=" + newAlias,
                 type: "POST",
                 contentType: "application/x-www-form-urlencoded; charset=utf-8",
                 dataType: "json",
@@ -147,6 +148,9 @@ function Sale(aI, aName, aAlias) {
                     render();
                 }
             });
+        },
+        getVisibleId: function(){
+            return visibleId;
         }
     }
 }
