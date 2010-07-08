@@ -16,6 +16,7 @@ public class ActionFactory {
     private static final String SALE_NAME = "saleName";
     private static final String SALE_ALIAS = "saleAlias";
     private static final String CREATE_COMMAND = "create";
+    public static final String GET_ALL_COMMAND = "getAll";
 
     public ActionFactory(Map<String, String[]> params, Session session) {
         if(params == null)
@@ -75,6 +76,9 @@ public class ActionFactory {
 
             return new CreateSaleAction(_session, newName, newAlias);
         }
+
+        if(GET_ALL_COMMAND.equals(command))
+            return new GetAllSalesAction(_session);
 
         return new ErrorAction("unknown command");
     }
