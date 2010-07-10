@@ -15,6 +15,7 @@ public class ActionFactory {
     private static final String SALE_ID_PARAM = "saleId";
     private static final String SALE_NAME = "saleName";
     private static final String SALE_ALIAS = "saleAlias";
+    private static final String CREATE_COMMAND = "create";
 
     public ActionFactory(Map<String, String[]> params, Session session) {
         if(params == null)
@@ -58,6 +59,21 @@ public class ActionFactory {
             final String newAlias = newAliasParam[0];
             
             return new UpdateSaleAction(_session, saleId, newName, newAlias);
+        }
+
+        if(CREATE_COMMAND.equals(command)){
+            final String[] newNameParam = _params.get(SALE_NAME);
+            if(newNameParam == null)
+                return new ErrorAction("sale name is null");
+
+            final String[] newAliasParam = _params.get(SALE_ALIAS);
+            if(newAliasParam == null)
+                return new ErrorAction("sale alias is null");
+
+            final String newName = newNameParam[0];
+            final String newAlias = newAliasParam[0];
+
+            return new CreateSaleAction(_session, newName, newAlias);
         }
 
         return new ErrorAction("unknown command");

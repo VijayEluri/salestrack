@@ -141,6 +141,7 @@ function Sale(aId, aName, aAlias) {
                         return;
                     }
 
+                    id = response._id;
                     name = response._name;
                     alias = response._alias;
                     state = viewState;

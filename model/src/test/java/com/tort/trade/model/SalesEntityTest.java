@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 public class SalesEntityTest extends EntityTest{
 	public void newSales(){
 		Sales sales = new Sales("sales name");
-		sales.setId(1L);
 		
 		_session.save(sales);
 		_session.flush();

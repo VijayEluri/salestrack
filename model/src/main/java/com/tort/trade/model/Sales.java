@@ -1,11 +1,14 @@
 package com.tort.trade.model;
 
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.NotNull;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "DEP")
+@SequenceGenerator(name = "sales_gen", initialValue = 777, allocationSize = 20, sequenceName = "sales_gen")
 public class Sales {
 	private Long _id;
 	private String _name;
@@ -14,26 +17,22 @@ public class Sales {
     public Sales(){
 
     }
-    
+
 	public Sales(String name) {
-		_name = name;
-	}
-	
-	public Sales(Long id, String name) {
-		_id = id;
 		_name = name;
 	}
 
 	@Id
 	@Column(name = "DEP_SEQ")
+    @GeneratedValue(generator = "sales_gen")
 	public Long getId() {
 		return _id;
 	}
 	public void setId(Long id) {
 		_id = id;
 	}
-	
-	@NotNull
+
+    @NotNull
 	@Column(name = "DEP_NAME")
 	public String getName() {
 		return _name;
