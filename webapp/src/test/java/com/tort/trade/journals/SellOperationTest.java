@@ -20,8 +20,8 @@ public class SellOperationTest extends OperationTest {
 
     @Override
     protected Operation positiveSetUp() {
-        _me = new Sales(1L, "me");
-        _customer = new Sales(2L, "customer");
+        _me = new Sales("me");
+        _customer = new Sales("customer");
 
         Session session = createMock(Session.class);
         expect(session.load(eq(Sales.class), anyLong())).andReturn(_customer);

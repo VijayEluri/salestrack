@@ -10,11 +10,11 @@ public abstract class BaseOperation implements Operation {
     protected final Sales _me;
 
     public BaseOperation(Session session, Sales me) {
-        if(session == null) {
+        if (session == null) {
             throw new IllegalArgumentException("session is null");
         }
 
-        if(me == null) {
+        if (me == null) {
             throw new IllegalArgumentException("me is null");
         }
 
@@ -24,13 +24,14 @@ public abstract class BaseOperation implements Operation {
 
     protected Good loadGood(Long goodId) {
         return (Good) _session.load(Good.class, goodId);
-	}
+    }
 
     protected Sales loadSales(String dest, String sign) {
-		if("$".equals(dest)){
-			dest = sign + dest;
-		}
+        System.out.println("DEST: " + dest + " SIGN: " + sign);
+        if ("$".equals(dest)) {
+            dest = sign + dest;
+        }
 
         return ((SalesAlias) _session.load(SalesAlias.class, dest)).getSales();
-	}
+    }
 }

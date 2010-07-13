@@ -21,7 +21,7 @@ public class ConsistencyActionTest {
         replay(query);
 
         Session session = createMock(Session.class);
-        expect(session.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales(1L, "me"));
+        expect(session.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales("me"));
         expect(session.createQuery(isA(String.class))).andReturn(query);
         replay(session);
 

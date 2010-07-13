@@ -1,10 +1,12 @@
 package com.tort.trade.journals;
 
 import com.tort.trade.model.Sales;
+import com.tort.trade.model.SalesAlias;
 import com.tort.trade.model.Transition;
 import org.hibernate.Session;
 
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class TransitionOperation extends BaseOperation {
@@ -46,10 +48,14 @@ public class TransitionOperation extends BaseOperation {
 
     public static class Matcher {
         private final java.util.regex.Matcher _matcher;
-        public static final Pattern PATTERN = Pattern.compile("^([+-])(\\d+)([ВС])$");
 
-        public Matcher(java.util.regex.Matcher matcher) {
-            _matcher = matcher;
+        public Matcher(List<SalesAlias> aliases, String transitionString) {
+            String strAliases = "";
+            for (SalesAlias alias : aliases) {
+                strAliases += alias.getId();
+            }
+
+            _matcher = Pattern.compile("^([+-])(\\d+)([" + strAliases + "])$").matcher(transitionString);
         }
 
         public String getSign() {
@@ -62,6 +68,10 @@ public class TransitionOperation extends BaseOperation {
 
         public String getAlias() {
             return _matcher.group(3);
+        }
+
+        public boolean matches() {
+            return _matcher.matches();
         }
     }
 }

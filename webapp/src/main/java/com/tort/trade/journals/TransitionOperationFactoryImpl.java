@@ -1,7 +1,11 @@
 package com.tort.trade.journals;
 
 import com.tort.trade.model.Sales;
+import com.tort.trade.model.SalesAlias;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+
+import java.util.List;
 
 public class TransitionOperationFactoryImpl implements TransitionOperationFactory {
     private final Session _session;
@@ -12,6 +16,12 @@ public class TransitionOperationFactoryImpl implements TransitionOperationFactor
         _me = me;
     }
 
+    private List<SalesAlias> getPatternAliases() {
+        Criteria criteria = _session.createCriteria(SalesAlias.class);
+
+        return criteria.list();
+    }
+
     @Override
     public Operation createOperation(String transitionString) throws ConvertTransitionException {
         if(transitionString == null)
@@ -19,9 +29,9 @@ public class TransitionOperationFactoryImpl implements TransitionOperationFactor
 
         java.util.regex.Matcher matcher;
 
-        matcher = TransitionOperation.Matcher.PATTERN.matcher(transitionString);
-        if (matcher.matches())
-            return new TransitionOperation(_session, _me, new TransitionOperation.Matcher(matcher));
+        TransitionOperation.Matcher transitionMatcher = new TransitionOperation.Matcher(getPatternAliases(), transitionString);
+        if (transitionMatcher.matches())
+            return new TransitionOperation(_session, _me, transitionMatcher);
 
         matcher = SellOperation.FullMatcher.PATTERN.matcher(transitionString);
         if(matcher.matches())

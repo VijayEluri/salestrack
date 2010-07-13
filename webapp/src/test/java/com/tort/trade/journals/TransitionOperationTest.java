@@ -21,7 +21,7 @@ public class TransitionOperationTest extends OperationTest {
     @Override
     protected Operation positiveSetUp() {
         Session session = createMock(Session.class);
-        Sales me = new Sales(1L, "test");
+        Sales me = new Sales("test");
         expect(session.load(eq(Good.class), anyLong())).andReturn(new Good());
         expect(session.load(eq(SalesAlias.class), eq("В"))).andReturn(new SalesAlias());
         replay(session);

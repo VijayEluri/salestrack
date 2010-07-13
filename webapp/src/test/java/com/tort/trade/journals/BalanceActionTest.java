@@ -29,13 +29,13 @@ public class BalanceActionTest extends ActionTest {
 		replay(query);
 		
 		Session session = createMock(Session.class);
-		expect(session.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales(1L, "test"));
+		expect(session.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales("test"));
 		expect(session.createQuery(isA(String.class))).andReturn(query);
 		replay(session);
 		return session;
 	}
 
-	private Map createParams() {
+	private Map<String, String[]> createParams() {
 		Map<String, String[]> params = new HashMap<String, String[]>();
 		params.put("me", new String[]{"1"});
 		
@@ -54,7 +54,7 @@ public class BalanceActionTest extends ActionTest {
 		try{
 			new BalanceAction(null, createQueryFactory(), createParams());
 			fail();
-		} catch (IllegalArgumentException e){
+		} catch (IllegalArgumentException ignored){
 			
 		}
 	}
@@ -63,7 +63,7 @@ public class BalanceActionTest extends ActionTest {
 		try{
 			new BalanceAction(createSession(), null, createParams());
 			fail();
-		} catch (IllegalArgumentException e){
+		} catch (IllegalArgumentException ignored){
 			
 		}
 	}
@@ -72,18 +72,18 @@ public class BalanceActionTest extends ActionTest {
 		try {
 			new BalanceAction(createSession(), createQueryFactory(), null);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException ignored) {
 			
 		}
 	}
 	
 	public void newBalanceActionEmptyParams(){
 		try {
-			Map params = new HashMap();
+			Map<String, String[]> params = new HashMap<String, String[]>();
 			new BalanceAction(createSession(), createQueryFactory(), params);
 			
 			fail();
-		} catch(IllegalArgumentException e){
+		} catch(IllegalArgumentException ignored){
 			
 		}
 	}
@@ -95,7 +95,7 @@ public class BalanceActionTest extends ActionTest {
 			
 			new BalanceAction(createSession(), createQueryFactory(), params);
 			fail();
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalArgumentException ignored) {
 			
 		}
 	}
@@ -108,7 +108,7 @@ public class BalanceActionTest extends ActionTest {
 			
 			new BalanceAction(session, createQueryFactory(), createParams());
 			fail();
-		} catch (HibernateException e) {
+		} catch (HibernateException ignored) {
 			
 		}
 	}

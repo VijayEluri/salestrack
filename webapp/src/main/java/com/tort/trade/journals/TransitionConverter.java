@@ -6,5 +6,5 @@ import com.tort.trade.model.Transition;
 
 public interface TransitionConverter {
 
-	public List<Transition> convertToEntity(TransitionTO transitionTO) throws ConvertTransitionException;
+    public List<Transition> convertToEntity(TransitionTO transitionTO) throws ConvertTransitionException;
 }

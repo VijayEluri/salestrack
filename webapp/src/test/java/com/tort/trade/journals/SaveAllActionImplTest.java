@@ -115,7 +115,7 @@ public class SaveAllActionImplTest extends ActionTest {
 		
 		SaveAllAction action = new  SaveAllAction(params, mockSession, converterLookup);
 		
-		expect(mockSession.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales(1L, "test"));
+		expect(mockSession.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales("test"));
 		expect(converterLookup.getTransitionConverter(isA(Session.class), isA(Sales.class))).andReturn(converter);
 		expect(mockSession.save(isA(Transition.class))).andStubReturn(1L);
 		try {
