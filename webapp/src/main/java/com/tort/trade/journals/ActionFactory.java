@@ -77,9 +77,6 @@ public class ActionFactory {
             return new CreateSaleAction(_session, newName, newAlias);
         }
 
-        if(GET_ALL_COMMAND.equals(command))
-            return new GetAllSalesAction(_session);
-
         return new ErrorAction("unknown command");
     }
 }

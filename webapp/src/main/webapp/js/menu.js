@@ -76,7 +76,7 @@ function SalesSubMenu(wrapperTag, markupUrl) {
     var render = function(){
         jQuery.ajax({
             url: "editSales",
-            data: "command=getAll",
+            data: "command=get",
             type: "GET",
             dataType: "json",
             error: function(){alert("Серер недоступен");},
