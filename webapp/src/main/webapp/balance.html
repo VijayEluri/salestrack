@@ -1,70 +1,53 @@
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<link type="text/css" href="css/menu.css" rel="stylesheet">
-	<script type="text/javascript" src="js/jquery-1.3.1.js"></script>
-	<script type="text/javascript" src="js/jquery.json-2.2.js"></script>
-	<script type="text/javascript" src="js/menu.js"></script>
-	<script type="text/javascript" src="js/balance.js"></script>
-	<title>Остатки</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link type="text/css" href="css/menu.css" rel="stylesheet">
+    <link type="text/css" href="css/datepicker.css" rel="stylesheet">
+    <script type="text/javascript" src="js/jquery-1.3.1.js"></script>
+    <script type="text/javascript" src="js/jquery.json-2.2.js"></script>
+    <script type="text/javascript" src="js/menu.js"></script>
+    <script type="text/javascript" src="js/balance.js"></script>
+    <script type="text/javascript" src="js/jquery.tools.min.js"></script>
+    <title>Остатки</title>
 </head>
 <body>
-	<div id="menu">
-		<table style="background-color: #EFEFEF; width: 100%;">
-			<tr>
-				<td id="mainMenuWrapper">
-				<table class="menu">
-					<tr>
-						<td><a name="journal" href="journal.html">Журналы продаж</a></td>
-						<td class="active">Остаток</td>
-						<td>Вал</td>
-						<td>Продавцы</td>
-					</tr>
-				</table>
-				</td>
-			</tr>
-			<tr>
-				<td id="salesMenuFragmentWrapper">
-				<table id="sales" class="menu">
-					<tr>
-						<td name="3">Гена</td>
-						<td name="5">Валя</td>
-						<td name="6">Саша</td>
-						<td name="7">Маша</td>
-						<td name="8">Оля</td>
-						<td name="9">Лена</td>
-					</tr>
-				</table>
-				</td>
-			</tr>			
-		</table>		
-	</div>
-	<div style="margin-top: 20px;"> 
-		<table id="balance" border="1">
-			<thead>
-			<tr>
-				<th>Товар</th>
-				<th>Остаток</th>
-			</tr>	
-			</thead>
-			<tbody>
-			<tr>
-				<td>Джинсы клеш</td>
-				<td style="text-align: right;">3</td>
-			</tr>
-			<tr>
-				<td>Джинсы зеленые</td>
-				<td style="text-align: right;">5</td>
-			</tr>
-			<tr>
-				<td>Джинсы монтана</td>
-				<td style="text-align: right;">0</td>
-			</tr>
-			</tbody>			
-		</table>
-	</div>
+<div id="menu">
+</div>
+<div style="margin-top: 20px;">
+    <table>
+        <tr>
+            <td>
+                <table id="balance" border="1">
+                    <thead>
+                    <tr>
+                        <th>Товар</th>
+                        <th>Остаток</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Джинсы клеш</td>
+                        <td style="text-align: right;">3</td>
+                    </tr>
+                    <tr>
+                        <td>Джинсы зеленые</td>
+                        <td style="text-align: right;">5</td>
+                    </tr>
+                    <tr>
+                        <td>Джинсы монтана</td>
+                        <td style="text-align: right;">0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td style="vertical-align: top;">
+                <input id="today" type="date"/>
+            </td>
+        </tr>
+    </table>
+</div>
 <script>
-	balance.init(3);
+    balance.init(3);
 </script>
 </body>
 </html>
