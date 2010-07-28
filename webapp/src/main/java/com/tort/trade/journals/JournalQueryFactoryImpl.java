@@ -2,29 +2,36 @@ package com.tort.trade.journals;
 
 public class JournalQueryFactoryImpl implements JournalQueryFactory {
 
-	@Override
-	public String getBalanceQuery() {
-		return "select new com.tort.trade.journals.GoodBalance(transition.good, sum(transition.quant)) " +
-				"from Transition transition " +
-				"where transition.me = :me " +
+    @Override
+    public String getBalanceQuery() {
+        return "select new com.tort.trade.journals.GoodBalance(transition.good, sum(transition.quant)) " +
+                "from Transition transition " +
+                "where transition.me = :me " +
                 "and transition.date <= :today " +
-				"group by transition.good.id ";
-	}
+                "group by transition.good.id ";
+    }
 
     @Override
     public String getConsistencyQuery() {
-        return "select new com.tort.trade.journals.DiffTO(transition.me.id, transition.good.name, " +
-                "sum(case when transition.me = transition.to then transition.quant " +
-                "    when transition.me = transition.from then (transition.quant*-1) end)) " +
+        return "select transition " +
                 "from Transition transition " +
-                "where transition.me = :me " +
+                "where transition.id not in (" +
+                "select myjournal.id " +
+                "from Transition myjournal, Transition opponent " +
+                "where myjournal.date = opponent.date " +
+                "and myjournal.me = :me " +
+                "and myjournal.from.id > 2 " +
+                "and myjournal.to.id > 2 " +
+                "and myjournal.me.id > 2 " +
+                "and opponent.me.id > 2 " +
+                "and myjournal.to = opponent.to " +
+                "and myjournal.from = opponent.from " +
+                "and myjournal.me <> opponent.me " +
+                ")" +
                 "and transition.from.id > 2 " +
                 "and transition.to.id > 2 " +
-                "group by transition.good.name, transition.me.id " +
-                "having sum(case when transition.me = transition.to then transition.quant " +
-                "           when transition.me = transition.from then (transition.quant*-1) end) != 0 " +
-                " order by abs(sum(case when transition.me = transition.to then transition.quant " +
-                "           when transition.me = transition.from then (transition.quant*-1) end)) desc, transition.good.name asc";
+                "and transition.me.id = :me " +
+                "order by transition.date ";
     }
 
     @Override

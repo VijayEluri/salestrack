@@ -1,25 +1,14 @@
 var consistency = function() {
-    var diffs = [
-        {_day: "01.01.2010", _errors: [
-            {_me: 3, _good: "Джинсы синие", _diff: "+3В"}
-        ]},
-        {_day: "02.01.2010", _errors: [
-            {_me: 3, _good: "Джинсы красные", _diff: "-2С"},
-            {_me: 3, _good: "Джинсы зеленые", _diff: "+5В"}
-        ]
-        }
-    ];
     var menu;
 
-    var render = function(me, diffs) {
+    var render = function(me, dayDiffs) {
         jQuery("table#diffs > tbody").empty();
-        jQuery.each(diffs, function(i, diff) {
-            jQuery("table#diffs > tbody").append("<tr><td colspan='2'>" + diff._day + "</td></tr>");
-            jQuery.each(diff._errors, function(j, error) {
-                if (error._me == me)
-                    jQuery("table#diffs > tbody").append("<tr><td>" + error._good + "</td><td>" + error._diff + "</td></tr>");
+        for (var day in dayDiffs){
+            jQuery("table#diffs > tbody").append("<tr><td colspan='2'>" + day + "</td></tr>");
+            jQuery.each(dayDiffs[day], function(j, diff) {
+                    jQuery("table#diffs > tbody").append("<tr><td>" + diff._good + "</td><td>" + diff._diff + "</td></tr>");
             });
-        });
+        }
     };
 
     var loadDiffs = function() {
