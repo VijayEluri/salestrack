@@ -40,7 +40,7 @@ public class BalanceActionTest extends ActionTest {
 	private Map<String, String[]> createParams() {
 		Map<String, String[]> params = new HashMap<String, String[]>();
 		params.put("me", new String[]{"1"});
-        params.put("today", new String[]{"01/02/03"});
+        params.put("today", new String[]{"176357136"});
 		
 		return params;
 	}

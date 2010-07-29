@@ -15,7 +15,8 @@ public class JournalQueryFactoryTest extends QueryTest {
 
     public void balanceQuery() {
         Query query = _session.createQuery(_queryFactory.getBalanceQuery());
-        query.setParameter("me", new Sales("test"));
+        Sales me = (Sales) _session.load(Sales.class, 1L);
+        query.setParameter("me", me);
         query.setParameter("today", new Date());
 
         assertNotNull(query.list());
@@ -23,8 +24,9 @@ public class JournalQueryFactoryTest extends QueryTest {
 
 
     public void consistencyQuery() {
+        Sales me = (Sales) _session.load(Sales.class, 7L);
         final Query query = _session.createQuery(_queryFactory.getConsistencyQuery());
-        query.setParameter("me", new Sales("test"));
+        query.setParameter("me", me);
 
         assertNotNull(query.list());
     }

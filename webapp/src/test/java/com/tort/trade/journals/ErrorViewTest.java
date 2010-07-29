@@ -21,7 +21,7 @@ public class ErrorViewTest {
         replay(outputStream);
 
         HttpServletResponse response = createMock(HttpServletResponse.class);
-        expect(response.getOutputStream()).andReturn(outputStream);
+        response.sendError(anyInt(), isA(String.class));
         replay(response);
 
         view.render(response);

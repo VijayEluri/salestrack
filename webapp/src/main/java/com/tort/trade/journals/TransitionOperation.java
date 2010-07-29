@@ -50,12 +50,18 @@ public class TransitionOperation extends BaseOperation {
         private final java.util.regex.Matcher _matcher;
 
         public Matcher(List<SalesAlias> aliases, String transitionString) {
-            String strAliases = "";
+            if(aliases == null)
+                throw new IllegalArgumentException("aliases is null");
+
+            if(aliases.size() == 0)
+                throw new IllegalArgumentException("aliases size is 0");
+
+            StringBuilder aliasesBuilder = new StringBuilder();
             for (SalesAlias alias : aliases) {
-                strAliases += alias.getId();
+                aliasesBuilder.append(alias.getId());
             }
 
-            _matcher = Pattern.compile("^([+-])(\\d+)([" + strAliases + "])$").matcher(transitionString);
+            _matcher = Pattern.compile("^([+-])(\\d+)([" + aliasesBuilder.toString() + "])$").matcher(transitionString);
         }
 
         public String getSign() {
