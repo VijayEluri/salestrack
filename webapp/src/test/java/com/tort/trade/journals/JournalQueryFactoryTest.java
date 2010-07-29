@@ -10,26 +10,26 @@ import java.util.Date;
 import static org.testng.AssertJUnit.*;
 
 @Test(groups = {"integration"})
-public class JournalQueryFactoryTest extends QueryTest{
-	private JournalQueryFactory _queryFactory = new JournalQueryFactoryImpl();
-	
-	public void balanceQuery(){
-		Query query = _session.createQuery(_queryFactory.getBalanceQuery());
-		query.setParameter("me", new Sales("test"));
+public class JournalQueryFactoryTest extends QueryTest {
+    private JournalQueryFactory _queryFactory = new JournalQueryFactoryImpl();
+
+    public void balanceQuery() {
+        Query query = _session.createQuery(_queryFactory.getBalanceQuery());
+        query.setParameter("me", new Sales("test"));
         query.setParameter("today", new Date());
-		
-		assertNotNull(query.list());
-	}
+
+        assertNotNull(query.list());
+    }
 
 
-    public void consistencyQuery(){
+    public void consistencyQuery() {
         final Query query = _session.createQuery(_queryFactory.getConsistencyQuery());
         query.setParameter("me", new Sales("test"));
 
         assertNotNull(query.list());
     }
 
-    public void getSales(){
+    public void getSales() {
         final Query query = _session.createQuery(_queryFactory.getSales());
 
         assertNotNull(query.list());
