@@ -50,16 +50,40 @@ public class ConsistencyAction implements Action {
         query.setParameter("me", me);
         List<Transition> transitions = query.list();
 
-        Map<Date, List<DiffTO>> model = new TreeMap<Date, List<DiffTO>>();
-        for (Transition transition : transitions) {
-            List<DiffTO> diffs = model.get(transition.getDate());
-            if(diffs == null){
-                diffs = new ArrayList();
-                model.put(transition.getDate(), diffs);
-            }
-            diffs.add(new DiffTO(transition.getMe().getId(), transition.getGood().getName(), String.valueOf(transition.getQuant())));
-        }
+        Map<Date, List<Transition>> sortedTransitions = groupByDate(transitions);
+        sortedTransitions = new DaySumsChecker().invoke(sortedTransitions);
+        Map<Date, List<DiffTO>> model = toModel(sortedTransitions);
 
         return new JsonView<Map<Date, List<DiffTO>>>(model);
     }
+
+    private Map<Date, List<DiffTO>> toModel(Map<Date, List<Transition>> sortedTransitions) {
+        Map<Date, List<DiffTO>> model = new TreeMap<Date, List<DiffTO>>();
+        for (Date date : sortedTransitions.keySet()) {
+            List<DiffTO> diffs = model.get(date);
+            if(diffs == null){
+                diffs = new ArrayList();
+                model.put(date, diffs);
+            }
+            final List<Transition> transitions = sortedTransitions.get(date);
+            for (Transition transition : transitions) {
+                diffs.add(new DiffTO(transition.getMe().getId(), transition.getGood().getName(), String.valueOf(transition.getQuant())));
+            }
+        }
+        return model;
+    }
+
+    private Map<Date, List<Transition>> groupByDate(List<Transition> transitions) {
+        TreeMap<Date, List<Transition>> sortedTransitions = new TreeMap<Date, List<Transition>>();
+        for (Transition transition : transitions) {
+            List<Transition> value = sortedTransitions.get(transition.getDate());
+            if(value == null){
+                value = new ArrayList();
+                sortedTransitions.put(transition.getDate(), value);
+            }
+            value.add(transition);
+        }
+        return sortedTransitions;
+    }
+
 }
