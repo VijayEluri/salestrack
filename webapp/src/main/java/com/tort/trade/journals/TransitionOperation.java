@@ -5,7 +5,9 @@ import com.tort.trade.model.SalesAlias;
 import com.tort.trade.model.Transition;
 import org.hibernate.Session;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -31,7 +33,13 @@ public class TransitionOperation extends BaseOperation {
         String alias = _matcher.getAlias();
 
         Transition transition = new Transition();
-        transition.setDate(new Date());
+        Calendar calendar = new GregorianCalendar();
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        final Date today = calendar.getTime();
+        transition.setDate(today);
         transition.setMe(_me);
         transition.setGood(loadGood(transitionTO.getGoodId()));
         transition.setQuant(number);
