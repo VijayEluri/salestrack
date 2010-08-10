@@ -8,16 +8,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
-public class SaveAllServlet extends HttpServlet{
+public class SaveAllServlet extends HttpServlet {
 
-	@SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"unchecked"})
     @Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {				
-	
-		TransitionConversation conversation = (TransitionConversation) req.getSession().getAttribute(Constants.CONVERSATION);		
-		SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession(), new TransitionConverterLookupNoScoped());
-		
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        TransitionConversation conversation = (TransitionConversation) req.getSession().getAttribute(Constants.CONVERSATION);
+        SaveAllAction action = new SaveAllAction(req.getParameterMap(), conversation.getHibernateSession(), new TransitionConverterLookupNoScoped());
+
         action.act().render(resp);
-	}
+    }
 }
