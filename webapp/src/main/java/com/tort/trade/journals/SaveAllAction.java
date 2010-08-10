@@ -60,7 +60,6 @@ public class SaveAllAction implements Action {
 
     public View act() {
         Sales me = (Sales) _session.load(Sales.class, _meId);
-        System.out.println("SALES NAME: " + me.getName());
         TransitionConverter converter = _converterLookup.getTransitionConverter(_session, me);
 
         ArrayList<TransitionErrorTO> errors = new ArrayList<TransitionErrorTO>();
