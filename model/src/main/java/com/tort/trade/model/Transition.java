@@ -3,20 +3,14 @@ package com.tort.trade.model;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.validator.NotNull;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @Entity
 @Table(name = "TRADE_SRC")
+@SequenceGenerator(name = "transitions_gen", initialValue = 100000000, allocationSize = 1, sequenceName = "transitions_gen")
 public class Transition {
     private Long _id;
     private Sales _from;
@@ -30,7 +24,7 @@ public class Transition {
 
     @Id
     @Column(name = "TRD_SEQ")
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(generator = "transitions_gen")
     public Long getId() {
         return _id;
     }
