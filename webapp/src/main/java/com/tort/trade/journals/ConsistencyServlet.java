@@ -15,9 +15,8 @@ public class ConsistencyServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         JournalQueryFactory queryFactory = new JournalQueryFactoryImpl();
         TransitionConversation conversation = (TransitionConversation) req.getSession().getAttribute("conversation");
-        Session session = conversation.getHibernateSession();
 
-        new ConsistencyAction(session, queryFactory, req.getParameterMap()).act().render(resp);
+        new ConsistencyAction(conversation, queryFactory, req.getParameterMap()).act().render(resp);
     }
 
 }
