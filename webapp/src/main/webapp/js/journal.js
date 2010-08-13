@@ -111,6 +111,8 @@ journal = function() {
             menu.getSalesMenu().bind(function(me) {
                 jQuery("table[class=journal] > tbody > tr[me!=" + me + "]").hide();
                 jQuery("table[class=journal] > tbody > tr[me=" + me + "]").show();
+
+                focusFilter();
             });
 
             journal.refreshGoods();
