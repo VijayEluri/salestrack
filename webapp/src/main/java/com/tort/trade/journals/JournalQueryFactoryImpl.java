@@ -19,7 +19,6 @@ public class JournalQueryFactoryImpl implements JournalQueryFactory {
                 "select myjournal.id " +
                 "from Transition myjournal, Transition opponent " +
                 "where myjournal.date = opponent.date " +
-                "and myjournal.me = :me " +
                 "and myjournal.from.id > 2 " +
                 "and myjournal.to.id > 2 " +
                 "and myjournal.me.id > 2 " +
@@ -30,7 +29,6 @@ public class JournalQueryFactoryImpl implements JournalQueryFactory {
                 ")" +
                 "and transition.from.id > 2 " +
                 "and transition.to.id > 2 " +
-                "and transition.me.id = :me " +
                 "order by transition.date ";
     }
 

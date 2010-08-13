@@ -17,18 +17,7 @@ public class DaySumsChecker {
             transitions.removeAll(markDeleted);
         }
 
-        removeEmptyDays(sortedTransitions);
-
         return sortedTransitions;
-    }
-
-    private void removeEmptyDays(Map<Date, List<Transition>> sortedTransitions) {
-        for (Iterator<Date> iterator = sortedTransitions.keySet().iterator(); iterator.hasNext();) {
-            Date date = iterator.next();
-            final List<Transition> transitions = sortedTransitions.get(date);
-            if(transitions.size() == 0)
-                iterator.remove();
-        }
     }
 
     private List<Transition> delete(Transition current, List<Transition> transitions) {
