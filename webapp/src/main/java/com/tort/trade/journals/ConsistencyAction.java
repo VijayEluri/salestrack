@@ -3,12 +3,10 @@ package com.tort.trade.journals;
 import com.tort.trade.model.Sales;
 import com.tort.trade.model.Transition;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 
 import java.util.*;
 
 public class ConsistencyAction implements Action {
-    private final JournalQueryFactory _queryFactory;
     private final String[] _meParam;
     private TransitionConversation _conversation;
 
@@ -25,7 +23,6 @@ public class ConsistencyAction implements Action {
         if(queryFactory == null)
             throw new IllegalArgumentException("queryFactory is null");
 
-        _queryFactory = queryFactory;
         _meParam = (String[]) params.get("me");
         _conversation = conversation;
     }
@@ -45,11 +42,6 @@ public class ConsistencyAction implements Action {
             return new ErrorView("unknown sales");
         }
 
-        if (_conversation.getInconsistent() == null) {
-            Query query = _conversation.getHibernateSession().createQuery(_queryFactory.getConsistencyQuery());
-            _conversation.setInconsistent((List<Transition>) query.list());
-        }
-
         Map<Date, List<Transition>> sortedTransitions = groupByDate(_conversation.getInconsistent());
         sortedTransitions = new DaySumsChecker().invoke(sortedTransitions);
         Map<Date, List<DiffTO>> model = toModel(sortedTransitions, me);
@@ -62,7 +54,7 @@ public class ConsistencyAction implements Action {
         for (Date date : sortedTransitions.keySet()) {
             List<DiffTO> diffs = model.get(date);
             if(diffs == null){
-                diffs = new ArrayList();
+                diffs = new ArrayList<DiffTO>();
                 model.put(date, diffs);
             }
             final List<Transition> transitions = sortedTransitions.get(date);
@@ -92,7 +84,7 @@ public class ConsistencyAction implements Action {
         for (Transition transition : transitions) {
             List<Transition> value = sortedTransitions.get(transition.getDate());
             if(value == null){
-                value = new ArrayList();
+                value = new ArrayList<Transition>();
                 sortedTransitions.put(transition.getDate(), value);
             }
             value.add(transition);
