@@ -28,6 +28,11 @@ journal = function() {
         clearGoods();
         addGoods();
         setupGoodsEventHandlers();
+        updateGoodsCount(goods.length);
+    };
+
+    var updateGoodsCount = function (count){
+        jQuery("#goodCount").html(count);
     };
 
     var goodsFilter = function () {
