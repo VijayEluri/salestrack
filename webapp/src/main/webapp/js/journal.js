@@ -2,6 +2,8 @@ journal = function() {
     var goods = [];
     var transitionCounter = 0;
     var menu;
+    var initFinished = false;
+    var today = new Date();
 
     var focusFilter = function () {
         jQuery("input[class=filter]").focus();
@@ -113,6 +115,17 @@ journal = function() {
                 jQuery("table[class=journal] > tbody > tr[me=" + me + "]").show();
 
                 focusFilter();
+                initFinished = true;
+            });
+
+            jQuery("#today").dateinput({selectors: true, trigger: true, format: "dd/mm/yyyy"});
+            jQuery("#today").data("dateinput").setValue(today);
+            jQuery("#today").change(function(event, date){
+                if(initFinished){
+                    today = jQuery("#today").data("dateinput").getValue();
+                }
+
+                return true;
             });
 
             journal.refreshGoods();
