@@ -3,6 +3,8 @@ package com.tort.trade.journals;
 import com.tort.trade.model.Transition;
 import org.hibernate.Session;
 
+import com.tort.trade.model.Sales;
+
 import java.util.List;
 
 public class TransitionConversation {
@@ -15,10 +17,6 @@ public class TransitionConversation {
 
     public List<Transition> getInconsistent() {
         return inconsistent;
-    }
-
-    public void addTransition(Transition transition){
-        inconsistent.add(transition);
     }
 
     public void setInconsistent(List<Transition> inconsistent) {

@@ -4,6 +4,7 @@ import com.tort.trade.model.Sales;
 import com.tort.trade.model.Transition;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
+import org.hibernate.Session;
 
 import java.util.*;
 
@@ -47,17 +48,18 @@ public class ConsistencyAction implements Action {
 
         if (_conversation.getInconsistent() == null) {
             Query query = _conversation.getHibernateSession().createQuery(_queryFactory.getConsistencyQuery());
+            query.setParameter("me", me);
             _conversation.setInconsistent((List<Transition>) query.list());
         }
 
         Map<Date, List<Transition>> sortedTransitions = groupByDate(_conversation.getInconsistent());
         sortedTransitions = new DaySumsChecker().invoke(sortedTransitions);
-        Map<Date, List<DiffTO>> model = toModel(sortedTransitions, me);
+        Map<Date, List<DiffTO>> model = toModel(sortedTransitions);
 
         return new JsonView<Map<Date, List<DiffTO>>>(model);
     }
 
-    private Map<Date, List<DiffTO>> toModel(Map<Date, List<Transition>> sortedTransitions, Sales me) {
+    private Map<Date, List<DiffTO>> toModel(Map<Date, List<Transition>> sortedTransitions) {
         Map<Date, List<DiffTO>> model = new TreeMap<Date, List<DiffTO>>();
         for (Date date : sortedTransitions.keySet()) {
             List<DiffTO> diffs = model.get(date);
@@ -67,24 +69,10 @@ public class ConsistencyAction implements Action {
             }
             final List<Transition> transitions = sortedTransitions.get(date);
             for (Transition transition : transitions) {
-                if (transition.getMe().equals(me)) {
-                    diffs.add(new DiffTO(transition.getMe().getId(), transition.getGood().getName(), String.valueOf(transition.getQuant())));
-                }
+                diffs.add(new DiffTO(transition.getMe().getId(), transition.getGood().getName(), String.valueOf(transition.getQuant())));
             }
         }
-
-        removeEmptyDays(model);
-
         return model;
-    }
-
-    private void removeEmptyDays(Map<Date, List<DiffTO>> sortedTransitions) {
-        for (Iterator<Date> iterator = sortedTransitions.keySet().iterator(); iterator.hasNext();) {
-            Date date = iterator.next();
-            final List<DiffTO> transitions = sortedTransitions.get(date);
-            if(transitions.size() == 0)
-                iterator.remove();
-        }
     }
 
     private Map<Date, List<Transition>> groupByDate(List<Transition> transitions) {

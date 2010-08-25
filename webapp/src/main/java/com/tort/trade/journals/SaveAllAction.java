@@ -66,7 +66,7 @@ public class SaveAllAction implements Action {
                 List<Transition> transitions = converter.convertToEntity(transitionTO);
                 for (Transition transition : transitions) {
                     _conversation.getHibernateSession().save(transition);
-                    _conversation.addTransition(transition);
+                    _conversation.getInconsistent().add(transition);
                 }
             } catch (ConvertTransitionException e) {
                 errors.add(new TransitionErrorTO(transitionTO.getLid(), e.getMessage()));
