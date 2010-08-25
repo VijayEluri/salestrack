@@ -25,10 +25,6 @@ public class ConsistencyActionTest {
         expect(session.createQuery(isA(String.class))).andReturn(query);
         replay(session);
 
-        TransitionConversation conversation = createMock(TransitionConversation.class);
-        expect(conversation.getHibernateSession()).andReturn(session);
-        replay(conversation);
-
         JournalQueryFactory queryFactory = createMock(JournalQueryFactory.class);
         expect(queryFactory.getConsistencyQuery()).andReturn("query");
         replay(queryFactory);
@@ -36,7 +32,7 @@ public class ConsistencyActionTest {
         Map<String, String[]> params = new HashMap<String, String[]>();
         params.put("me", new String[]{"1"});
 
-        final ConsistencyAction action = new ConsistencyAction(conversation, queryFactory, params);
+        final ConsistencyAction action = new ConsistencyAction(session, queryFactory, params);
         final View view = action.act();
         
         assertNotNull(view);

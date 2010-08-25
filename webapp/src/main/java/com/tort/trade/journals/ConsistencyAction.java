@@ -10,25 +10,25 @@ import java.util.*;
 
 public class ConsistencyAction implements Action {
     private final JournalQueryFactory _queryFactory;
+    private final Session _session;
     private final String[] _meParam;
-    private TransitionConversation _conversation;
 
-    public ConsistencyAction(TransitionConversation conversation, JournalQueryFactory queryFactory, Map params) {
+    public ConsistencyAction(Session session, JournalQueryFactory queryFactory, Map params) {
         if(params == null)
             throw new IllegalArgumentException("params is null");
 
         if(params.get("me") == null)
             throw new IllegalArgumentException("me param absent");
 
-        if(conversation == null)
-            throw new IllegalArgumentException("conversation is null");
+        if(session == null)
+            throw new IllegalArgumentException("session is null");
 
         if(queryFactory == null)
             throw new IllegalArgumentException("queryFactory is null");
 
+        _session = session;
         _queryFactory = queryFactory;
         _meParam = (String[]) params.get("me");
-        _conversation = conversation;
     }
 
     public View act() {
@@ -41,18 +41,16 @@ public class ConsistencyAction implements Action {
         }
 
         try {
-            me = (Sales) _conversation.getHibernateSession().load(Sales.class, meId);
+            me = (Sales) _session.load(Sales.class, meId);
         } catch (HibernateException e) {
             return new ErrorView("unknown sales");
         }
 
-        if (_conversation.getInconsistent() == null) {
-            Query query = _conversation.getHibernateSession().createQuery(_queryFactory.getConsistencyQuery());
-            query.setParameter("me", me);
-            _conversation.setInconsistent((List<Transition>) query.list());
-        }
+        Query query = _session.createQuery(_queryFactory.getConsistencyQuery());
+        query.setParameter("me", me);
+        List<Transition> transitions = query.list();
 
-        Map<Date, List<Transition>> sortedTransitions = groupByDate(_conversation.getInconsistent());
+        Map<Date, List<Transition>> sortedTransitions = groupByDate(transitions);
         sortedTransitions = new DaySumsChecker().invoke(sortedTransitions);
         Map<Date, List<DiffTO>> model = toModel(sortedTransitions);
 

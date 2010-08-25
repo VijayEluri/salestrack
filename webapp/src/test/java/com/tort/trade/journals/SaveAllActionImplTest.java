@@ -55,12 +55,7 @@ public class SaveAllActionImplTest extends ActionTest {
 	
 	public void newActionNullParams(){
 		try {
-            final Session session = createMock(Session.class);
-            TransitionConversation conversation = createMock(TransitionConversation.class);
-            expect(conversation.getHibernateSession()).andReturn(session);
-            replay(conversation);
-
-            new SaveAllAction(null, conversation, createMock(TransitionConverterLookup.class));
+			new SaveAllAction(null, createMock(Session.class), createMock(TransitionConverterLookup.class));
 			fail();
 		} catch (IllegalArgumentException ignored) {
 			
@@ -78,12 +73,7 @@ public class SaveAllActionImplTest extends ActionTest {
 	
 	public void newActionNullLookup(){
 		try{
-            final Session session = createMock(Session.class);
-            TransitionConversation conversation = createMock(TransitionConversation.class);
-            expect(conversation.getHibernateSession()).andReturn(session);
-            replay(conversation);
-
-			new SaveAllAction(createParams(), conversation, null);
+			new SaveAllAction(createParams(), createMock(Session.class), null);
 			fail();
 		} catch (IllegalArgumentException ignored) {
 			
@@ -94,12 +84,8 @@ public class SaveAllActionImplTest extends ActionTest {
 		Session session = createMock(Session.class);
 		expect(session.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales("test"));
 		replay(session);
-
-        TransitionConversation conversation = createMock(TransitionConversation.class);
-        expect(conversation.getHibernateSession()).andReturn(session);
-        replay(conversation);
-
-		new SaveAllAction(createParams(), conversation, createMock(TransitionConverterLookup.class));
+		
+		new SaveAllAction(createParams(), session, createMock(TransitionConverterLookup.class));
 	}
 
 	private Map<String, String[]> createParams() {
@@ -119,23 +105,19 @@ public class SaveAllActionImplTest extends ActionTest {
 	
 	@SuppressWarnings({"ThrowableInstanceNeverThrown"})
     protected Action positiveSetUp() {
+		Session mockSession = createMock(Session.class);
 		TransitionConverter converter = createMock(TransitionConverter.class);
 		TransitionConverterLookup converterLookup = createMock(TransitionConverterLookup.class);
 		
 		Map<String, String[]> params = new HashMap<String, String[]>();
 		params.put("data", new String[]{"[{_goodId: 5, _text: \"bad_data\", _lid: 5}, {_goodId: 1, _text: \"good_data\", _lid: 1}, {_goodId: 2, _text: \"bad_data\", _lid: 2}]"});
 		params.put("me", new String[]{"1"});
-
-        final Session session = createMock(Session.class);
-        TransitionConversation conversation = createMock(TransitionConversation.class);
-        expect(conversation.getHibernateSession()).andReturn(session);
-        replay(conversation);
-
-		SaveAllAction action = new  SaveAllAction(params, conversation, converterLookup);
 		
-		expect(session.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales("test"));
+		SaveAllAction action = new  SaveAllAction(params, mockSession, converterLookup);
+		
+		expect(mockSession.load(eq(Sales.class), isA(Long.class))).andReturn(new Sales("test"));
 		expect(converterLookup.getTransitionConverter(isA(Session.class), isA(Sales.class))).andReturn(converter);
-		expect(session.save(isA(Transition.class))).andStubReturn(1L);
+		expect(mockSession.save(isA(Transition.class))).andStubReturn(1L);
 		try {
 			expect(converter.convertToEntity(isA(TransitionTO.class))).andThrow(new ConvertTransitionException());
 			ArrayList<Transition> transitions = new ArrayList<Transition>();
@@ -145,8 +127,8 @@ public class SaveAllActionImplTest extends ActionTest {
 		} catch (ConvertTransitionException e) {
 			e.printStackTrace();
 		}
-		session.flush();
-		replay(converter, converterLookup, session);
+		mockSession.flush();
+		replay(converter, converterLookup, mockSession);
 		
 		return action;
 	}

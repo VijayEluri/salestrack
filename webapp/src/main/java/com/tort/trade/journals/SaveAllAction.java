@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tort.trade.model.Sales;
@@ -13,19 +15,19 @@ import com.tort.trade.model.Transition;
 public class SaveAllAction implements Action {
 
     private final List<TransitionTO> _transitions;
+    private final Session _session;
     private final Long _meId;
     private final TransitionConverterLookup _converterLookup;
-    private TransitionConversation _conversation;
 
-    public SaveAllAction(Map<String, String[]> params, TransitionConversation conversation, TransitionConverterLookup converterLookup) {
+    public SaveAllAction(Map<String, String[]> params, Session session, TransitionConverterLookup converterLookup) {
         if (params == null)
             throw new IllegalArgumentException("params is null");
 
         String encodedTransitions = extractData(params);
         _meId = extractMeId(params);
 
-        if (conversation == null)
-            throw new IllegalArgumentException("conversation is null");
+        if (session == null)
+            throw new IllegalArgumentException("session is null");
 
         if (converterLookup == null)
             throw new IllegalArgumentException("converterLookup is null");
@@ -34,7 +36,7 @@ public class SaveAllAction implements Action {
         Type listType = new TypeToken<List<TransitionTO>>() {
         }.getType();
         _transitions = new Gson().fromJson(encodedTransitions, listType);
-        _conversation = conversation;
+        _session = session;
         _converterLookup = converterLookup;
     }
 
@@ -57,23 +59,22 @@ public class SaveAllAction implements Action {
     }
 
     public View act() {
-        Sales me = (Sales) _conversation.getHibernateSession().load(Sales.class, _meId);
-        TransitionConverter converter = _converterLookup.getTransitionConverter(_conversation.getHibernateSession(), me);
+        Sales me = (Sales) _session.load(Sales.class, _meId);
+        TransitionConverter converter = _converterLookup.getTransitionConverter(_session, me);
 
         ArrayList<TransitionErrorTO> errors = new ArrayList<TransitionErrorTO>();
         for (TransitionTO transitionTO : _transitions) {
             try {
                 List<Transition> transitions = converter.convertToEntity(transitionTO);
                 for (Transition transition : transitions) {
-                    _conversation.getHibernateSession().save(transition);
-                    _conversation.getInconsistent().add(transition);
+                    _session.save(transition);
                 }
             } catch (ConvertTransitionException e) {
                 errors.add(new TransitionErrorTO(transitionTO.getLid(), e.getMessage()));
             }
         }
 
-        _conversation.getHibernateSession().flush();
+        _session.flush();
 
         return new JsonView<ArrayList<TransitionErrorTO>>(errors);
     }
