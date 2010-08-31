@@ -38,6 +38,16 @@
         <servlet-class>com.tort.trade.journals.EditSaleServlet</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>consistencyBorders</servlet-name>
+        <servlet-class>com.tort.trade.journals.consistency.BordersServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>consistencyBorders</servlet-name>
+        <url-pattern>getBorders</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>ConsistencyServlet</servlet-name>
         <url-pattern>getConsistency</url-pattern>

@@ -27,10 +27,14 @@ public class JournalQueryFactoryImpl implements JournalQueryFactory {
                 "and myjournal.to = opponent.to " +
                 "and myjournal.from = opponent.from " +
                 "and myjournal.me <> opponent.me " +
+                "and myjournal.date >= :startDate " +
+                "and myjournal.date < :endDate " +
                 ")" +
                 "and transition.from.id > 2 " +
                 "and transition.to.id > 2 " +
                 "and transition.me.id = :me " +
+                "and transition.date >= :startDate " +
+                "and transition.date < :endDate " +
                 "order by transition.date ";
     }
 

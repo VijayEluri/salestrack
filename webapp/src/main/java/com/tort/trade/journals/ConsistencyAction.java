@@ -12,6 +12,10 @@ public class ConsistencyAction implements Action {
     private final JournalQueryFactory _queryFactory;
     private final Session _session;
     private final String[] _meParam;
+    private final String[] _startDateParam;
+    private final String[] _endDateParam;
+    public static final String START_DATE_PARAM = "startDate";
+    public static final String END_DATE_PARAM = "endDate";
 
     public ConsistencyAction(Session session, JournalQueryFactory queryFactory, Map params) {
         if(params == null)
@@ -26,9 +30,17 @@ public class ConsistencyAction implements Action {
         if(queryFactory == null)
             throw new IllegalArgumentException("queryFactory is null");
 
+        if(params.get(START_DATE_PARAM) == null)
+            throw new IllegalArgumentException("startDate is null");
+
+        if(params.get(END_DATE_PARAM) == null)
+            throw new IllegalArgumentException("endDate is null");
+
         _session = session;
         _queryFactory = queryFactory;
         _meParam = (String[]) params.get("me");
+        _startDateParam = (String[]) params.get(START_DATE_PARAM);
+        _endDateParam = (String[]) params.get(END_DATE_PARAM);
     }
 
     public View act() {
@@ -46,8 +58,13 @@ public class ConsistencyAction implements Action {
             return new ErrorView("unknown sales");
         }
 
+        Date startDate = new Date(Long.valueOf(_startDateParam[0]));
+        Date endDate = new Date(Long.valueOf(_endDateParam[0]));
+
         Query query = _session.createQuery(_queryFactory.getConsistencyQuery());
         query.setParameter("me", me);
+        query.setParameter(START_DATE_PARAM, startDate);
+        query.setParameter(END_DATE_PARAM, endDate);
         List<Transition> transitions = query.list();
 
         Map<Date, List<Transition>> sortedTransitions = groupByDate(transitions);

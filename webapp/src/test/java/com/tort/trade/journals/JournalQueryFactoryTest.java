@@ -27,6 +27,8 @@ public class JournalQueryFactoryTest extends QueryTest {
         Sales me = (Sales) _session.load(Sales.class, 7L);
         final Query query = _session.createQuery(_queryFactory.getConsistencyQuery());
         query.setParameter("me", me);
+        query.setParameter("startDate", new Date());
+        query.setParameter("endDate", new Date());
 
         assertNotNull(query.list());
     }
