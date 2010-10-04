@@ -1,0 +1,14 @@
+@CHARSET "UTF-8";
+
+div.body, table {
+    font-size: 14px; font-family: serif;
+}
+
+div.body {
+    width: 100%;
+    margin-top: 20px;
+}
+
+input {
+    font-size: 10px; font-family: serif;
+}

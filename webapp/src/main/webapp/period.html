@@ -2,20 +2,42 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link type="text/css" href="css/menu.css" rel="stylesheet">
+    <link type="text/css" href="css/period.css" rel="stylesheet">
+    <link type="text/css" href="css/datepicker.css" rel="stylesheet">
     <script type="text/javascript" src="js/jquery-1.3.1.js"></script>
     <script type="text/javascript" src="js/jquery.json-2.2.js"></script>
     <script type="text/javascript" src="js/menu.js"></script>
+    <script type="text/javascript" src="js/period.js"></script>
+    <script type="text/javascript" src="js/jquery.tools.min.js"></script>
     <title>Выручка, прибыль, зарплата</title>
 </head>
 <body>
-<div id="menu">
-
-</div>
-<div style="width: 100%;margin-top: 20px;">
-
+<div id="menu"></div>
+<div class="body">
+    <table>
+        <tr>
+            <td style="text-align: right;">Начало периода:</td>
+            <td><input id="start" type="date" style="font-size: 12px;"/></td>
+        </tr>
+        <tr>
+            <td style="text-align: right;">Конец периода:</td>
+            <td><input id="finish" type="date" style="font-size: 12px;"/></td>
+        </tr>
+    </table>
+    <div class="col" style="margin-top: 20px;">
+        <div>
+            Вал: <span id="overall"></span>
+        </div>
+        <div>
+            Прибыль: <span id="income"></span>
+        </div>
+        <div>
+            Зарплата: <span id="salary"></span>
+        </div>
+    </div>
 </div>
 <script type="text/javascript">
-    new Menu();
+    period.init("period",7);
 </script>
 </body>
 </html>
