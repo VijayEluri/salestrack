@@ -6,7 +6,7 @@ object SalesTrack extends Build {
     id = "root",
     base = file("."),
     settings = buildSettings
-  ) aggregate(model, webapp)
+  ) aggregate(model, webapp, replicator)
 
   lazy val model = Project(
     id = "model",
@@ -17,6 +17,12 @@ object SalesTrack extends Build {
   lazy val webapp = Project(
     id = "webapp",
     base = file("webapp"),
+    settings = buildSettings
+  ) dependsOn (model)
+
+  lazy val replicator = Project(
+    id = "dbreplicator",
+    base = file("dbreplicator"),
     settings = buildSettings
   ) dependsOn (model)
 
