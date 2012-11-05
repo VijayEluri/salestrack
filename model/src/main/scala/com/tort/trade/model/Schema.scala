@@ -45,6 +45,7 @@ object SalestrackSchema extends Schema {
   val transition = table[Transition]("TRADE_SRC")
   val sales = table[Sales]("DEP")
   val good = table[Good]("MAT")
+  val salesAlias = table[SalesAlias]("SALESALIAS")
 }
 
 import SalestrackSchema._
@@ -57,9 +58,7 @@ class Transition(
                   @Column("TRD_DATE") val date: Date,
                   @Column("TRD_JREF") val me: SalesId,
                   @Column("TRD_MAT") val good: GoodId,
-                  @Column("TRD_PRICE") val sellPrice: BigDecimal = BigDecimal(0),
-                  @Column("TRD_BUYPRICE") val buyPrice: BigDecimal = BigDecimal(0)
-                  )
+                  @Column("TRD_PRICE") val sellPrice: Option[Long] = Some(0L))
 
 object Transition {
   def apply(from: SalesId,
@@ -68,21 +67,30 @@ object Transition {
             date: Date,
             me: SalesId,
             good: GoodId,
-            sellPrice: BigDecimal,
-            buyPrice: BigDecimal) = new Transition(id, from, to, quant, date, me, good, sellPrice, buyPrice)
+            sellPrice: Option[Long],
+            buyPrice: Option[Long]) = new Transition(id, from, to, quant, date, me, good, sellPrice)
+
+  def unapply(transition: Transition) = Some((
+    transition.id,
+    transition.from,
+    transition.to,
+    transition.quant,
+    transition.date,
+    transition.me,
+    transition.good,
+    transition.sellPrice))
 
   def id = UUIDGenerator.generate.toString |> transitionId
 }
 
 class Sales(
              @Column(name = "DEP_SEQ") val id: SalesId,
-             @Column(name = "DEP_NAME") val name: SalesName,
-             val alias: SalesAliasId
+             @Column(name = "DEP_NAME") val name: SalesName
              )
 
 class SalesAlias(val id: SalesAliasId, val sales: SalesId)
 
 class Good(
             @Column(name = "SEQ_M") val id: GoodId,
-            @Column(name = "NAME") val name: GoodName
+            @Column(name = "NAME") val name: Option[GoodName]
             )
