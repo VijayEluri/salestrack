@@ -3,7 +3,6 @@ package com.tort.trade.journals;
 import com.tort.trade.model.Sales;
 import com.tort.trade.model.SalesAlias;
 import com.tort.trade.model.Transition;
-import org.hibernate.Session;
 
 import java.util.Calendar;
 import java.util.Date;
