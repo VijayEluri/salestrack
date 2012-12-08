@@ -14,7 +14,7 @@ class AndroidTests extends AndroidTestCase {
 class ActivityTests extends ActivityInstrumentationTestCase2(classOf[Journal]) {
    def testHelloWorldIsShown() {
       val activity = getActivity
-      val textview = activity.findView(TR.textview)
+      val textview = activity.findView(TR.GoodsView)
       assertEquals(textview.getText, "hello, world!")
     }
 }
