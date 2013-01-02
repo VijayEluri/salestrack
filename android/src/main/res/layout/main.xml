@@ -1,16 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout
         android:orientation="horizontal"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android">
-    <ListView
+        android:layout_height="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
+        android:gravity="center">
+    <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/goodsView" android:layout_gravity="center_vertical|left|top" android:layout_weight="2"
-            android:focusableInTouchMode="false"/>
-    <GridView
+            android:text="Поставщик"
+            android:id="@+id/supplier" android:layout_gravity="center" android:padding="10dp"
+            android:layout_margin="10dp" android:background="#fffb7c" android:textColor="@android:color/black"
+            android:clickable="true"/>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:layout_gravity="center" android:gravity="center">
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Гена"
+                android:id="@+id/gena" android:padding="10dp" android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp" android:background="#55d8aa"
+                android:textColor="@android:color/black"/>
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Саша"
+                android:id="@+id/sasha" android:padding="10dp" android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp" android:background="#55d8aa"
+                android:textColor="@android:color/black"/>
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Таня"
+                android:id="@+id/tana" android:padding="10dp" android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp" android:background="#55d8aa"
+                android:textColor="@android:color/black" android:clickable="true"/>
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Валя"
+                android:id="@+id/vala" android:padding="10dp" android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp" android:background="#55d8aa"
+                android:textColor="@android:color/black"/>
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Маша"
+                android:id="@+id/masha" android:padding="10dp" android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp" android:background="#55d8aa"
+                android:textColor="@android:color/black"/>
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Оля"
+                android:id="@+id/ola" android:padding="10dp" android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp" android:background="#55d8aa"
+                android:textColor="@android:color/black"/>
+    </LinearLayout>
+    <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/salesView" android:layout_gravity="center" android:layout_weight="1"/>
+            android:text="Покупатель"
+            android:id="@+id/customer" android:layout_gravity="center" android:padding="10dp"
+            android:layout_margin="10dp" android:background="#fffb7c" android:textColor="@android:color/black"/>
 </LinearLayout>
