@@ -4,12 +4,12 @@ import android.app.{AlertDialog, Activity}
 import android.os.Bundle
 import android.widget._
 import android.view.{DragEvent, ViewGroup, View}
-import android.content.{ClipData, Context}
+import android.content.{Intent, ClipData, Context}
 import android.view.View._
 import android.graphics.Color
 import android.graphics.drawable.{ColorDrawable, Drawable}
 
-class Journal extends Activity with TypedActivity {
+class Journal extends TypedActivity {
   var from = "undefined"
   val context = this
 
@@ -38,7 +38,21 @@ class Journal extends Activity with TypedActivity {
       }
     }))
 
-    textViews.foreach(view => view.setOnDragListener(new SalesDragListener(context, toColor(view.getBackground))))
+    textViews.foreach(view => view.setOnDragListener(new SalesDragListener(context, toColor(view.getBackground), showFromAndTo)))
+  }
+
+  private def showAlert(text: String) {
+    val alert = new AlertDialog.Builder(context).create()
+    alert.setMessage(text)
+    alert.show()
+  }
+
+  private def showFromAndTo(from: String, to: String) {
+    val direction: String = "from %s to %s".format(from, to)
+    val intent: Intent = new Intent(context, classOf[GoodsActivity])
+    val params = new Bundle()
+    intent.putExtra("direction", direction)
+    startActivity(intent)
   }
 
   def toColor(drawable: Drawable): Int = {
@@ -57,7 +71,7 @@ class Journal extends Activity with TypedActivity {
 
 }
 
-class SalesDragListener(context: Context, backgroundColor: Int) extends OnDragListener {
+class SalesDragListener(context: Context, backgroundColor: Int, action: (String, String) => Unit) extends OnDragListener {
   def onDrag(view: View, event: DragEvent) = event.getAction match {
     case DragEvent.ACTION_DRAG_STARTED =>
       true
@@ -75,18 +89,8 @@ class SalesDragListener(context: Context, backgroundColor: Int) extends OnDragLi
       val textView = view.asInstanceOf[TextView]
       val to = textView.getText.toString
       val from: String = event.getClipData.getItemAt(0).getText.toString
-      showFromAndTo(from, to)
+      action(from, to)
       true
     case _ => true
-  }
-
-  private def showFromAndTo(from: String, to: String) {
-    showAlert("from %s to %s".format(from, to))
-  }
-
-  private def showAlert(text: String) {
-    val alert = new AlertDialog.Builder(context).create()
-    alert.setMessage(text)
-    alert.show()
   }
 }
