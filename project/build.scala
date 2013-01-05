@@ -18,7 +18,7 @@ object SalesTrack extends Build {
   lazy val android = Project(
     id = "android",
     base = file("android"),
-    settings = buildSettings ++ General.fullAndroidSettings
+    settings = buildSettings ++ AndroidSettings.full
   ) dependsOn (model)
 
   lazy val replicator = Project(
@@ -28,16 +28,15 @@ object SalesTrack extends Build {
   ) dependsOn (model)
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
-    scalaVersion := "2.9.2"
+    scalaVersion := "2.10.0"
   )
 }
 
-object General {
+object AndroidSettings {
   val settings = Defaults.defaultSettings ++ Seq (
     name := "android",
     version := "0.1",
     versionCode := 0,
-    scalaVersion := "2.9.2",
     platformName in Android := "android-16"
   )
 
@@ -45,15 +44,17 @@ object General {
     useProguard in Android := true
   )
 
-  lazy val fullAndroidSettings =
-    General.settings ++
+  lazy val full =
+    AndroidSettings.settings ++
       AndroidProject.androidSettings ++
       TypedResources.settings ++
       proguardSettings ++
       AndroidManifestGenerator.settings ++
       AndroidMarketPublish.settings ++ Seq (
       keyalias in Android := "change-me",
-      libraryDependencies += "org.scalatest" %% "scalatest" % "1.8" % "test"
+      libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
+      libraryDependencies += "com.h2database" % "h2" % "1.3.168",
+      libraryDependencies += "com.typesafe" % "slick_2.10" % "1.0.0-RC2"
     )
 }
 

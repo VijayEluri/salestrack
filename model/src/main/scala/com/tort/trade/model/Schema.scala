@@ -42,6 +42,8 @@ object SalestrackSchema extends Schema {
 
   def transitionId(id: String) = Tag[String, TransitionIdTag](id)
 
+  def quantity(quantity: Long) = Tag[Long, QuantityTag](quantity)
+
   val transition = table[Transition]("TRADE_SRC")
   val sales = table[Sales]("DEP")
   val good = table[Good]("MAT")

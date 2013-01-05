@@ -42,7 +42,7 @@ class Journal extends TypedActivity {
   }
 
   private def showFromAndTo(from: String, to: String) {
-    val direction: String = "from %s to %s".format(from, to)
+    val direction: String = "from " + from + " to " + to
     val intent: Intent = new Intent(context, classOf[GoodsActivity])
     intent.putExtra("direction", direction)
     startActivity(intent)
