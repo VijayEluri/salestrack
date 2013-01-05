@@ -41,12 +41,6 @@ class Journal extends TypedActivity {
     textViews.foreach(view => view.setOnDragListener(new SalesDragListener(context, toColor(view.getBackground), showFromAndTo)))
   }
 
-  private def showAlert(text: String) {
-    val alert = new AlertDialog.Builder(context).create()
-    alert.setMessage(text)
-    alert.show()
-  }
-
   private def showFromAndTo(from: String, to: String) {
     val direction: String = "from %s to %s".format(from, to)
     val intent: Intent = new Intent(context, classOf[GoodsActivity])
