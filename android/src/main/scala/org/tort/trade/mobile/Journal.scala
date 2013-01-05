@@ -52,17 +52,6 @@ class Journal extends TypedActivity {
   def toColor(drawable: Drawable): Int = {
     drawable.asInstanceOf[ColorDrawable].getColor
   }
-
-  class DragAndDropGridAdapter(context: Context) extends BaseAdapter {
-    def getCount = 0
-
-    def getItem(p1: Int) = null
-
-    def getItemId(p1: Int) = 0L
-
-    def getView(p1: Int, p2: View, p3: ViewGroup) = new TextView(context)
-  }
-
 }
 
 class SalesDragListener(context: Context, backgroundColor: Int, action: (String, String) => Unit) extends OnDragListener {
