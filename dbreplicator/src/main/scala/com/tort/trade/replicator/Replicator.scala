@@ -8,7 +8,10 @@ import com.tort.trade.model.Transition
 import scalaz._
 import Scalaz._
 
-object ReplicatorRun extends App with Replicator {
+class Replicator(val ip: String) {
+  Class.forName("org.h2.Driver")
+  Class.forName("oracle.jdbc.driver.OracleDriver")
+
   createSchema
   replicate(good)
   replicate(sales)
@@ -27,12 +30,8 @@ object ReplicatorRun extends App with Replicator {
         transition.sellPrice)
     )
   }
-}
 
-trait Replicator {
-  Class.forName("org.h2.Driver")
-
-  def h2Session = {
+  private def h2Session = {
     val connection = java.sql.DriverManager.getConnection(
       "jdbc:h2:trade;AUTO_SERVER=TRUE",
       "sa",
@@ -42,11 +41,9 @@ trait Replicator {
     Session.create(connection, new H2Adapter)
   }
 
-  Class.forName("oracle.jdbc.driver.OracleDriver")
-
-  def oracleSession = {
+  private def oracleSession = {
     val connection = java.sql.DriverManager.getConnection(
-      "jdbc:oracle:thin:@192.168.1.218:1521:trade",
+      "jdbc:oracle:thin:@%s:1521:trade".format(ip),
       "torhriph",
       "nfufymqjhr"
     )
@@ -54,7 +51,7 @@ trait Replicator {
     Session.create(connection, new H2Adapter)
   }
 
-  def replicate[T](table: Table[T], transform: Seq[T] => Seq[T] = (x: Seq[T]) => x) = {
+  private def replicate[T](table: Table[T], transform: Seq[T] => Seq[T] = (x: Seq[T]) => x) = {
     println("copying " + table.name)
 
     transaction(oracleSession) {
@@ -69,10 +66,17 @@ trait Replicator {
     }
   }
 
-  def createSchema = transaction(h2Session) {
+  private def createSchema = transaction(h2Session) {
     drop
     println("schema droppped")
     create
     println("schema created")
   }
 }
+
+object Runner {
+  def main(args: Array[String]) {
+    new Replicator(args(0))
+  }
+}
+
