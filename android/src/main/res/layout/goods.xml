@@ -18,9 +18,15 @@
             android:weightSum="10"
             android:id="@+id/goodsLayout">
         <ListView
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/goodsListView"
+                android:id="@+id/searchHistoryView"
                 android:layout_weight="1"/>
+        <GridLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" android:layout_weight="1" android:orientation="vertical"
+                android:columnCount="2" android:rowCount="14" android:id="@+id/goodsGridLayout"
+                android:focusable="false">
+        </GridLayout>
     </LinearLayout>
 </LinearLayout>
