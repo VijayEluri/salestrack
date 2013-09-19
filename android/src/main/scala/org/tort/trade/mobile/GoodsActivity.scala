@@ -3,16 +3,11 @@ package org.tort.trade.mobile
 import android.os.{AsyncTask, Bundle}
 import android.widget._
 import android.app.Activity
-import scala.slick.jdbc.{StaticQuery => Q}
-import Q.interpolation
-import scala.slick.session.Database
-import Database.threadLocalSession
 import android.view.View.OnClickListener
 import android.view.View
 
 class GoodsActivity extends TypedActivity {
   override def onCreate(savedInstanceState: Bundle) {
-    val context = this
     super.onCreate(savedInstanceState)
     setContentView(R.layout.goods)
 
@@ -21,7 +16,7 @@ class GoodsActivity extends TypedActivity {
     loadGoods(goodsGrid, "")
   }
 
-  def loadGoods(gridLayout: GridLayout, subname: String) {
+  private def loadGoods(gridLayout: GridLayout, subname: String) {
     new GoodsTask(subname, this, gridLayout).execute()
   }
 
@@ -57,16 +52,17 @@ class GoodsTask(subname: String, activity: Activity, goodsGrid: GridLayout) exte
   }
 
 
-  def findGoods(sub: String): Seq[String] = {
+  private def findGoods(sub: String): Seq[String] = {
     val subname = sub.trim + "%"
     val subnameLength = sub.length + 1
 
     mats(subnameLength, subname, 0)
   }
 
+  private val dao: DAO = new SQLiteDAO(activity)
 
   private def mats(subnameLength: Int, subname: String, prevSize: Int): List[String] = {
-    matsBy(subnameLength, subname) match {
+    dao.matsBy(subnameLength, subname) match {
       case x if x.size < 15 && maxLength(x) > prevSize =>
         mats(subnameLength + 1, subname, maxLength(x))
       case x => x
@@ -77,22 +73,4 @@ class GoodsTask(subname: String, activity: Activity, goodsGrid: GridLayout) exte
   private def maxLength(x: List[String]): Int = {
     x.map(_.length).max
   }
-
-  private def matsBy(subnameLength: Int, subname: String): List[String] = {
-    DB.db withSession {
-      sql"select distinct substring(name, 0, $subnameLength) as subname from MAT where name is not null and name like $subname order by subname asc".as[String].list
-    }
-  }
-}
-
-object DB {
-
-  import scala.slick.session.Database
-
-  Class.forName("org.h2.Driver")
-  val DbUrl: String = "jdbc:h2:tcp://192.168.1.155:9092/~/workspace/salestrack/trade"
-  val user = "sa"
-  val password = ""
-
-  val db: Database = Database.forURL(DbUrl, user, password, driver = "org.h2.Driver")
 }
