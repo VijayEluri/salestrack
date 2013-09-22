@@ -3,14 +3,34 @@ package org.tort.trade.mobile
 import android.app.{AlertDialog, Activity}
 import android.os.Bundle
 import android.widget._
-import android.view.{DragEvent, ViewGroup, View}
+import android.view._
 import android.content.{Intent, ClipData, Context}
 import android.view.View._
 import android.graphics.Color
 import android.graphics.drawable.{ColorDrawable, Drawable}
+import android.util.Log
 
 class Journal extends TypedActivity {
   var from = "undefined"
+
+  override def onCreateOptionsMenu(menu: Menu) = {
+    val syncMenuItem: MenuItem = menu.add(0, R.id.action_refresh, 0, "Sync")
+    syncMenuItem.setIcon(R.drawable.navigation_refresh)
+    syncMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+
+    true
+  }
+
+
+  override def onMenuItemSelected(featureId: Int, item: MenuItem) = {
+    item.getItemId match {
+      case R.id.action_refresh =>
+        Log.w(this.getClass.getName, "REFRESH")
+        true
+      case _ => super.onMenuItemSelected(featureId, item)
+    }
+  }
+
   val context = this
 
   override def onCreate(bundle: Bundle) {
