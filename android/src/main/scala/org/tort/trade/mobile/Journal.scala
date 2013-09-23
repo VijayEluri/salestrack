@@ -1,6 +1,5 @@
 package org.tort.trade.mobile
 
-import android.app.{AlertDialog, Activity}
 import android.os.Bundle
 import android.widget._
 import android.view._
@@ -8,13 +7,13 @@ import android.content.{Intent, ClipData, Context}
 import android.view.View._
 import android.graphics.Color
 import android.graphics.drawable.{ColorDrawable, Drawable}
-import android.util.Log
 
 class Journal extends TypedActivity {
   var from = "undefined"
+  val RefreshActionId = 1
 
   override def onCreateOptionsMenu(menu: Menu) = {
-    val syncMenuItem: MenuItem = menu.add(0, R.id.action_refresh, 0, "Sync")
+    val syncMenuItem: MenuItem = menu.add(0, RefreshActionId, 0, "Sync")
     syncMenuItem.setIcon(R.drawable.navigation_refresh)
     syncMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
 
@@ -24,8 +23,8 @@ class Journal extends TypedActivity {
 
   override def onMenuItemSelected(featureId: Int, item: MenuItem) = {
     item.getItemId match {
-      case R.id.action_refresh =>
-        Log.w(this.getClass.getName, "REFRESH")
+      case RefreshActionId =>
+        new SyncTask(this).execute()
         true
       case _ => super.onMenuItemSelected(featureId, item)
     }
