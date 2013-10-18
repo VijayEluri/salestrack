@@ -8,7 +8,7 @@ import com.tort.trade.model.Transition
 import scalaz._
 import Scalaz._
 
-class Replicator(val ip: String) {
+class Replicator(val ip: String, sid: String) {
   Class.forName("org.h2.Driver")
   Class.forName("oracle.jdbc.driver.OracleDriver")
 
@@ -43,7 +43,7 @@ class Replicator(val ip: String) {
 
   private def oracleSession = {
     val connection = java.sql.DriverManager.getConnection(
-      "jdbc:oracle:thin:@%s:1521:trade".format(ip),
+      "jdbc:oracle:thin:@%s:1521:%s".format(ip, sid),
       "torhriph",
       "nfufymqjhr"
     )
@@ -76,7 +76,10 @@ class Replicator(val ip: String) {
 
 object Runner {
   def main(args: Array[String]) {
-    new Replicator(args(0))
+    if (args.length != 2)
+      println("Params: IP SID")
+    else
+      new Replicator(args(0), args(1))
   }
 }
 
