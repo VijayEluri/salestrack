@@ -19,7 +19,7 @@ object SalesTrack extends Build {
     id = "android",
     base = file("android"),
     settings = buildSettings ++ AndroidSettings.full
-  ) dependsOn (model)
+  )
 
   lazy val replicator = Project(
     id = "dbreplicator",
