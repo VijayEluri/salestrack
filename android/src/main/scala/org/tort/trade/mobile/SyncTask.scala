@@ -2,6 +2,8 @@ package org.tort.trade.mobile
 
 import android.app.Activity
 import android.os.AsyncTask
+import scalaz.{@@, Tag}
+import com.fasterxml.uuid.{Generators, EthernetAddress}
 
 class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
   def doInBackground(params: AnyRef*) = {
@@ -21,3 +23,16 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
 }
 
 class NoCGLibGood(val id: String, val name: String)
+
+object NoCGLibGood {
+  trait Id
+
+  def id(goodId: String): String @@ Id = Tag(goodId)
+}
+
+object UUIDGenerator {
+  val nic = EthernetAddress.fromInterface
+  val uuidGenerator = Generators.timeBasedGenerator(nic)
+
+  def generate = uuidGenerator.generate
+}

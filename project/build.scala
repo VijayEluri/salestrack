@@ -33,14 +33,14 @@ object SalesTrack extends Build {
 }
 
 object AndroidSettings {
-  val settings = Defaults.defaultSettings ++ Seq (
+  val settings = Defaults.defaultSettings ++ Seq(
     name := "android",
     version := "0.1",
     versionCode := 0,
     platformName in Android := "android-16"
   )
 
-  val proguardSettings = Seq (
+  val proguardSettings = Seq(
     useProguard in Android := true
   )
 
@@ -50,11 +50,13 @@ object AndroidSettings {
       TypedResources.settings ++
       proguardSettings ++
       AndroidManifestGenerator.settings ++
-      AndroidMarketPublish.settings ++ Seq (
+      AndroidMarketPublish.settings ++ Seq(
       keyalias in Android := "change-me",
       libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
       libraryDependencies += "com.h2database" % "h2" % "1.3.168",
-      libraryDependencies += "com.typesafe" % "slick_2.10" % "1.0.0-RC2"
+      libraryDependencies += "org.scalaz" % "scalaz-core_2.10" % "7.0.5",
+      libraryDependencies += "com.typesafe" % "slick_2.10" % "1.0.0-RC2",
+      libraryDependencies += "com.fasterxml.uuid" % "java-uuid-generator" % "3.1.3"
     )
 }
 

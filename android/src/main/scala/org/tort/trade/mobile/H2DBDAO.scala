@@ -7,6 +7,9 @@ import Q.interpolation
 import scala.slick.session.Database
 import Database.threadLocalSession
 import android.database.Cursor
+import scalaz._
+import Scalaz._
+import java.util.Date
 
 object H2DBDAO extends DAO {
 
@@ -39,7 +42,28 @@ class SQLiteDAO(context: Context) extends DAO {
     iterate[String](cursor, extractString)
   }
 
-  def extractString(cursor: Cursor) = cursor.getString(0)
+  private def extractTransition(cursor: Cursor): NoCGLibTransition = {
+    import NoCGLibTransition._
+    new NoCGLibTransition(
+      id = cursor.getString(0) |> id,
+      from = cursor.getString(1) |> saleId,
+      to = cursor.getString(2) |> saleId,
+      quant = cursor.getInt(3) |> quantity,
+      date = new Date(cursor.getLong(4)),
+      me = cursor.getString(5) |> saleId,
+      good = cursor.getString(6) |> NoCGLibGood.id,
+      sellPrice = if (cursor.isNull(7)) None else cursor.getInt(7) |> price |> some
+    )
+  }
+
+  private def extractString(cursor: Cursor) = cursor.getString(0)
+
+  def transitionsByJournal(journalId: String @@ NoCGLibTransition.SaleId) = {
+    val query: String = s"select trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat, trd_price from trade_src order by trd_date desc"
+    val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
+
+    iterate[NoCGLibTransition](cursor, extractTransition)
+  }
 
   def allMats = {
     val query = s"select m.seq_m, m.name from mat m"
@@ -47,10 +71,23 @@ class SQLiteDAO(context: Context) extends DAO {
     iterate[NoCGLibGood](cursor, extractGood)
   }
 
-  def extractGood(cursor: Cursor) = {
+  private def extractGood(cursor: Cursor) = {
     val id = cursor.getString(0)
     val name = cursor.getString(1)
     new NoCGLibGood(id, name)
+  }
+
+  def insertTransition(transition: NoCGLibTransition) {
+    val query = """insert into trade_src(trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat) values (?, ?, ?, ?, ?, ?, ?)"""
+    new DBHelper(context).getWritableDatabase.execSQL(query, Array[AnyRef](
+      transition.id,
+      transition.from,
+      transition.to,
+      transition.quant,
+      transition.date,
+      transition.me,
+      transition.good
+    ))
   }
 
   def insert(good: NoCGLibGood) = {
@@ -58,7 +95,7 @@ class SQLiteDAO(context: Context) extends DAO {
     new DBHelper(context).getWritableDatabase.execSQL(query, Array(good.id, good.name))
   }
 
-  def iterate[T](cursor: Cursor, item: (Cursor) => T): List[T] = {
+  private def iterate[T](cursor: Cursor, item: (Cursor) => T): List[T] = {
     val items = scala.collection.mutable.ListBuffer[T]()
 
     if (cursor.getCount > 0) {

@@ -47,7 +47,28 @@ class Journal extends TypedActivity {
       R.id.vala
     ).map(findViewById)
 
-    textViews.foreach(view => view.setOnLongClickListener(new OnLongClickListener {
+    textViews.foreach { 
+      case view => 
+      setLongClickListener(view)
+      setClickListener(view)
+    }
+
+    textViews.foreach(view => view.setOnDragListener(new SalesDragListener(context, toColor(view.getBackground), showFromAndTo)))
+  }
+
+  private def setClickListener(view: View) {
+    view.setOnClickListener(new OnClickListener {
+      def onClick(v: View) = {
+        val itemView: TextView = v.asInstanceOf[TextView]
+        val intent: Intent = new Intent(context, classOf[CheckJournalActivity])
+        intent.putExtra("sale", itemView.getText)
+        startActivity(intent)
+      }
+    })
+  }
+
+  private def setLongClickListener(view: View) {
+    view.setOnLongClickListener(new OnLongClickListener {
       def onLongClick(v: View) = {
         val itemView: TextView = v.asInstanceOf[TextView]
         val dragData = ClipData.newPlainText("label", itemView.getText)
@@ -55,9 +76,7 @@ class Journal extends TypedActivity {
         itemView.startDrag(dragData, shadowBuilder, null, 0)
         true
       }
-    }))
-
-    textViews.foreach(view => view.setOnDragListener(new SalesDragListener(context, toColor(view.getBackground), showFromAndTo)))
+    })
   }
 
   private def showFromAndTo(from: String, to: String) {
