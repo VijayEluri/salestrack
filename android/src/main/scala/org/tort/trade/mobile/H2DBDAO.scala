@@ -11,12 +11,12 @@ import scalaz._
 import Scalaz._
 import java.util.Date
 
-object H2DBDAO extends DAO {
+case class H2DBDAO(ip: String) extends DAO {
 
   import scala.slick.session.Database
 
   Class.forName("org.h2.Driver")
-  val DbUrl: String = """jdbc:h2:tcp://192.168.1.155:9092/~/workspace/salestrack/trade"""
+  val DbUrl: String = s"""jdbc:h2:tcp://$ip:9092/~/workspace/salestrack/trade"""
   val user = "sa"
   val password = ""
 
@@ -29,7 +29,7 @@ object H2DBDAO extends DAO {
   }
 
   def allMats = db withSession {
-    val list: List[(String, String)] = sql"select m.seq_m, m.name from mat m".as[(String, String)].list
+    val list: Set[(String, String)] = sql"select m.seq_m, m.name from mat m".as[(String, String)].list.toSet
     list.map(g => new NoCGLibGood(g._1, g._2))
   }
 }
@@ -68,7 +68,7 @@ class SQLiteDAO(context: Context) extends DAO {
   def allMats = {
     val query = s"select m.seq_m, m.name from mat m"
     val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
-    iterate[NoCGLibGood](cursor, extractGood)
+    iterate[NoCGLibGood](cursor, extractGood).toSet
   }
 
   private def extractGood(cursor: Cursor) = {
@@ -114,7 +114,7 @@ class SQLiteDAO(context: Context) extends DAO {
 trait DAO {
   def matsBy(subnameLength: Int, subname: String): List[String]
 
-  def allMats: List[NoCGLibGood]
+  def allMats: Set[NoCGLibGood]
 }
 
 class DBHelper(context: Context, val databaseVersion: Int = 2) extends SQLiteOpenHelper(context, "trade.db", null, databaseVersion) {
