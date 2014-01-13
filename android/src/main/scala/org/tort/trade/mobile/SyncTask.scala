@@ -14,15 +14,16 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
 
   def syncMaterials = {
     val ipH2 = Option(activity.getPreferences(Context.MODE_PRIVATE).getString(Settings.RemoteServerIpKey, null))
-    ipH2 match {
-      case None => new Intent(activity, classOf[EditRemoteServerIpActivity]) |> activity.startActivity
-      case Some(ip) => sync(ip)
+    val path = Option(activity.getPreferences(Context.MODE_PRIVATE).getString(Settings.RemoteServerPathKey, null))
+    (ipH2, path) match {
+      case (Some(ip), Some(p)) => sync(ip, p)
+      case _ => new Intent(activity, classOf[EditRemoteServerIpActivity]) |> activity.startActivity
     }
   }
 
-  private def sync(ipH2: String) {
+  private def sync(ipH2: String, path: String) {
     val sqliteDAO: SQLiteDAO = new SQLiteDAO(activity)
-    val remoteMats: Set[NoCGLibGood] = H2DBDAO(ipH2).allMats
+    val remoteMats: Set[NoCGLibGood] = H2DBDAO(ipH2, path).allMats
     val localMats: Set[NoCGLibGood] = sqliteDAO.allMats
     def ids(coll: Set[NoCGLibGood]) = coll.map(_.id)
     val diff = ids(remoteMats) -- (ids(localMats))

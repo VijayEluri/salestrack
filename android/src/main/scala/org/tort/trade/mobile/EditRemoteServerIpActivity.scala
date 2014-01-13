@@ -21,9 +21,19 @@ class EditRemoteServerIpActivity extends TypedActivity {
         findViewById(R.id.ipInput).asInstanceOf[EditText].getText match {
           case IpPattern(ip) =>
             saveIp(ip)
-            finish()
           case _ =>
         }
+
+        Option(findViewById(R.id.pathInput).asInstanceOf[EditText].getText.toString) match {
+          case None =>
+          case Some("") =>
+          case Some(path) => savePath(path)
+        }
+
+        for {
+          ip <- Option(getPreferences(Context.MODE_PRIVATE).getString(Settings.RemoteServerIpKey, null))
+          path <- Option(getPreferences(Context.MODE_PRIVATE).getString(Settings.RemoteServerPathKey, null))
+        } yield finish()
       }
     })
   }
@@ -31,8 +41,13 @@ class EditRemoteServerIpActivity extends TypedActivity {
   private def saveIp(ip: String) {
     getPreferences(Context.MODE_PRIVATE).edit().putString(Settings.RemoteServerIpKey, ip).commit()
   }
+
+  private def savePath(path: String) {
+    getPreferences(Context.MODE_PRIVATE).edit().putString(Settings.RemoteServerPathKey, path).commit()
+  }
 }
 
 object Settings {
   val RemoteServerIpKey = "org.tort.trade.mobile.main-base-ip"
+  val RemoteServerPathKey = "org.tort.trade.mobile.main-base-path"
 }

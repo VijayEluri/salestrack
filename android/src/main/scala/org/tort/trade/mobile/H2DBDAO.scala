@@ -11,12 +11,12 @@ import scalaz._
 import Scalaz._
 import java.util.Date
 
-case class H2DBDAO(ip: String) extends DAO {
+case class H2DBDAO(ip: String, path: String) extends DAO {
 
   import scala.slick.session.Database
 
   Class.forName("org.h2.Driver")
-  val DbUrl: String = s"""jdbc:h2:tcp://$ip:9092/~/workspace/salestrack/trade"""
+  val DbUrl: String = s"""jdbc:h2:tcp://$ip:9092/~/$path"""
   val user = "sa"
   val password = ""
 

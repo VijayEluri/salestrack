@@ -10,6 +10,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:id="@+id/ipInput" android:layout_gravity="center_horizontal" android:digits="0123456789."/>
+    <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:ems="10"
+              android:id="@+id/pathInput" android:layout_gravity="center_horizontal"/>
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
