@@ -10,6 +10,7 @@ import android.database.Cursor
 import scalaz._
 import Scalaz._
 import java.util.Date
+import NoCGLibSale._
 
 case class H2DBDAO(ip: String, path: String) extends DAO {
 
@@ -58,7 +59,7 @@ class SQLiteDAO(context: Context) extends DAO {
 
   private def extractString(cursor: Cursor) = cursor.getString(0)
 
-  def transitionsByJournal(journalId: String @@ NoCGLibTransition.SaleId) = {
+  def transitionsByJournal(journalId: String @@ SaleId) = {
     val query: String = s"select trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat, trd_price from trade_src order by trd_date desc"
     val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
 

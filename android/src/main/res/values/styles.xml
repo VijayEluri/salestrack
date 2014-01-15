@@ -13,4 +13,7 @@
     <style name="layoutEqual">
         <item name="android:layout_weight">1</item>
     </style>
+    <style name="current_journal">
+        <item name="android:background">#cc33ff</item>
+    </style>
 </resources>

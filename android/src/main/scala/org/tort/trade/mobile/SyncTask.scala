@@ -32,17 +32,6 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
   }
 }
 
-class NoCGLibGood(val id: String, val name: String)
-
-object NoCGLibGood {
-
-  trait Id
-
-  def id(goodId: String): String @@ Id = Tag(goodId)
-
-  def goodsEquality: Equal[NoCGLibGood] = Equal.equal((left, right) => left.id === right.id)
-}
-
 object UUIDGenerator {
   val nic = EthernetAddress.fromInterface
   val uuidGenerator = Generators.timeBasedGenerator(nic)

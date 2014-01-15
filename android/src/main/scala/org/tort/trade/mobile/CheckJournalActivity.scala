@@ -6,7 +6,7 @@ import android.view.{LayoutInflater, ViewGroup, View}
 import android.content.Context
 import android.app.Activity
 import scalaz.@@
-import org.tort.trade.mobile.NoCGLibTransition.SaleId
+import org.tort.trade.mobile.NoCGLibSale.SaleId
 
 class CheckJournalActivity extends TypedActivity {
   override def onCreate(savedInstanceState: Bundle) = {
@@ -25,7 +25,7 @@ class CheckJournalActivity extends TypedActivity {
   private def renderTransitions {
     val listView = findViewById(R.id.transitionsList).asInstanceOf[ListView]
 
-    listView.setAdapter(new TransitionAdapter(context, this, NoCGLibTransition.saleId("8")))
+    listView.setAdapter(new TransitionAdapter(context, this, NoCGLibSale.saleId("8")))
   }
 
   private val context = this

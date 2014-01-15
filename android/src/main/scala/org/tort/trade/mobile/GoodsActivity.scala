@@ -12,7 +12,7 @@ class GoodsActivity extends TypedActivity {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.goods)
 
-    setDirectionText
+    setDirectionText()
     val goodsGrid = findViewById(R.id.goodsGridLayout).asInstanceOf[GridLayout]
     loadGoods(goodsGrid, "")
   }
@@ -21,7 +21,7 @@ class GoodsActivity extends TypedActivity {
     new GoodsTask(subname, this, gridLayout).execute()
   }
 
-  private def setDirectionText {
+  private def setDirectionText() {
     val direction = getIntent.getStringExtra("direction")
     val directionView = findViewById(R.id.transitionDirection).asInstanceOf[TextView]
     directionView.setText(direction)
@@ -46,6 +46,7 @@ class GoodsTask(subname: String, activity: Activity, goodsGrid: GridLayout) exte
 
   private def insertTransitionView(good: String) {
     import NoCGLibTransition._
+    import NoCGLibSale._
 
     val view: TextView = activity.getLayoutInflater.inflate(R.layout.good_selected_view, null).asInstanceOf[TextView]
     view.setText(good)

@@ -4,6 +4,7 @@ import NoCGLibTransition._
 import java.util.Date
 import scalaz._
 import Scalaz._
+import org.tort.trade.mobile.NoCGLibSale.SaleId
 
 class NoCGLibTransition(val id: String @@ NoCGLibTransition.Id,
                         val from: String @@ SaleId,
@@ -17,11 +18,9 @@ class NoCGLibTransition(val id: String @@ NoCGLibTransition.Id,
 object NoCGLibTransition {
   trait Id
   trait Quantity
-  trait SaleId
   trait Price
 
   def id(aI: String): String @@ Id = Tag(aI)
-  def saleId(id: String): String @@ SaleId = Tag(id)
   def quantity(q: Int): Int @@ Quantity = Tag(q)
   def price(p: Int): Int @@ Price = Tag(p)
 
