@@ -12,9 +12,9 @@ import Scalaz._
 import NoCGLibSale._
 
 class Journal extends TypedActivity {
-  var from = "undefined"
-  val RefreshActionId = 1
-  var transitionSession = TransitionSession()
+  private val RefreshActionId = 1
+  private var transitionSession = TransitionSession()
+  private val Alpha = 100
 
   val textViews = Map(
     NoCGLibSale(saleId("2"), saleName("Покупатель")) -> R.id.customer,
@@ -25,7 +25,9 @@ class Journal extends TypedActivity {
     NoCGLibSale(saleId("10"), saleName("Саша")) -> R.id.sasha,
     NoCGLibSale(saleId("9"), saleName("Таня")) -> R.id.tana,
     NoCGLibSale(saleId("8"), saleName("Валя")) -> R.id.vala
-  ).map(x => x._1 -> findViewById(x._2).asInstanceOf[TextView])
+  )
+
+  val SelectionColor = "#cc33ff"
 
   override def onCreateOptionsMenu(menu: Menu) = {
     val syncMenuItem: MenuItem = menu.add(0, RefreshActionId, 0, "Sync")
@@ -49,56 +51,124 @@ class Journal extends TypedActivity {
 
   override def onCreate(bundle: Bundle) {
     super.onCreate(bundle)
+    transitionSession = Option(bundle)
+      .flatMap(b => Option(b.getSerializable(TransitionSessionKey)))
+      .map(_.asInstanceOf[TransitionSession])
+      .getOrElse(TransitionSession())
+
     setContentView(R.layout.main)
 
-    setSaleClickListeners
-    updateAll
+    setSaleClickListeners()
+    updateAll()
   }
 
-  private def updateAll {
+  private val TransitionSessionKey = "com.tort.trade.mobile.TransitionSession"
+
+  override def onSaveInstanceState(outState: Bundle) = {
+    outState.putSerializable(TransitionSessionKey, transitionSession)
+    super.onSaveInstanceState(outState)
+  }
+
+
+  override def onRestoreInstanceState(savedInstanceState: Bundle) = {
+    super.onRestoreInstanceState(savedInstanceState)
+    transitionSession = savedInstanceState.getSerializable(TransitionSessionKey).asInstanceOf[TransitionSession]
+  }
+
+  private def updateAll() {
+    updateDefaultColors()
+    
     updateCurrentJournal(transitionSession.journal)
+    updateSale(transitionSession.from)
+    updateSale(transitionSession.to)
+  }
+
+
+  private def updateDefaultColors() {
+    textViews.foreach { case (sale, viewId) => setDefaultColor(sale, viewId) }
+  }
+
+  private def setDefaultColor(sale: NoCGLibSale, viewId: Int) {
+    val color = sale.id match {
+      case id if id === saleId("1") => "#fffb7c"
+      case id if id === saleId("2") => "#fffb7c"
+      case _ => "#55d8aa"
+    }
+
+    val view = findViewById(viewId)
+    view.setBackgroundColor(Color.parseColor(color))
+    view.setAlpha(255)
+  }
+
+  private def updateSale(sale: Option[NoCGLibSale]) {
+    sale.foreach(selectFrom)
+  }
+
+  private def selectFrom(sale: NoCGLibSale) {
+    (textViews(sale) |> findViewById).getBackground.setAlpha(Alpha)
   }
 
   private def updateCurrentJournal(sale: Option[NoCGLibSale]) {
-    clearCurrentJournalSelection
+    clearCurrentJournalSelection()
 
-    sale.foreach {
-      case journal =>
-        selectNewCurrentJournal(journal)
-    }
+    sale.foreach(selectNewCurrentJournal)
   }
 
   private def selectNewCurrentJournal(sale: NoCGLibSale) {
-    textViews(sale).setTextAppearance(context, R.style.current_journal)
+    val view = (textViews(sale) |> findViewById).asInstanceOf[TextView]
+    view.setBackgroundColor(Color.parseColor(SelectionColor))
   }
 
-  private def clearCurrentJournalSelection {
+  private def clearCurrentJournalSelection() {
   }
 
-  def setSaleClickListeners {
+  def setSaleClickListeners() {
     textViews.foreach {
-      case (sale, view) =>
-        setLongClickListener(view, sale)
-        setClickListener(view, sale)
+      case (sale, viewId) =>
+        setLongClickListener(viewId, sale)
+        setClickListener(viewId, sale)
     }
   }
 
-  private def setClickListener(view: View, sale: NoCGLibSale) {
+  private def setClickListener(viewId: Int, sale: NoCGLibSale) {
+    val view = findViewById(viewId).asInstanceOf[TextView]
     view.setOnClickListener(new OnClickListener {
       def onClick(v: View) = {
-        val itemView: TextView = v.asInstanceOf[TextView]
-        val intent: Intent = new Intent(context, classOf[CheckJournalActivity])
-        intent.putExtra("sale", itemView.getText)
-        startActivity(intent)
+        setFromOrTo(sale)
       }
     })
   }
 
-  private def setLongClickListener(view: View, sale: NoCGLibSale) {
+  private def setFromOrTo(sale: NoCGLibSale) {
+    transitionSession match {
+      case TransitionSession(Some(journal), None, None) =>
+        transitionSession = transitionSession.copy(from = sale.some)
+      case TransitionSession(Some(journal), Some(from), None) =>
+        sale match {
+          case s if s === from =>
+            transitionSession = transitionSession.copy(from = none)
+          case _ =>
+            transitionSession = transitionSession.copy(to = sale.some)
+            startGoodActivity
+        }
+      case _ =>
+    }
+    updateAll()
+  }
+
+
+  private def startGoodActivity {
+    val intent: Intent = new Intent(context, classOf[GoodsActivity])
+    intent.putExtra(TransitionSessionKey, transitionSession)
+    startActivity(intent)
+  }
+
+  private def setLongClickListener(viewId: Int, sale: NoCGLibSale) {
+    val view = findViewById(viewId).asInstanceOf[TextView]
     view.setOnLongClickListener(new OnLongClickListener {
       def onLongClick(v: View) = {
         setCurrentJournal(sale)
-        updateAll
+        updateAll()
         true
       }
     })
@@ -108,39 +178,8 @@ class Journal extends TypedActivity {
     transitionSession = transitionSession.copy(journal = sale.some)
   }
 
-  private def showFromAndTo(from: String, to: String) {
-    val direction: String = "from " + from + " to " + to
-    val intent: Intent = new Intent(context, classOf[GoodsActivity])
-    intent.putExtra("direction", direction)
-    startActivity(intent)
-  }
-
   def toColor(drawable: Drawable): Int = {
     drawable.asInstanceOf[ColorDrawable].getColor
-  }
-}
-
-class SalesDragListener(context: Context, backgroundColor: Int, action: (String, String) => Unit) extends OnDragListener {
-  def onDrag(view: View, event: DragEvent) = event.getAction match {
-    case DragEvent.ACTION_DRAG_STARTED =>
-      true
-    case DragEvent.ACTION_DRAG_ENTERED =>
-      view.setBackgroundColor(Color.DKGRAY)
-      view.invalidate()
-      true
-    case DragEvent.ACTION_DRAG_EXITED =>
-      view.setBackgroundColor(backgroundColor)
-      view.invalidate()
-      true
-    case DragEvent.ACTION_DROP =>
-      view.setBackgroundColor(backgroundColor)
-      view.invalidate()
-      val textView = view.asInstanceOf[TextView]
-      val to = textView.getText.toString
-      val from: String = event.getClipData.getItemAt(0).getText.toString
-      action(from, to)
-      true
-    case _ => true
   }
 }
 

@@ -4,7 +4,14 @@ import scalaz._
 import Scalaz._
 import org.tort.trade.mobile.NoCGLibSale.{SaleName, SaleId}
 
-class NoCGLibSale(val id: String @@ SaleId, val name: String @@ SaleName)
+class NoCGLibSale(val id: String @@ SaleId, val name: String @@ SaleName) extends Serializable {
+  override def equals(o: scala.Any) = o match {
+    case s: NoCGLibSale => this === s
+    case _ => false
+  }
+
+  override def hashCode() = id.hashCode
+}
 
 object NoCGLibSale {
   trait SaleId
