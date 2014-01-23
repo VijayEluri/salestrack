@@ -113,7 +113,7 @@ class SQLiteDAO(context: Context) extends DAO {
 }
 
 trait DAO {
-  def matsBy(subnameLength: Int, subname: String): List[String]
+  def matsBy(subnameLength: Int, subname: String): List[String] //seq because alphabetically ordered by default
 
   def allMats: Set[NoCGLibGood]
 }

@@ -3,20 +3,21 @@ package org.tort.trade.mobile
 import android.os.Bundle
 import android.widget._
 import android.view._
-import android.content.{Intent, Context}
+import android.content.Intent
 import android.view.View._
 import android.graphics.Color
 import android.graphics.drawable.{ColorDrawable, Drawable}
 import scalaz._
 import Scalaz._
 import NoCGLibSale._
+import GoodsActivity.TextHeightKey
 
 class Journal extends TypedActivity {
   private val RefreshActionId = 1
   private var transitionSession = TransitionSession()
   private val Alpha = 100
 
-  val textViews = Map(
+  private val textViews = Map(
     NoCGLibSale(saleId("2"), saleName("Покупатель")) -> R.id.customer,
     NoCGLibSale(saleId("1"), saleName("Поставщик")) -> R.id.supplier,
     NoCGLibSale(saleId("3"), saleName("Гена")) -> R.id.gena,
@@ -149,7 +150,7 @@ class Journal extends TypedActivity {
             transitionSession = transitionSession.copy(from = none)
           case _ =>
             transitionSession = transitionSession.copy(to = sale.some)
-            startGoodActivity
+            startGoodActivity()
         }
       case _ =>
     }
@@ -157,9 +158,10 @@ class Journal extends TypedActivity {
   }
 
 
-  private def startGoodActivity {
+  private def startGoodActivity() {
     val intent: Intent = new Intent(context, classOf[GoodsActivity])
     intent.putExtra(TransitionSessionKey, transitionSession)
+    intent.putExtra(TextHeightKey, findViewById(R.id.gena).getMeasuredHeight)
     startActivity(intent)
   }
 
