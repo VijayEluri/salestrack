@@ -17,7 +17,7 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
   import scala.slick.session.Database
 
   Class.forName("org.h2.Driver")
-  val DbUrl: String = s"""jdbc:h2:tcp://$ip:9092/~/$path"""
+  val DbUrl: String = s"""jdbc:h2:tcp://$ip:9092/~/$path;IFEXISTS=TRUE";"""
   val user = "sa"
   val password = ""
 

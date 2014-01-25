@@ -13,7 +13,11 @@ import NoCGLibSale._
 import GoodsActivity.TextHeightKey
 
 class Journal extends TypedActivity {
-  private val RefreshActionId = 1
+  object Menu {
+    val RefreshActionId = 1
+    val EditRemoteAddressActionId = 2
+  }
+  import Menu._
   private var transitionSession = TransitionSession()
   private val Alpha = 100
 
@@ -35,6 +39,9 @@ class Journal extends TypedActivity {
     syncMenuItem.setIcon(R.drawable.navigation_refresh)
     syncMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
 
+    val editRemoteAddressMenuItem = menu.add(0, EditRemoteAddressActionId, 1, "Edit remote address")
+    editRemoteAddressMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+
     true
   }
 
@@ -43,6 +50,9 @@ class Journal extends TypedActivity {
     item.getItemId match {
       case RefreshActionId =>
         new SyncTask(this).execute()
+        true
+      case EditRemoteAddressActionId =>
+        new Intent(this, classOf[EditRemoteServerIpActivity]) |> this.startActivity
         true
       case _ => super.onMenuItemSelected(featureId, item)
     }

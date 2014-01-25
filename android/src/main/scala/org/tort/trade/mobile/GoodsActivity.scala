@@ -12,6 +12,8 @@ import scalaz._
 import Scalaz._
 
 class GoodsActivity extends TypedActivity {
+  var shortcutFilters = Map("КАПРИ" -> false, "СИН" -> true)
+  
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.goods)
@@ -24,20 +26,22 @@ class GoodsActivity extends TypedActivity {
   private def updateShortcuts() {
     val layout = findViewById(R.id.shortcutsGridLayout).asInstanceOf[GridLayout]
 
-    addShortcut("КАПРИ", layout)
-    addShortcut("СИН", layout)
+    shortcutFilters.foreach(filterWithState => addShortcut(filterWithState, layout))
   }
 
 
-  private def addShortcut(shortcut: String, layout: GridLayout) {
+  private def addShortcut(filterWithState: (String, Boolean), layout: GridLayout) {
+    val (shortcut, enabled) = filterWithState
     val testShortcutButton = new ToggleButton(this)
+    testShortcutButton.setText(shortcut)
     testShortcutButton.setTextOff(shortcut)
     testShortcutButton.setTextOn(shortcut)
+    testShortcutButton.setChecked(enabled)
     testShortcutButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener {
       def onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) = {
         isChecked match {
-          case true => addToFilter(buttonView.getText.toString)
-          case false => removeFromFilter(buttonView.getText.toString)
+          case true => enableFilter(buttonView.getText.toString)
+          case false => disableFilter(buttonView.getText.toString)
         }
       }
     })
@@ -45,11 +49,11 @@ class GoodsActivity extends TypedActivity {
     layout.addView(testShortcutButton)
   }
 
-  private def removeFromFilter(filter: String) {
-
+  private def disableFilter(filter: String) {
+    shortcutFilters = shortcutFilters.updated(filter, false)
   }
-  private def addToFilter(filter: String) {
-
+  private def enableFilter(filter: String) {
+    shortcutFilters = shortcutFilters.updated(filter, true)
   }
 
   private def updateGoods() {
