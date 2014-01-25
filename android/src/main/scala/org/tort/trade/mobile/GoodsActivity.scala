@@ -8,7 +8,8 @@ import android.view.View
 import java.util.Date
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import GoodsActivity._
-import android.widget.RadioGroup.OnCheckedChangeListener
+import scalaz._
+import Scalaz._
 
 class GoodsActivity extends TypedActivity {
   override def onCreate(savedInstanceState: Bundle) {
@@ -35,8 +36,8 @@ class GoodsActivity extends TypedActivity {
     testShortcutButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener {
       def onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) = {
         isChecked match {
-          case true => addToFilter(buttonView.getText)
-          case false => removeFromFilter(buttonView.getText)
+          case true => addToFilter(buttonView.getText.toString)
+          case false => removeFromFilter(buttonView.getText.toString)
         }
       }
     })
@@ -44,7 +45,12 @@ class GoodsActivity extends TypedActivity {
     layout.addView(testShortcutButton)
   }
 
-  addToFilter
+  private def removeFromFilter(filter: String) {
+
+  }
+  private def addToFilter(filter: String) {
+
+  }
 
   private def updateGoods() {
     val goodsGrid = findViewById(R.id.goodsGridLayout).asInstanceOf[GridLayout]
@@ -148,14 +154,14 @@ class GoodsTask(subname: String, activity: Activity, goodsGrid: GridLayout) exte
 
   private def mats(subnameLength: Int, subname: String, prevSize: Int): List[String] = {
     dao.matsBy(subnameLength, subname) match {
-      case x if x.size < 15 && maxLength(x) > prevSize =>
-        mats(subnameLength + 1, subname, maxLength(x))
-      case x => x
+      case Nil => Nil
+      case goodsNames if goodsNames.size < 15 && maxLength(goodsNames) > prevSize =>
+        mats(subnameLength + 1, subname, maxLength(goodsNames))
+      case goodsNames => goodsNames
     }
   }
 
-
-  private def maxLength(x: List[String]): Int = {
-    x.map(_.length).max
+  private def maxLength(goodNames: List[String]): Int = {
+    goodNames.map(_.length).max
   }
 }
