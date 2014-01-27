@@ -13,7 +13,8 @@ import Scalaz._
 
 class GoodsActivity extends TypedActivity {
   var shortcutFilters = Map("КАПРИ" -> false, "СИН" -> true)
-  
+  var stages = Seq("")
+
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.goods)
@@ -43,6 +44,7 @@ class GoodsActivity extends TypedActivity {
           case true => enableFilter(buttonView.getText.toString)
           case false => disableFilter(buttonView.getText.toString)
         }
+        updateGoods()
       }
     })
 
@@ -59,7 +61,9 @@ class GoodsActivity extends TypedActivity {
   private def updateGoods() {
     val goodsGrid = findViewById(R.id.goodsGridLayout).asInstanceOf[GridLayout]
     viewObserverTo(goodsGrid, () => setRowCount(goodsGrid))
-    loadGoods(goodsGrid, "")
+    val filters = shortcutFilters.filter(_._2).map(_._1).toSet
+    goodsGrid.removeAllViews()
+    new GoodsTask(stages.last, filters, this, goodsGrid).execute()
   }
 
   private def viewObserverTo(view: GridLayout, action: () => Unit) {
@@ -78,8 +82,8 @@ class GoodsActivity extends TypedActivity {
     goodsGrid.setRowCount(rowsNumber)
   }
 
-  private def loadGoods(gridLayout: GridLayout, subname: String) {
-    new GoodsTask(subname, this, gridLayout).execute()
+  def addStage(stage: String) {
+    stages = stages :+ stage
   }
 
   private def setDirectionText() {
@@ -95,10 +99,10 @@ object GoodsActivity {
   val TextHeightKey = "com.tort.trade.mobile.TextHeight"
 }
 
-class GoodsTask(subname: String, activity: Activity, goodsGrid: GridLayout) extends AsyncTask[AnyRef, Int, Seq[String]] {
+class GoodsTask(subname: String, filters: Set[String], goodsActivity: GoodsActivity, goodsGrid: GridLayout) extends AsyncTask[AnyRef, Int, Seq[String]] {
   def doInBackground(params: AnyRef*) = {
     val goods = findGoods(subname)
-    activity.runOnUiThread(new Runnable() {
+    goodsActivity.runOnUiThread(new Runnable() {
       def run() {
         goods match {
           case good :: Nil =>
@@ -115,12 +119,12 @@ class GoodsTask(subname: String, activity: Activity, goodsGrid: GridLayout) exte
     import NoCGLibTransition._
     import NoCGLibSale._
 
-    val view: TextView = activity.getLayoutInflater.inflate(R.layout.good_selected_view, null).asInstanceOf[TextView]
+    val view: TextView = goodsActivity.getLayoutInflater.inflate(R.layout.good_selected_view, null).asInstanceOf[TextView]
     view.setText(good)
     view.setClickable(true)
     view.setOnLongClickListener(new OnLongClickListener {
       def onLongClick(v: View) = {
-        new SQLiteDAO(activity).insertTransition(
+        new SQLiteDAO(goodsActivity).insertTransition(
           NoCGLibTransition(saleId(2.toString), saleId(3.toString), quantity(1), new Date(), saleId(2.toString), NoCGLibGood.id(208.toString))
         )
         true
@@ -130,14 +134,15 @@ class GoodsTask(subname: String, activity: Activity, goodsGrid: GridLayout) exte
   }
 
   private def addGoodView(good: String) = {
-    val view: TextView = activity.getLayoutInflater.inflate(R.layout.good_name_view, null).asInstanceOf[TextView]
+    val view: TextView = goodsActivity.getLayoutInflater.inflate(R.layout.good_name_view, null).asInstanceOf[TextView]
     view.setText(good)
     view.setClickable(true)
     view.setOnClickListener(new OnClickListener {
       def onClick(v: View) {
-        val textView = v.asInstanceOf[TextView]
+        val substr = v.asInstanceOf[TextView].getText.toString
+        goodsActivity.addStage(substr)
         goodsGrid.removeAllViews()
-        new GoodsTask(textView.getText.toString, activity, goodsGrid).execute()
+        new GoodsTask(substr, filters, goodsActivity, goodsGrid).execute()
       }
     })
     goodsGrid.addView(view)
@@ -154,10 +159,10 @@ class GoodsTask(subname: String, activity: Activity, goodsGrid: GridLayout) exte
     mats(subnameLength, subname, 0)
   }
 
-  private val dao: DAO = new SQLiteDAO(activity)
+  private val dao: DAO = new SQLiteDAO(goodsActivity)
 
   private def mats(subnameLength: Int, subname: String, prevSize: Int): List[String] = {
-    dao.matsBy(subnameLength, subname) match {
+    dao.matsBy(subnameLength, subname, filters) match {
       case Nil => Nil
       case goodsNames if goodsNames.size < 15 && maxLength(goodsNames) > prevSize =>
         mats(subnameLength + 1, subname, maxLength(goodsNames))

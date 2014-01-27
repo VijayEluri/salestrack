@@ -23,7 +23,7 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
 
   val db: Database = Database.forURL(DbUrl, user, password, driver = "org.h2.Driver")
 
-  def matsBy(subnameLength: Int, subname: String): List[String] = {
+  def matsBy(subnameLength: Int, subname: String, filters: Set[String]): List[String] = {
     db withSession {
       sql"select distinct substring(name, 0, $subnameLength) as subname from MAT where name is not null and name like $subname order by subname asc".as[String].list
     }
@@ -36,8 +36,12 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
 }
 
 class SQLiteDAO(context: Context) extends DAO {
-  def matsBy(subnameLength: Int, subname: String) = {
-    val query: String = s"select distinct substr(name, 1, $subnameLength) as subname from mat where name is not null and name like '$subname' order by subname asc"
+  def matsBy(subnameLength: Int, subname: String, filters: Set[String]) = {
+    val renderedFilters = filters.map(f => s"name like '%$f%'") match {
+      case s if s.isEmpty => "1 = 1"
+      case xs => xs.reduceLeft((acc, f) => acc + " and " + f)
+    }
+    val query: String = s"select distinct substr(name, 1, $subnameLength) as subname from mat where name is not null and name like '$subname' and ($renderedFilters) order by subname asc"
     val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
 
     iterate[String](cursor, extractString)
@@ -113,7 +117,7 @@ class SQLiteDAO(context: Context) extends DAO {
 }
 
 trait DAO {
-  def matsBy(subnameLength: Int, subname: String): List[String] //seq because alphabetically ordered by default
+  def matsBy(subnameLength: Int, subname: String, filters: Set[String]): List[String] //seq because alphabetically ordered by default
 
   def allMats: Set[NoCGLibGood]
 }
