@@ -2,7 +2,6 @@ package org.tort.trade.mobile
 
 import android.os.{AsyncTask, Bundle}
 import android.widget._
-import android.app.Activity
 import android.view.View.{OnLongClickListener, OnClickListener}
 import android.view.View
 import java.util.Date
@@ -10,6 +9,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import GoodsActivity._
 import scalaz._
 import Scalaz._
+import android.widget.AdapterView.OnItemClickListener
 
 class GoodsActivity extends TypedActivity {
   var shortcutFilters = Map("КАПРИ" -> false, "СИН" -> true)
@@ -21,7 +21,24 @@ class GoodsActivity extends TypedActivity {
 
     setDirectionText()
     updateShortcuts()
+    updateSearchHistory()
     updateGoods()
+  }
+
+  private def updateSearchHistory() {
+    val historyView = findViewById(R.id.searchHistoryView).asInstanceOf[ListView]
+    val stagesToDraw = stages.collect {
+      case "" => "СБРОС"
+      case x => x
+    }.toArray
+    historyView.setAdapter(new ArrayAdapter[String](this, R.layout.history_element_view, stagesToDraw))
+    historyView.setOnItemClickListener(new OnItemClickListener {
+      def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long): Unit = {
+        stages = stages.take(position + 1)
+        updateSearchHistory()
+        updateGoods()
+      }
+    })
   }
 
   private def updateShortcuts() {
@@ -54,6 +71,7 @@ class GoodsActivity extends TypedActivity {
   private def disableFilter(filter: String) {
     shortcutFilters = shortcutFilters.updated(filter, false)
   }
+
   private def enableFilter(filter: String) {
     shortcutFilters = shortcutFilters.updated(filter, true)
   }
@@ -84,6 +102,7 @@ class GoodsActivity extends TypedActivity {
 
   def addStage(stage: String) {
     stages = stages :+ stage
+    updateSearchHistory()
   }
 
   private def setDirectionText() {
