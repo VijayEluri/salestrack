@@ -7,9 +7,9 @@ import android.view.View
 import java.util.Date
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import GoodsActivity._
+import android.widget.AdapterView.OnItemClickListener
 import scalaz._
 import Scalaz._
-import android.widget.AdapterView.OnItemClickListener
 
 class GoodsActivity extends TypedActivity {
   var shortcutFilters = Map("КАПРИ" -> false, "СИН" -> true)
@@ -135,10 +135,37 @@ class GoodsTask(subname: String, filters: Set[String], goodsActivity: GoodsActiv
   }
 
   private def insertTransitionView(good: String) {
+    val quantityView = goodsActivity.getLayoutInflater.inflate(R.layout.number_view, null)
+    goodsGrid.addView(quantityView)
+
+    val selectedGoodView = quantityView.findViewById(R.id.goodSelectedView).asInstanceOf[TextView]
+    selectedGoodView.setText(good)
+
+    val numbers = Seq(1, 3, 5)
+    val countLayout = quantityView.findViewById(R.id.countLayout).asInstanceOf[LinearLayout]
+    val numberView = countLayout.findViewById(R.id.numberSelectedView).asInstanceOf[TextView]
+    val negative = countLayout.findViewById(R.id.negative).asInstanceOf[LinearLayout]
+    numbers.reverse.foreach(n => addButton(negative, numberView, (n * -1)))
+    val positive = countLayout.findViewById(R.id.positive).asInstanceOf[LinearLayout]
+    numbers.foreach(n => addButton(positive, numberView, n))
+  }
+
+  private def addButton(parent: LinearLayout, numberView: TextView, number: Int) {
+    val button = new Button(goodsActivity)
+    button.setText(number.toString)
+    button.setOnClickListener(new OnClickListener {
+      def onClick(v: View): Unit = {
+        val currentNumber = numberView.getText.toString.toInt
+        numberView.setText((currentNumber + number).toString)
+      }
+    })
+    parent.addView(button)
+  }
+
+  private def addSelectedGoodView(good: String, view: TextView) {
     import NoCGLibTransition._
     import NoCGLibSale._
 
-    val view: TextView = goodsActivity.getLayoutInflater.inflate(R.layout.good_selected_view, null).asInstanceOf[TextView]
     view.setText(good)
     view.setClickable(true)
     view.setOnLongClickListener(new OnLongClickListener {

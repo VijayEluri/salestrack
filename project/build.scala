@@ -41,7 +41,7 @@ object AndroidSettings {
   )
 
   val proguardSettings = Seq(
-    useProguard in Android := true
+    proguardOption in Android := "-keep class scala.collection.SeqLike {public protected *;}"
   )
 
   lazy val full =
