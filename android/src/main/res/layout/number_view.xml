@@ -15,7 +15,8 @@
     </TextView>
     <LinearLayout android:layout_height="wrap_content"
                   android:layout_width="wrap_content"
-                  android:orientation="horizontal" android:id="@+id/countLayout">
+                  android:orientation="horizontal" android:id="@+id/countLayout"
+                  android:layout_gravity="center_horizontal">
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:orientation="horizontal" android:id="@+id/negative">
@@ -23,7 +24,7 @@
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   style="@style/tileSpecial"
-                  android:text="0"
+                  android:text="-1"
                   android:id="@+id/numberSelectedView"
                   android:gravity="center_horizontal"
                   android:layout_gravity="center"
@@ -34,11 +35,12 @@
                       android:orientation="horizontal" android:id="@+id/positive"/>
     </LinearLayout>
     <LinearLayout android:layout_height="wrap_content" android:layout_width="wrap_content"
-                  android:orientation="horizontal" android:id="@+id/priceLayout">
+                  android:orientation="horizontal" android:id="@+id/priceLayout"
+                  android:layout_gravity="center_horizontal">
         <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:orientation="horizontal" android:id="@+id/negative"/>
         <TextView style="@style/tileSpecial" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                  android:text="0" android:id="@+id/numberSelectedView" android:gravity="center_horizontal"
+                  android:text="-1" android:id="@+id/numberSelectedView" android:gravity="center_horizontal"
                   android:layout_gravity="center" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"/>
         <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
                       android:orientation="horizontal" android:id="@+id/positive"/>

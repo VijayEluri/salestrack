@@ -6,14 +6,19 @@ import android.view.View.{OnLongClickListener, OnClickListener}
 import android.view.View
 import java.util.Date
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import GoodsActivity._
+import org.tort.trade.mobile.GoodsActivity._
 import android.widget.AdapterView.OnItemClickListener
 import scalaz._
 import Scalaz._
 
 class GoodsActivity extends TypedActivity {
-  var shortcutFilters = Map("КАПРИ" -> false, "СИН" -> true)
-  var stages = Seq("")
+
+  var activityState = ActivityState(
+    Map("КАПРИ" -> false, "СИН" -> true),
+    Seq(""),
+    None,
+    None
+  )
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
@@ -27,14 +32,14 @@ class GoodsActivity extends TypedActivity {
 
   private def updateSearchHistory() {
     val historyView = findViewById(R.id.searchHistoryView).asInstanceOf[ListView]
-    val stagesToDraw = stages.collect {
+    val stagesToDraw = activityState.searchHistory.collect {
       case "" => "СБРОС"
       case x => x
     }.toArray
     historyView.setAdapter(new ArrayAdapter[String](this, R.layout.history_element_view, stagesToDraw))
     historyView.setOnItemClickListener(new OnItemClickListener {
       def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long): Unit = {
-        stages = stages.take(position + 1)
+        activityState = activityState.cutHistory(position + 1)
         updateSearchHistory()
         updateGoods()
       }
@@ -44,7 +49,7 @@ class GoodsActivity extends TypedActivity {
   private def updateShortcuts() {
     val layout = findViewById(R.id.shortcutsGridLayout).asInstanceOf[GridLayout]
 
-    shortcutFilters.foreach(filterWithState => addShortcut(filterWithState, layout))
+    activityState.shortcutFilters.foreach(filterWithState => addShortcut(filterWithState, layout))
   }
 
 
@@ -58,8 +63,10 @@ class GoodsActivity extends TypedActivity {
     testShortcutButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener {
       def onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) = {
         isChecked match {
-          case true => enableFilter(buttonView.getText.toString)
-          case false => disableFilter(buttonView.getText.toString)
+          case true =>
+            activityState = activityState.enableFilter(buttonView.getText.toString)
+          case false =>
+            activityState = activityState.disableFilter(buttonView.getText.toString)
         }
         updateGoods()
       }
@@ -68,20 +75,12 @@ class GoodsActivity extends TypedActivity {
     layout.addView(testShortcutButton)
   }
 
-  private def disableFilter(filter: String) {
-    shortcutFilters = shortcutFilters.updated(filter, false)
-  }
-
-  private def enableFilter(filter: String) {
-    shortcutFilters = shortcutFilters.updated(filter, true)
-  }
-
   private def updateGoods() {
     val goodsGrid = findViewById(R.id.goodsGridLayout).asInstanceOf[GridLayout]
     viewObserverTo(goodsGrid, () => setRowCount(goodsGrid))
-    val filters = shortcutFilters.filter(_._2).map(_._1).toSet
+    val filters = activityState.shortcutFilters.filter(_._2).map(_._1).toSet
     goodsGrid.removeAllViews()
-    new GoodsTask(stages.last, filters, this, goodsGrid).execute()
+    new GoodsTask(activityState.searchHistory.last, filters, this, goodsGrid).execute()
   }
 
   private def viewObserverTo(view: GridLayout, action: () => Unit) {
@@ -101,7 +100,7 @@ class GoodsActivity extends TypedActivity {
   }
 
   def addStage(stage: String) {
-    stages = stages :+ stage
+    activityState = activityState.addStage(stage)
     updateSearchHistory()
   }
 
@@ -141,22 +140,50 @@ class GoodsTask(subname: String, filters: Set[String], goodsActivity: GoodsActiv
     val selectedGoodView = quantityView.findViewById(R.id.goodSelectedView).asInstanceOf[TextView]
     selectedGoodView.setText(good)
 
-    val numbers = Seq(1, 3, 5)
     val countLayout = quantityView.findViewById(R.id.countLayout).asInstanceOf[LinearLayout]
-    val numberView = countLayout.findViewById(R.id.numberSelectedView).asInstanceOf[TextView]
-    val negative = countLayout.findViewById(R.id.negative).asInstanceOf[LinearLayout]
-    numbers.reverse.foreach(n => addButton(negative, numberView, (n * -1)))
-    val positive = countLayout.findViewById(R.id.positive).asInstanceOf[LinearLayout]
-    numbers.foreach(n => addButton(positive, numberView, n))
+    updateNumberLayout(
+      countLayout,
+      Seq(1, 3, 5),
+      _.quantity,
+      (c) => goodsActivity.activityState = goodsActivity.activityState.updateQuantity(c)
+    )
+
+    val priceLayout = quantityView.findViewById(R.id.priceLayout).asInstanceOf[LinearLayout]
+    updateNumberLayout(
+      priceLayout,
+      Seq(50, 100, 300, 500),
+      _.price,
+      (p) => goodsActivity.activityState = goodsActivity.activityState.updatePrice(p)
+    )
   }
 
-  private def addButton(parent: LinearLayout, numberView: TextView, number: Int) {
+
+  private def updateNumberLayout(countLayout: LinearLayout,
+                                 numbers: Seq[Int],
+                                 getter: (ActivityState) => Option[Int],
+                                 setter: (Int) => Unit) {
+    val numberView = countLayout.findViewById(R.id.numberSelectedView).asInstanceOf[TextView]
+    getter(goodsActivity.activityState).getOrElse(0).toString |> numberView.setText
+
+    val negative = countLayout.findViewById(R.id.negative).asInstanceOf[LinearLayout]
+    numbers.reverse.foreach(n => addButton(negative, numberView, (n * -1), getter, setter))
+
+    val positive = countLayout.findViewById(R.id.positive).asInstanceOf[LinearLayout]
+    numbers.foreach(n => addButton(positive, numberView, n, getter, setter))
+  }
+
+  private def addButton(parent: LinearLayout,
+                        numberView: TextView,
+                        number: Int,
+                        value: ActivityState => Option[Int],
+                        updateState: (Int) => Unit) {
     val button = new Button(goodsActivity)
     button.setText(number.toString)
     button.setOnClickListener(new OnClickListener {
       def onClick(v: View): Unit = {
-        val currentNumber = numberView.getText.toString.toInt
-        numberView.setText((currentNumber + number).toString)
+        def current = value(goodsActivity.activityState).getOrElse(0)
+        updateState(number)
+        current.toString |> numberView.setText
       }
     })
     parent.addView(button)
@@ -220,3 +247,17 @@ class GoodsTask(subname: String, filters: Set[String], goodsActivity: GoodsActiv
     goodNames.map(_.length).max
   }
 }
+
+case class ActivityState(
+                          shortcutFilters: Map[String, Boolean],
+                          searchHistory: Seq[String],
+                          quantity: Option[Int],
+                          price: Option[Int]) {
+  def cutHistory(position: Int) = copy(searchHistory = searchHistory.take(position), quantity = None, price = None)
+  def disableFilter(filter: String) = copy(shortcutFilters = shortcutFilters.updated(filter, false), quantity = None, price = None)
+  def enableFilter(filter: String) = copy(shortcutFilters = shortcutFilters.updated(filter, true), quantity = None, price = None)
+  def addStage(stage: String) = copy(searchHistory = searchHistory :+ stage, quantity = None, price = None)
+  def updateQuantity(q: Int) = copy(quantity = q.some |+| this.quantity)
+  def updatePrice(p: Int) = copy(price = p.some |+| this.price)
+}
+
