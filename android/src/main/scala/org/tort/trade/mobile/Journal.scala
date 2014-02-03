@@ -11,6 +11,7 @@ import scalaz._
 import Scalaz._
 import NoCGLibSale._
 import GoodsActivity.TextHeightKey
+import Journal._
 
 class Journal extends TypedActivity {
   object Menu {
@@ -72,8 +73,6 @@ class Journal extends TypedActivity {
     setSaleClickListeners()
     updateAll()
   }
-
-  private val TransitionSessionKey = "com.tort.trade.mobile.TransitionSession"
 
   override def onSaveInstanceState(outState: Bundle) = {
     outState.putSerializable(TransitionSessionKey, transitionSession)
@@ -193,6 +192,10 @@ class Journal extends TypedActivity {
   def toColor(drawable: Drawable): Int = {
     drawable.asInstanceOf[ColorDrawable].getColor
   }
+}
+
+object Journal {
+  val TransitionSessionKey = "com.tort.trade.mobile.TransitionSession"
 }
 
 case class TransitionSession(journal: Option[NoCGLibSale] = None, from: Option[NoCGLibSale] = None, to: Option[NoCGLibSale] = None)

@@ -30,6 +30,9 @@ class GoodsActivity extends TypedActivity {
     updateGoods()
   }
 
+  private def getTransitionSession: TransitionSession =
+    getIntent.getSerializableExtra(Journal.TransitionSessionKey).asInstanceOf[TransitionSession]
+
   private def updateSearchHistory() {
     val historyView = findViewById(R.id.searchHistoryView).asInstanceOf[ListView]
     val stagesToDraw = activityState.searchHistory.collect {
@@ -80,7 +83,7 @@ class GoodsActivity extends TypedActivity {
     viewObserverTo(goodsGrid, () => setRowCount(goodsGrid))
     val filters = activityState.shortcutFilters.filter(_._2).map(_._1).toSet
     goodsGrid.removeAllViews()
-    new GoodsTask(activityState.searchHistory.last, filters, this, goodsGrid).execute()
+    new GoodsTask(activityState.searchHistory.last, filters, this, goodsGrid, getTransitionSession).execute()
   }
 
   private def viewObserverTo(view: GridLayout, action: () => Unit) {
@@ -117,7 +120,11 @@ object GoodsActivity {
   val TextHeightKey = "com.tort.trade.mobile.TextHeight"
 }
 
-class GoodsTask(subname: String, filters: Set[String], goodsActivity: GoodsActivity, goodsGrid: GridLayout) extends AsyncTask[AnyRef, Int, Seq[String]] {
+class GoodsTask(subname: String,
+                filters: Set[String],
+                goodsActivity: GoodsActivity,
+                goodsGrid: GridLayout,
+                transitionSession: TransitionSession) extends AsyncTask[AnyRef, Int, Seq[String]] {
   def doInBackground(params: AnyRef*) = {
     val goods = findGoods(subname)
     goodsActivity.runOnUiThread(new Runnable() {
@@ -138,7 +145,7 @@ class GoodsTask(subname: String, filters: Set[String], goodsActivity: GoodsActiv
     goodsGrid.addView(quantityView)
 
     val selectedGoodView = quantityView.findViewById(R.id.goodSelectedView).asInstanceOf[TextView]
-    selectedGoodView.setText(good)
+    addSelectedGoodView(good, selectedGoodView)
 
     val countLayout = quantityView.findViewById(R.id.countLayout).asInstanceOf[LinearLayout]
     updateNumberLayout(
@@ -166,7 +173,7 @@ class GoodsTask(subname: String, filters: Set[String], goodsActivity: GoodsActiv
     getter(goodsActivity.activityState).getOrElse(0).toString |> numberView.setText
 
     val negative = countLayout.findViewById(R.id.negative).asInstanceOf[LinearLayout]
-    numbers.reverse.foreach(n => addButton(negative, numberView, (n * -1), getter, setter))
+    numbers.reverse.foreach(n => addButton(negative, numberView, n * -1, getter, setter))
 
     val positive = countLayout.findViewById(R.id.positive).asInstanceOf[LinearLayout]
     numbers.foreach(n => addButton(positive, numberView, n, getter, setter))
@@ -189,21 +196,26 @@ class GoodsTask(subname: String, filters: Set[String], goodsActivity: GoodsActiv
     parent.addView(button)
   }
 
-  private def addSelectedGoodView(good: String, view: TextView) {
-    import NoCGLibTransition._
-    import NoCGLibSale._
-
-    view.setText(good)
+  private def addSelectedGoodView(goodName: String, view: TextView) {
+    view.setText(goodName)
     view.setClickable(true)
     view.setOnLongClickListener(new OnLongClickListener {
       def onLongClick(v: View) = {
-        new SQLiteDAO(goodsActivity).insertTransition(
-          NoCGLibTransition(saleId(2.toString), saleId(3.toString), quantity(1), new Date(), saleId(2.toString), NoCGLibGood.id(208.toString))
+        lazy val good = new SQLiteDAO(goodsActivity).goodByName(goodName)
+        for {
+          from <- transitionSession.from
+          fromId = from.id
+          to <- transitionSession.to
+          toId = to.id
+          journal <- transitionSession.journal
+          journalId = journal.id
+          quantity <- goodsActivity.activityState.quantity
+        } yield new SQLiteDAO(goodsActivity).insertTransition(
+          NoCGLibTransition(fromId, toId, NoCGLibTransition.quantity(quantity), new Date(), journalId, good.id)
         )
         true
       }
     })
-    goodsGrid.addView(view)
   }
 
   private def addGoodView(good: String) = {
@@ -215,7 +227,7 @@ class GoodsTask(subname: String, filters: Set[String], goodsActivity: GoodsActiv
         val substr = v.asInstanceOf[TextView].getText.toString
         goodsActivity.addStage(substr)
         goodsGrid.removeAllViews()
-        new GoodsTask(substr, filters, goodsActivity, goodsGrid).execute()
+        new GoodsTask(substr, filters, goodsActivity, goodsGrid, transitionSession).execute()
       }
     })
     goodsGrid.addView(view)

@@ -31,7 +31,10 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
 
   def allMats = db withSession {
     val list: Set[(String, String)] = sql"select m.seq_m, m.name from mat m".as[(String, String)].list.toSet
-    list.map(g => new NoCGLibGood(g._1, g._2))
+    list.map {
+      case (goodId, goodName) =>
+        new NoCGLibGood(goodId |> NoCGLibGood.id, goodName)
+    }
   }
 }
 
@@ -76,8 +79,14 @@ class SQLiteDAO(context: Context) extends DAO {
     iterate[NoCGLibGood](cursor, extractGood).toSet
   }
 
+  def goodByName(goodName: String) = {
+    val query = s"select m.seq_m, m.name from mat m where m.name = ?"
+    val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array(goodName))
+    iterate[NoCGLibGood](cursor, extractGood).head
+  }
+
   private def extractGood(cursor: Cursor) = {
-    val id = cursor.getString(0)
+    val id = cursor.getString(0) |> NoCGLibGood.id
     val name = cursor.getString(1)
     new NoCGLibGood(id, name)
   }
