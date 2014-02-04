@@ -10,6 +10,7 @@ import org.tort.trade.mobile.GoodsActivity._
 import android.widget.AdapterView.OnItemClickListener
 import scalaz._
 import Scalaz._
+import android.content.Intent
 
 class GoodsActivity extends TypedActivity {
 
@@ -28,6 +29,10 @@ class GoodsActivity extends TypedActivity {
     updateShortcuts()
     updateSearchHistory()
     updateGoods()
+  }
+
+  def nextActivity() {
+    startActivity(new Intent(this, classOf[Journal]))
   }
 
   private def getTransitionSession: TransitionSession =
@@ -164,7 +169,6 @@ class GoodsTask(subname: String,
     )
   }
 
-
   private def updateNumberLayout(countLayout: LinearLayout,
                                  numbers: Seq[Int],
                                  getter: (ActivityState) => Option[Int],
@@ -210,9 +214,12 @@ class GoodsTask(subname: String,
           journal <- transitionSession.journal
           journalId = journal.id
           quantity <- goodsActivity.activityState.quantity
-        } yield new SQLiteDAO(goodsActivity).insertTransition(
-          NoCGLibTransition(fromId, toId, NoCGLibTransition.quantity(quantity), new Date(), journalId, good.id)
-        )
+        } yield {
+          new SQLiteDAO(goodsActivity).insertTransition(
+            NoCGLibTransition(fromId, toId, NoCGLibTransition.quantity(quantity), new Date(), journalId, good.id)
+          )
+          goodsActivity.nextActivity()
+        }
         true
       }
     })
