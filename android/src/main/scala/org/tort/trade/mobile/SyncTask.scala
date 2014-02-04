@@ -24,7 +24,20 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
 
   private def sync(ipH2: String, path: String) {
     val sqliteDAO: SQLiteDAO = new SQLiteDAO(activity)
-    val remoteMats: Set[NoCGLibGood] = H2DBDAO(ipH2, path).allMats
+    val h2DAO = H2DBDAO(ipH2, path)
+
+    syncGoods(h2DAO, sqliteDAO)
+    syncTransitions(h2DAO, sqliteDAO)
+  }
+
+  private def syncTransitions(h2DAO: H2DBDAO, sqliteDAO: SQLiteDAO) {
+    val maxRemoteTransitionDate = h2DAO.maxTransitionDate
+    val localToSync = sqliteDAO.transitionsLaterThan(maxRemoteTransitionDate)
+    localToSync.foreach(h2DAO.insertTransition)
+  }
+
+  private def syncGoods(h2DAO: H2DBDAO, sqliteDAO: SQLiteDAO) {
+    val remoteMats: Set[NoCGLibGood] = h2DAO.allMats
     val localMats: Set[NoCGLibGood] = sqliteDAO.allMats
     def ids(coll: Set[NoCGLibGood]) = coll.map(_.id)
     val diff = ids(remoteMats) -- (ids(localMats))

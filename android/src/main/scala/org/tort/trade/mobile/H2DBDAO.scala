@@ -36,6 +36,16 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
         new NoCGLibGood(goodId |> NoCGLibGood.id, goodName)
     }
   }
+
+  def maxTransitionDate: Date = db withSession {
+    sql"select max(trd_date) from trade_src".as[java.sql.Timestamp].list.head
+  }
+
+  def insertTransition(transition: NoCGLibTransition) = db withSession {
+    val tdate = new java.sql.Timestamp(transition.date.getTime)
+    val insertClause = "insert into trade_src(trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat)"
+    sqlu"""insert into trade_src(trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat) values (${transition.id}, ${transition.from}, ${transition.to}, ${transition.quant}, ${tdate}, ${transition.me}, ${transition.good})""".first()
+  }
 }
 
 class SQLiteDAO(context: Context) extends DAO {
@@ -66,8 +76,15 @@ class SQLiteDAO(context: Context) extends DAO {
 
   private def extractString(cursor: Cursor) = cursor.getString(0)
 
+  def transitionsLaterThan(date: Date) = {
+    val query: String = "select trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat, trd_price from trade_src where trd_date > ? order by trd_date desc"
+    val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array(date.getTime.toString))
+
+    iterate[NoCGLibTransition](cursor, extractTransition)
+  }
+
   def transitionsByJournal(journalId: String @@ SaleId) = {
-    val query: String = s"select trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat, trd_price from trade_src order by trd_date desc"
+    val query: String = "select trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat, trd_price from trade_src order by trd_date desc"
     val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
 
     iterate[NoCGLibTransition](cursor, extractTransition)
@@ -98,7 +115,7 @@ class SQLiteDAO(context: Context) extends DAO {
       transition.from,
       transition.to,
       transition.quant,
-      transition.date,
+      transition.date.getTime.toString,
       transition.me,
       transition.good
     ))
