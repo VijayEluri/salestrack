@@ -1,12 +1,14 @@
 package org.tort.trade.mobile
 
-import android.app.Activity
+import android.app.{AlertDialog, Activity}
 import android.os.AsyncTask
 import com.fasterxml.uuid.{Generators, EthernetAddress}
-import android.content.{Intent, Context}
+import android.content.{DialogInterface, Intent, Context}
 import scalaz._
 import Scalaz._
 import Settings._
+import org.h2.jdbc.JdbcSQLException
+import android.content.DialogInterface.OnClickListener
 
 class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
   def doInBackground(params: AnyRef*) = {
@@ -26,8 +28,26 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
     val sqliteDAO: SQLiteDAO = new SQLiteDAO(activity)
     val h2DAO = H2DBDAO(ipH2, path)
 
-    syncGoods(h2DAO, sqliteDAO)
-    syncTransitions(h2DAO, sqliteDAO)
+    try {
+      h2DAO.db.withSession {
+        syncGoods(h2DAO, sqliteDAO)
+        syncTransitions(h2DAO, sqliteDAO)
+      }
+    } catch {
+      case e: JdbcSQLException =>
+        activity.runOnUiThread(new Runnable() {
+          def run {
+            val builder = new AlertDialog.Builder(activity)
+            builder.setPositiveButton("Close", new OnClickListener {
+              def onClick(dialog: DialogInterface, which: Int): Unit = { }
+            })
+            val dialog = builder.create()
+            dialog.setTitle("Ошибка работы с базой")
+            dialog.setMessage(e.getMessage)
+            dialog.show()
+          }
+        })
+    }
   }
 
   private def syncTransitions(h2DAO: H2DBDAO, sqliteDAO: SQLiteDAO) {
