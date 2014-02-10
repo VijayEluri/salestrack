@@ -30,7 +30,7 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
   }
 
   def allMats = db withSession {
-    val list: Set[(String, String)] = sql"select m.seq_m, m.name from mat m".as[(String, String)].list.toSet
+    val list: Set[(String, String)] = sql"select m1.seq_m, m1.name from mat m1".as[(String, String)].list.toSet
     list.map {
       case (goodId, goodName) =>
         new NoCGLibGood(goodId |> NoCGLibGood.id, goodName)
@@ -43,7 +43,6 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
 
   def insertTransition(transition: NoCGLibTransition) = db withSession {
     val tdate = new java.sql.Timestamp(transition.date.getTime)
-    val insertClause = "insert into trade_src(trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat)"
     sqlu"""insert into trade_src(trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat) values (${transition.id}, ${transition.from}, ${transition.to}, ${transition.quant}, ${tdate}, ${transition.me}, ${transition.good})""".first()
   }
 }
@@ -148,7 +147,7 @@ trait DAO {
   def allMats: Set[NoCGLibGood]
 }
 
-class DBHelper(context: Context, val databaseVersion: Int = 2) extends SQLiteOpenHelper(context, "trade.db", null, databaseVersion) {
+class DBHelper(context: Context, val databaseVersion: Int = 3) extends SQLiteOpenHelper(context, "trade.db", null, databaseVersion) {
 
   val CreateTransitionsTableQuery = "CREATE TABLE TRADE_SRC(" +
     "TRD_PRICE BIGINT, " +
