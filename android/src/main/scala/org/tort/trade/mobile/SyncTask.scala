@@ -31,6 +31,7 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
     try {
       h2DAO.db.withSession {
         syncGoods(h2DAO, sqliteDAO)
+        syncSales(h2DAO, sqliteDAO)
         syncTransitions(h2DAO, sqliteDAO)
       }
     } catch {
@@ -56,13 +57,22 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
     localToSync.foreach(h2DAO.insertTransition)
   }
 
+  private def syncSales(h2DAO: H2DBDAO, sqliteDAO: SQLiteDAO) {
+    val remoteSales = h2DAO.allSales
+    val localSales = sqliteDAO.allSales
+    def ids(coll: Set[NoCGLibSale]) = coll.map(_.id)
+    val diff = ids(remoteSales) -- (ids(localSales))
+    val diffSales = remoteSales.filter(s => diff.contains(s.id))
+    diffSales foreach sqliteDAO.insertSale
+  }
+
   private def syncGoods(h2DAO: H2DBDAO, sqliteDAO: SQLiteDAO) {
     val remoteMats: Set[NoCGLibGood] = h2DAO.allMats
     val localMats: Set[NoCGLibGood] = sqliteDAO.allMats
     def ids(coll: Set[NoCGLibGood]) = coll.map(_.id)
     val diff = ids(remoteMats) -- (ids(localMats))
     val diffGoods = remoteMats.filter(m => diff.contains(m.id))
-    diffGoods.foreach(sqliteDAO.insert(_))
+    diffGoods foreach sqliteDAO.insertGood
   }
 }
 

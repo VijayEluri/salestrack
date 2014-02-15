@@ -17,7 +17,7 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
   import scala.slick.session.Database
 
   Class.forName("org.h2.Driver")
-  val DbUrl: String = s"""jdbc:h2:tcp://$ip:9092/~/$path;IFEXISTS=TRUE";"""
+  val DbUrl: String = s"""jdbc:h2:tcp://$ip:9092/~/$path;IFEXISTS=TRUE;"""
   val user = "sa"
   val password = ""
 
@@ -34,6 +34,14 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
     list.map {
       case (goodId, goodName) =>
         new NoCGLibGood(goodId |> NoCGLibGood.id, goodName)
+    }
+  }
+
+  def allSales = db withSession {
+    val list: Set[(String, String)] = sql"select dep_seq, dep_name from dep".as[(String, String)].list.toSet
+    list map {
+      case (sid, sname) =>
+        NoCGLibSale(saleId(sid), saleName(sname))
     }
   }
 
@@ -95,12 +103,23 @@ class SQLiteDAO(context: Context) extends DAO {
     iterate[NoCGLibGood](cursor, extractGood).toSet
   }
 
+  def allSales = {
+    val query = "select dep_name, dep_seq from dep"
+    val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
+    iterate[NoCGLibSale](cursor, extractSale).toSet
+  }
+
   def goodByName(goodName: String) = {
     val query = s"select m.seq_m, m.name from mat m where m.name = ?"
     val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array(goodName))
     iterate[NoCGLibGood](cursor, extractGood).head
   }
 
+  private def extractSale(cursor: Cursor) = {
+    val name = cursor.getString(0) |> NoCGLibSale.saleName
+    val id = cursor.getString(1) |> NoCGLibSale.saleId
+    NoCGLibSale(id, name)
+  }
   private def extractGood(cursor: Cursor) = {
     val id = cursor.getString(0) |> NoCGLibGood.id
     val name = cursor.getString(1)
@@ -120,9 +139,14 @@ class SQLiteDAO(context: Context) extends DAO {
     ))
   }
 
-  def insert(good: NoCGLibGood) = {
+  def insertGood(good: NoCGLibGood) = {
     val query = """insert into MAT(seq_m, name) values(?, ?)"""
     new DBHelper(context).getWritableDatabase.execSQL(query, Array(good.id, good.name))
+  }
+
+  def insertSale(sale: NoCGLibSale) = {
+    val query = """insert into dep(dep_seq, dep_name) values(?, ?)"""
+    new DBHelper(context).getWritableDatabase.execSQL(query, Array(sale.id, sale.name))
   }
 
   private def iterate[T](cursor: Cursor, item: (Cursor) => T): List[T] = {
@@ -145,6 +169,8 @@ trait DAO {
   def matsBy(subnameLength: Int, subname: String, filters: Set[String]): List[String] //seq because alphabetically ordered by default
 
   def allMats: Set[NoCGLibGood]
+
+  def allSales: Set[NoCGLibSale]
 }
 
 class DBHelper(context: Context, val databaseVersion: Int = 3) extends SQLiteOpenHelper(context, "trade.db", null, databaseVersion) {

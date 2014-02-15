@@ -12,25 +12,23 @@ import Scalaz._
 import NoCGLibSale._
 import GoodsActivity.TextHeightKey
 import Journal._
+import android.widget.LinearLayout.LayoutParams
 
 class Journal extends TypedActivity {
+
   object Menu {
     val RefreshActionId = 1
     val EditRemoteAddressActionId = 2
   }
+
   import Menu._
+
   private var transitionSession = TransitionSession()
   private val Alpha = 100
 
-  private val textViews = Map(
+  private val saleViewIds = Map(
     NoCGLibSale(saleId("2"), saleName("Покупатель")) -> R.id.customer,
-    NoCGLibSale(saleId("1"), saleName("Поставщик")) -> R.id.supplier,
-    NoCGLibSale(saleId("3"), saleName("Гена")) -> R.id.gena,
-    NoCGLibSale(saleId("7"), saleName("Кума")) -> R.id.masha,
-    NoCGLibSale(saleId("11"), saleName("Оля")) -> R.id.ola,
-    NoCGLibSale(saleId("10"), saleName("Саша")) -> R.id.sasha,
-    NoCGLibSale(saleId("9"), saleName("Таня")) -> R.id.tana,
-    NoCGLibSale(saleId("8"), saleName("Валя")) -> R.id.vala
+    NoCGLibSale(saleId("1"), saleName("Поставщик")) -> R.id.supplier
   )
 
   val SelectionColor = "#cc33ff"
@@ -70,8 +68,33 @@ class Journal extends TypedActivity {
 
     setContentView(R.layout.main)
 
-    setSaleClickListeners()
-    updateAll()
+    val otherSalesView = findViewById(R.id.otherSales).asInstanceOf[LinearLayout]
+    otherSalesView.removeAllViews()
+
+    val textViews = new SQLiteDAO(this).allSales collect {
+      case sale if saleViewIds.keySet.contains(sale) =>
+        sale -> (saleViewIds(sale) |> findViewById).asInstanceOf[TextView]
+      case sale =>
+        sale -> addSaleView(sale.name)
+    }
+    setSaleClickListeners(textViews.toMap)
+    updateAll(textViews.toMap)
+  }
+
+  private def addSaleView(saleName: String): TextView = {
+    import LinearLayout._
+    val newTextView = new TextView(this)
+    newTextView.setBackgroundColor(Color.parseColor("#55d8aa"))
+    newTextView.setText(saleName)
+    newTextView.setPadding(10, 10, 10, 10)
+    newTextView.setTextColor(Color.BLACK)
+    val marginParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+    marginParams.setMargins(0, 2, 0, 2)
+    newTextView.setLayoutParams(marginParams)
+
+    val otherSalesView = findViewById(R.id.otherSales).asInstanceOf[LinearLayout]
+    otherSalesView addView newTextView
+    newTextView
   }
 
   override def onSaveInstanceState(outState: Bundle) = {
@@ -85,71 +108,69 @@ class Journal extends TypedActivity {
     transitionSession = savedInstanceState.getSerializable(TransitionSessionKey).asInstanceOf[TransitionSession]
   }
 
-  private def updateAll() {
-    updateDefaultColors()
-    
-    updateCurrentJournal(transitionSession.journal)
-    updateSale(transitionSession.from)
-    updateSale(transitionSession.to)
+  private def updateAll(textViews: Map[NoCGLibSale, TextView]) {
+    updateDefaultColors(textViews)
+    transitionSession.journal map textViews map updateCurrentJournal
+    transitionSession.from map textViews map updateSaleView
+    transitionSession.to map textViews map updateSaleView
   }
 
-
-  private def updateDefaultColors() {
-    textViews.foreach { case (sale, viewId) => setDefaultColor(sale, viewId) }
+  private def updateSaleView(textView: TextView) = {
+    updateSaleBackground(textView)
   }
 
-  private def setDefaultColor(sale: NoCGLibSale, viewId: Int) {
+  private def updateDefaultColors(saleViews: Map[NoCGLibSale, TextView]) {
+    saleViews.foreach {
+      case (sale, view) =>
+        setDefaultColor(sale, view)
+    }
+  }
+
+  private def setDefaultColor(sale: NoCGLibSale, view: TextView) {
     val color = sale.id match {
       case id if id === saleId("1") => "#fffb7c"
       case id if id === saleId("2") => "#fffb7c"
       case _ => "#55d8aa"
     }
 
-    val view = findViewById(viewId)
     view.setBackgroundColor(Color.parseColor(color))
     view.setAlpha(255)
   }
 
-  private def updateSale(sale: Option[NoCGLibSale]) {
-    sale.foreach(selectFrom)
+  private def updateSaleBackground(textView: TextView) {
+    textView.getBackground.setAlpha(Alpha)
   }
 
-  private def selectFrom(sale: NoCGLibSale) {
-    (textViews(sale) |> findViewById).getBackground.setAlpha(Alpha)
-  }
-
-  private def updateCurrentJournal(sale: Option[NoCGLibSale]) {
+  private def updateCurrentJournal(textView: TextView) {
     clearCurrentJournalSelection()
 
-    sale.foreach(selectNewCurrentJournal)
+    selectNewCurrentJournal(textView)
   }
 
-  private def selectNewCurrentJournal(sale: NoCGLibSale) {
-    val view = (textViews(sale) |> findViewById).asInstanceOf[TextView]
+  private def selectNewCurrentJournal(view: TextView) {
     view.setBackgroundColor(Color.parseColor(SelectionColor))
   }
 
   private def clearCurrentJournalSelection() {
   }
 
-  def setSaleClickListeners() {
-    textViews.foreach {
-      case (sale, viewId) =>
-        setLongClickListener(viewId, sale)
-        setClickListener(viewId, sale)
+  private def setSaleClickListeners(saleViews: Map[NoCGLibSale, TextView]) {
+    saleViews.foreach {
+      case (sale, view) =>
+        setLongClickListener(saleViews, sale)
+        setClickListener(saleViews, sale)
     }
   }
 
-  private def setClickListener(viewId: Int, sale: NoCGLibSale) {
-    val view = findViewById(viewId).asInstanceOf[TextView]
-    view.setOnClickListener(new OnClickListener {
+  private def setClickListener(views: Map[NoCGLibSale, TextView], sale: NoCGLibSale) {
+    views(sale).setOnClickListener(new OnClickListener {
       def onClick(v: View) = {
-        setFromOrTo(sale)
+        setFromOrTo(views, sale)
       }
     })
   }
 
-  private def setFromOrTo(sale: NoCGLibSale) {
+  private def setFromOrTo(saleViews: Map[NoCGLibSale, TextView], sale: NoCGLibSale) {
     transitionSession match {
       case TransitionSession(Some(journal), None, None) =>
         transitionSession = transitionSession.copy(from = sale.some)
@@ -163,23 +184,22 @@ class Journal extends TypedActivity {
         }
       case _ =>
     }
-    updateAll()
+    updateAll(saleViews)
   }
 
 
   private def startGoodActivity() {
     val intent: Intent = new Intent(context, classOf[GoodsActivity])
     intent.putExtra(TransitionSessionKey, transitionSession)
-    intent.putExtra(TextHeightKey, findViewById(R.id.gena).getMeasuredHeight)
+    intent.putExtra(TextHeightKey, findViewById(R.id.customer).getMeasuredHeight)
     startActivity(intent)
   }
 
-  private def setLongClickListener(viewId: Int, sale: NoCGLibSale) {
-    val view = findViewById(viewId).asInstanceOf[TextView]
-    view.setOnLongClickListener(new OnLongClickListener {
+  private def setLongClickListener(saleViews: Map[NoCGLibSale, TextView], sale: NoCGLibSale) {
+    saleViews(sale).setOnLongClickListener(new OnLongClickListener {
       def onLongClick(v: View) = {
         setCurrentJournal(sale)
-        updateAll()
+        updateAll(saleViews)
         true
       }
     })
