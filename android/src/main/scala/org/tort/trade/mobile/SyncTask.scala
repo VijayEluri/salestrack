@@ -34,14 +34,13 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
         syncSales(h2DAO, sqliteDAO)
         syncTransitions(h2DAO, sqliteDAO)
       }
+      greetingDialog()
     } catch {
       case e: JdbcSQLException =>
         activity.runOnUiThread(new Runnable() {
           def run {
             val builder = new AlertDialog.Builder(activity)
-            builder.setPositiveButton("Close", new OnClickListener {
-              def onClick(dialog: DialogInterface, which: Int): Unit = { }
-            })
+            builder.setPositiveButton("Close", doNothing)
             val dialog = builder.create()
             dialog.setTitle("Ошибка работы с базой")
             dialog.setMessage(e.getMessage)
@@ -49,6 +48,22 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
           }
         })
     }
+  }
+
+  def doNothing = new OnClickListener {
+    def onClick(dialog: DialogInterface, which: Int): Unit = {}
+  }
+
+  private def greetingDialog() {
+    activity.runOnUiThread(new Runnable() {
+      def run {
+        val builder = new AlertDialog.Builder(activity)
+        builder.setPositiveButton("Close", doNothing)
+        val dialog = builder.create()
+        dialog.setMessage("Синхронизация прошла успешно")
+        dialog.show()
+      }
+    })
   }
 
   private def syncTransitions(h2DAO: H2DBDAO, sqliteDAO: SQLiteDAO) {
