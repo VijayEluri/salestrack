@@ -76,7 +76,7 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
     val remoteSales = h2DAO.allSales
     val localSales = sqliteDAO.allSales
     def ids(coll: Set[NoCGLibSale]) = coll.map(_.id)
-    val diff = ids(remoteSales) -- (ids(localSales))
+    val diff = ids(remoteSales.toSet) -- (ids(localSales.toSet))
     val diffSales = remoteSales.filter(s => diff.contains(s.id))
     diffSales foreach sqliteDAO.insertSale
   }

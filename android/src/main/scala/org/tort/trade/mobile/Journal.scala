@@ -75,21 +75,21 @@ class Journal extends TypedActivity {
     updateAll(textViews.toMap)
   }
 
-  private def reCreateSaleViews(textViews: Set[(NoCGLibSale, TextView)]) {
+  private def reCreateSaleViews(textViews: Seq[(NoCGLibSale, TextView)]) {
     val otherSalesView = findViewById(R.id.otherSales).asInstanceOf[LinearLayout]
     otherSalesView.removeAllViews()
     addSaleViewsToContainer(textViews, otherSalesView)
     setSaleClickListeners(textViews.toMap)
   }
 
-  private def addSaleViewsToContainer(textViews: Set[(NoCGLibSale, TextView)], otherSalesView: LinearLayout) {
+  private def addSaleViewsToContainer(textViews: Seq[(NoCGLibSale, TextView)], otherSalesView: LinearLayout) {
     textViews foreach {
       case (s, v) if saleViewIds.keySet(s) =>
       case (s, v) => otherSalesView addView v
     }
   }
 
-  private def saleTextViews(): Set[(NoCGLibSale, TextView)] = {
+  private def saleTextViews(): Seq[(NoCGLibSale, TextView)] = {
     new SQLiteDAO(this).allSales collect {
       case sale if saleViewIds.keySet.contains(sale) =>
         sale -> (saleViewIds(sale) |> findViewById).asInstanceOf[TextView]

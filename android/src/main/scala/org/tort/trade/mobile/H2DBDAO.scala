@@ -38,7 +38,7 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
   }
 
   def allSales = db withSession {
-    val list: Set[(String, String)] = sql"select dep_seq, dep_name from dep".as[(String, String)].list.toSet
+    val list = sql"select dep_seq, dep_name from dep".as[(String, String)].list
     list map {
       case (sid, sname) =>
         NoCGLibSale(saleId(sid), saleName(sname))
@@ -104,9 +104,9 @@ class SQLiteDAO(context: Context) extends DAO {
   }
 
   def allSales = {
-    val query = "select dep_name, dep_seq from dep"
+    val query = "select dep_name, dep_seq from dep order by dep_name"
     val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
-    iterate[NoCGLibSale](cursor, extractSale).toSet
+    iterate[NoCGLibSale](cursor, extractSale)
   }
 
   def goodByName(goodName: String) = {
@@ -170,7 +170,7 @@ trait DAO {
 
   def allMats: Set[NoCGLibGood]
 
-  def allSales: Set[NoCGLibSale]
+  def allSales: List[NoCGLibSale]
 }
 
 class DBHelper(context: Context, val databaseVersion: Int = 3) extends SQLiteOpenHelper(context, "trade.db", null, databaseVersion) {
