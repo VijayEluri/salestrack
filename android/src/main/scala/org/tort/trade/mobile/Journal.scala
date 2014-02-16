@@ -12,7 +12,7 @@ import Scalaz._
 import NoCGLibSale._
 import GoodsActivity.TextHeightKey
 import Journal._
-import android.widget.LinearLayout.LayoutParams
+import android.util.Log
 
 class Journal extends TypedActivity {
 
@@ -61,27 +61,51 @@ class Journal extends TypedActivity {
 
   override def onCreate(bundle: Bundle) {
     super.onCreate(bundle)
+    restoreTransitionSession(bundle)
+
+    setContentView(R.layout.main)
+
+    createAndUpdateAllViews
+  }
+
+
+  private def createAndUpdateAllViews {
+    val textViews = saleTextViews()
+    reCreateSaleViews(textViews)
+    updateAll(textViews.toMap)
+  }
+
+  private def reCreateSaleViews(textViews: Set[(NoCGLibSale, TextView)]) {
+    val otherSalesView = findViewById(R.id.otherSales).asInstanceOf[LinearLayout]
+    otherSalesView.removeAllViews()
+    addSaleViewsToContainer(textViews, otherSalesView)
+    setSaleClickListeners(textViews.toMap)
+  }
+
+  private def addSaleViewsToContainer(textViews: Set[(NoCGLibSale, TextView)], otherSalesView: LinearLayout) {
+    textViews foreach {
+      case (s, v) if saleViewIds.keySet(s) =>
+      case (s, v) => otherSalesView addView v
+    }
+  }
+
+  private def saleTextViews(): Set[(NoCGLibSale, TextView)] = {
+    new SQLiteDAO(this).allSales collect {
+      case sale if saleViewIds.keySet.contains(sale) =>
+        sale -> (saleViewIds(sale) |> findViewById).asInstanceOf[TextView]
+      case sale =>
+        sale -> newSaleView(sale.name)
+    }
+  }
+
+  private def restoreTransitionSession(bundle: Bundle) {
     transitionSession = Option(bundle)
       .flatMap(b => Option(b.getSerializable(TransitionSessionKey)))
       .map(_.asInstanceOf[TransitionSession])
       .getOrElse(TransitionSession())
-
-    setContentView(R.layout.main)
-
-    val otherSalesView = findViewById(R.id.otherSales).asInstanceOf[LinearLayout]
-    otherSalesView.removeAllViews()
-
-    val textViews = new SQLiteDAO(this).allSales collect {
-      case sale if saleViewIds.keySet.contains(sale) =>
-        sale -> (saleViewIds(sale) |> findViewById).asInstanceOf[TextView]
-      case sale =>
-        sale -> addSaleView(sale.name)
-    }
-    setSaleClickListeners(textViews.toMap)
-    updateAll(textViews.toMap)
   }
 
-  private def addSaleView(saleName: String): TextView = {
+  private def newSaleView(saleName: String): TextView = {
     import LinearLayout._
     val newTextView = new TextView(this)
     newTextView.setBackgroundColor(Color.parseColor("#55d8aa"))
@@ -91,9 +115,6 @@ class Journal extends TypedActivity {
     val marginParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     marginParams.setMargins(0, 2, 0, 2)
     newTextView.setLayoutParams(marginParams)
-
-    val otherSalesView = findViewById(R.id.otherSales).asInstanceOf[LinearLayout]
-    otherSalesView addView newTextView
     newTextView
   }
 
@@ -102,10 +123,17 @@ class Journal extends TypedActivity {
     super.onSaveInstanceState(outState)
   }
 
+  override def onRestart(): Unit = {
+    super.onRestart()
+    transitionSession = transitionSession.copy(to = None)
+
+    createAndUpdateAllViews
+  }
 
   override def onRestoreInstanceState(savedInstanceState: Bundle) = {
     super.onRestoreInstanceState(savedInstanceState)
     transitionSession = savedInstanceState.getSerializable(TransitionSessionKey).asInstanceOf[TransitionSession]
+    Log.e("TEST", "onRestoreInstance")
   }
 
   private def updateAll(textViews: Map[NoCGLibSale, TextView]) {
@@ -187,7 +215,6 @@ class Journal extends TypedActivity {
     updateAll(saleViews)
   }
 
-
   private def startGoodActivity() {
     val intent: Intent = new Intent(context, classOf[GoodsActivity])
     intent.putExtra(TransitionSessionKey, transitionSession)
@@ -218,4 +245,6 @@ object Journal {
   val TransitionSessionKey = "com.tort.trade.mobile.TransitionSession"
 }
 
-case class TransitionSession(journal: Option[NoCGLibSale] = None, from: Option[NoCGLibSale] = None, to: Option[NoCGLibSale] = None)
+case class TransitionSession(journal: Option[NoCGLibSale] = None, from: Option[NoCGLibSale] = None, to: Option[NoCGLibSale] = None) {
+  def clearTo = this.copy(to = None)
+}
