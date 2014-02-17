@@ -3,7 +3,7 @@ package org.tort.trade.mobile
 import android.os.{AsyncTask, Bundle}
 import android.widget._
 import android.view.View.{OnLongClickListener, OnClickListener}
-import android.view.View
+import android.view.{MenuItem, Menu, View}
 import java.util.Date
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import org.tort.trade.mobile.GoodsActivity._
@@ -11,15 +11,41 @@ import android.widget.AdapterView.OnItemClickListener
 import scalaz._
 import Scalaz._
 import android.content.Intent
+import Settings._
 
 class GoodsActivity extends TypedActivity {
 
   var activityState = ActivityState(
-    Map("КАПРИ" -> false, "СИН" -> true),
+    Map(),
     Seq(""),
     None,
     None
   )
+
+  private def shortcutFilters: Map[String, Boolean] = (shortcuts map (_ -> false)).toMap
+
+  private implicit val activity = this
+
+  object Menu {
+    val EditShortcutsActionId = 0
+  }
+
+  override def onCreateOptionsMenu(menu: Menu): Boolean = {
+    super.onCreateOptionsMenu(menu)
+
+    val editShortcutsMenuItem = menu.add(0, Menu.EditShortcutsActionId, 1, "Фильтры")
+    editShortcutsMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+
+    true
+  }
+
+  override def onMenuItemSelected(featureId: Int, item: MenuItem): Boolean = {
+    item.getItemId match {
+      case Menu.EditShortcutsActionId =>
+        new Intent(this, classOf[EditShortcutActivity]) |> this.startActivity
+        true
+    }
+  }
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
@@ -33,6 +59,13 @@ class GoodsActivity extends TypedActivity {
 
   def nextActivity() {
     startActivity(new Intent(this, classOf[Journal]))
+  }
+
+
+  override def onRestart(): Unit = {
+    super.onRestart()
+
+    updateShortcuts()
   }
 
   private def getTransitionSession: TransitionSession =
@@ -55,7 +88,9 @@ class GoodsActivity extends TypedActivity {
   }
 
   private def updateShortcuts() {
+    activityState = activityState.copy(shortcutFilters = (shortcuts map (_ -> false)).toMap)
     val layout = findViewById(R.id.shortcutsGridLayout).asInstanceOf[GridLayout]
+    layout.removeAllViews()
 
     activityState.shortcutFilters.foreach(filterWithState => addShortcut(filterWithState, layout))
   }
@@ -63,12 +98,12 @@ class GoodsActivity extends TypedActivity {
 
   private def addShortcut(filterWithState: (String, Boolean), layout: GridLayout) {
     val (shortcut, enabled) = filterWithState
-    val testShortcutButton = new ToggleButton(this)
-    testShortcutButton.setText(shortcut)
-    testShortcutButton.setTextOff(shortcut)
-    testShortcutButton.setTextOn(shortcut)
-    testShortcutButton.setChecked(enabled)
-    testShortcutButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener {
+    val shortcutButtonView = new ToggleButton(this)
+    shortcutButtonView.setText(shortcut)
+    shortcutButtonView.setTextOff(shortcut)
+    shortcutButtonView.setTextOn(shortcut)
+    shortcutButtonView.setChecked(enabled)
+    shortcutButtonView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener {
       def onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) = {
         isChecked match {
           case true =>
@@ -80,7 +115,7 @@ class GoodsActivity extends TypedActivity {
       }
     })
 
-    layout.addView(testShortcutButton)
+    layout addView shortcutButtonView
   }
 
   private def updateGoods() {
@@ -123,6 +158,8 @@ object GoodsActivity {
   val cellMargin = 10
 
   val TextHeightKey = "com.tort.trade.mobile.TextHeight"
+
+  val ShortcutsKey = "com.tort.trade.mobile.ShortcutFilters"
 }
 
 class GoodsTask(subname: String,

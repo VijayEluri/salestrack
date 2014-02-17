@@ -21,6 +21,9 @@
         <activity android:name=".EditRemoteServerIpActivity" android:theme="@style/android:Theme.Holo">
 
         </activity>
+        <activity android:name=".EditShortcutActivity" android:theme="@style/android:Theme.Holo">
+
+        </activity>
     </application>
     <uses-permission android:name="android.permission.INTERNET" />
 

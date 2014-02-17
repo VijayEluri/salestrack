@@ -4,9 +4,10 @@ import android.os.Bundle
 import android.widget.{Button, EditText}
 import android.view.View.OnClickListener
 import android.view.View
-import android.content.Context
+import android.content.{SharedPreferences, Context}
 import scala.util.matching.Regex
 import Settings._
+import android.app.Activity
 
 class EditRemoteServerIpActivity extends TypedActivity {
   private val IpPatternStr = """(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"""
@@ -58,6 +59,16 @@ class EditRemoteServerIpActivity extends TypedActivity {
 }
 
 object Settings {
+  def sharedPreferences(activity: Activity): SharedPreferences =
+    activity.getSharedPreferences(Settings.PreferencesFileName, Context.MODE_PRIVATE)
+
+  def shortcuts(implicit activity: Activity): Seq[String] = {
+    val str = Option(sharedPreferences(activity).getString(GoodsActivity.ShortcutsKey, null))
+    str.map(_.split(SplitSymbol).toSeq).getOrElse(Seq[String]())
+  }
+
+  val SplitSymbol = ","
+
   val RemoteServerIpKey = "org.tort.trade.mobile.main-base-ip"
   val RemoteServerPathKey = "org.tort.trade.mobile.main-base-path"
   val PreferencesFileName = "general-preferences"

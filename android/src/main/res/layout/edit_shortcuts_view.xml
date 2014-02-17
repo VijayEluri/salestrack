@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center_vertical|center_horizontal">
+
+   <HorizontalScrollView android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_gravity="center">
+        <GridLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:id="@+id/editShortcutsGridLayout"
+                android:focusable="false"
+                android:useDefaultMargins="true"
+                android:rowCount="1">
+        </GridLayout>
+    </HorizontalScrollView>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Добавить"
+            android:id="@+id/addShortcutButton"/>
+</LinearLayout>

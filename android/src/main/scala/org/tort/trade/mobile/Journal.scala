@@ -133,7 +133,6 @@ class Journal extends TypedActivity {
   override def onRestoreInstanceState(savedInstanceState: Bundle) = {
     super.onRestoreInstanceState(savedInstanceState)
     transitionSession = savedInstanceState.getSerializable(TransitionSessionKey).asInstanceOf[TransitionSession]
-    Log.e("TEST", "onRestoreInstance")
   }
 
   private def updateAll(textViews: Map[NoCGLibSale, TextView]) {
