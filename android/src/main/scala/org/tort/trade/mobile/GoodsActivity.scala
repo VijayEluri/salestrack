@@ -50,10 +50,12 @@ class GoodsActivity extends TypedActivity {
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.goods)
+    
+    activityState = activityState.copy(shortcutFilters = shortcutFilters)
 
-    setDirectionText()
-    updateShortcuts()
-    updateSearchHistory()
+    redrawDirectionText()
+    redrawShortcuts(activityState)
+    activityState.searchHistory |> stagesToDraw |> redrawSearchHistory
     updateGoods()
   }
 
@@ -64,35 +66,38 @@ class GoodsActivity extends TypedActivity {
 
   override def onRestart(): Unit = {
     super.onRestart()
+    
+    activityState = activityState.copy(shortcutFilters = shortcutFilters)
 
-    updateShortcuts()
+    redrawShortcuts(activityState)
   }
 
   private def getTransitionSession: TransitionSession =
     getIntent.getSerializableExtra(Journal.TransitionSessionKey).asInstanceOf[TransitionSession]
 
-  private def updateSearchHistory() {
+  private def stagesToDraw(history: Seq[String]) = history.collect {
+    case "" => "СБРОС"
+    case x => x
+  }.toArray
+
+  private def redrawSearchHistory(stageLabels: Array[String]) {
     val historyView = findViewById(R.id.searchHistoryView).asInstanceOf[ListView]
-    val stagesToDraw = activityState.searchHistory.collect {
-      case "" => "СБРОС"
-      case x => x
-    }.toArray
-    historyView.setAdapter(new ArrayAdapter[String](this, R.layout.history_element_view, stagesToDraw))
+    historyView.setAdapter(new ArrayAdapter[String](this, R.layout.history_element_view, stageLabels))
     historyView.setOnItemClickListener(new OnItemClickListener {
       def onItemClick(parent: AdapterView[_], view: View, position: Int, id: Long): Unit = {
-        activityState = activityState.cutHistory(position + 1)
-        updateSearchHistory()
+        val newState = activityState.cutHistory(position + 1)
+        activityState = newState
+        newState.searchHistory |> stagesToDraw |> redrawSearchHistory
         updateGoods()
       }
     })
   }
 
-  private def updateShortcuts() {
-    activityState = activityState.copy(shortcutFilters = (shortcuts map (_ -> false)).toMap)
+  private def redrawShortcuts(state: ActivityState) {
     val layout = findViewById(R.id.shortcutsGridLayout).asInstanceOf[GridLayout]
     layout.removeAllViews()
 
-    activityState.shortcutFilters.foreach(filterWithState => addShortcut(filterWithState, layout))
+    state.shortcutFilters.foreach(filterWithState => addShortcut(filterWithState, layout))
   }
 
 
@@ -105,17 +110,19 @@ class GoodsActivity extends TypedActivity {
     shortcutButtonView.setChecked(enabled)
     shortcutButtonView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener {
       def onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) = {
-        isChecked match {
-          case true =>
-            activityState = activityState.enableFilter(buttonView.getText.toString)
-          case false =>
-            activityState = activityState.disableFilter(buttonView.getText.toString)
-        }
+        activityState = newState(activityState, isChecked, buttonView.getText.toString)
         updateGoods()
       }
     })
 
     layout addView shortcutButtonView
+  }
+  
+  private def newState(state: ActivityState, isChecked: Boolean, text: String): ActivityState = isChecked match {
+    case true =>
+      state.enableFilter(text)
+    case false =>
+      state.disableFilter(text)
   }
 
   private def updateGoods() {
@@ -143,11 +150,12 @@ class GoodsActivity extends TypedActivity {
   }
 
   def addStage(stage: String) {
-    activityState = activityState.addStage(stage)
-    updateSearchHistory()
+    val newState = activityState.addStage(stage)
+    activityState = newState
+    newState.searchHistory |> stagesToDraw |> redrawSearchHistory
   }
 
-  private def setDirectionText() {
+  private def redrawDirectionText() {
     val direction = getIntent.getStringExtra("direction")
     val directionView = findViewById(R.id.transitionDirection).asInstanceOf[TextView]
     directionView.setText(direction)
@@ -184,13 +192,13 @@ class GoodsTask(subname: String,
 
   private def insertTransitionView(good: String) {
     val quantityView = goodsActivity.getLayoutInflater.inflate(R.layout.number_view, null)
-    goodsGrid.addView(quantityView)
+    goodsGrid addView quantityView
 
     val selectedGoodView = quantityView.findViewById(R.id.goodSelectedView).asInstanceOf[TextView]
     addSelectedGoodView(good, selectedGoodView)
 
     val countLayout = quantityView.findViewById(R.id.countLayout).asInstanceOf[LinearLayout]
-    updateNumberLayout(
+    redrawNumberLayout(
       countLayout,
       Seq(1, 3, 5),
       _.quantity,
@@ -198,7 +206,7 @@ class GoodsTask(subname: String,
     )
 
     val priceLayout = quantityView.findViewById(R.id.priceLayout).asInstanceOf[LinearLayout]
-    updateNumberLayout(
+    redrawNumberLayout(
       priceLayout,
       Seq(50, 100, 300, 500),
       _.price,
@@ -206,7 +214,7 @@ class GoodsTask(subname: String,
     )
   }
 
-  private def updateNumberLayout(countLayout: LinearLayout,
+  private def redrawNumberLayout(countLayout: LinearLayout,
                                  numbers: Seq[Int],
                                  getter: (ActivityState) => Option[Int],
                                  setter: (Int) => Unit) {
