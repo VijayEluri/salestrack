@@ -10,7 +10,6 @@ import Scalaz._
 
 class Replicator(val ip: String, sid: String) {
   Class.forName("org.h2.Driver")
-  Class.forName("oracle.jdbc.driver.OracleDriver")
 
   createSchema
   replicate(good)

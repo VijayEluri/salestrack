@@ -11,22 +11,11 @@ import scalaz._
 import Scalaz._
 import java.util.Date
 import NoCGLibSale._
+import android.app.Activity
 
-case class H2DBDAO(ip: String, path: String) extends DAO {
-
-  import scala.slick.session.Database
-
-  Class.forName("org.h2.Driver")
-  val DbUrl: String = s"""jdbc:h2:tcp://$ip:9092/~/$path;IFEXISTS=TRUE;"""
-  val user = "sa"
-  val password = ""
-
-  val db: Database = Database.forURL(DbUrl, user, password, driver = "org.h2.Driver")
-
-  def matsBy(subnameLength: Int, subname: String, filters: Set[String]): List[String] = {
-    db withSession {
-      sql"select distinct substring(name, 0, $subnameLength) as subname from MAT where name is not null and name like $subname order by subname asc".as[String].list
-    }
+class SlickDAO(val db: Database) extends DAO {
+  def matsBy(subnameLength: Int, subname: String, filters: Set[String]): List[String] = db withSession {
+    sql"select distinct substring(name, 0, $subnameLength) as subname from MAT where name is not null and name like $subname order by subname asc".as[String].list
   }
 
   def allMats = db withSession {
@@ -51,18 +40,33 @@ case class H2DBDAO(ip: String, path: String) extends DAO {
 
   def insertTransition(transition: NoCGLibTransition) = db withSession {
     val tdate = new java.sql.Timestamp(transition.date.getTime)
-    sqlu"""insert into trade_src(trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat) values (${transition.id}, ${transition.from}, ${transition.to}, ${transition.quant}, ${tdate}, ${transition.me}, ${transition.good})""".first()
+    sqlu"""insert into trade_src(trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat) values (${transition.id}, ${transition.from}, ${transition.to}, ${transition.quant}, $tdate, ${transition.me}, ${transition.good})""".first()
+  }
+
+  def getFreeIds(number: Int): Seq[String] = throw new RuntimeException("not implemented")
+}
+
+object SlickDAO {
+  def apply(db: Database) = new SlickDAO(db)
+}
+
+class OracleDAO(db: Database) extends SlickDAO(db) {
+  override def getFreeIds(number: Int): Seq[String] = db withSession {
+    (1 to number) map {
+      case i =>
+        sql"select seq.nextval from dual".as[(String)].list.head
+    }
   }
 }
 
-class SQLiteDAO(context: Context) extends DAO {
+class SQLiteDAO(db: SQLiteDatabase) extends DAO {
   def matsBy(subnameLength: Int, subname: String, filters: Set[String]) = {
     val renderedFilters = filters.map(f => s"name like '%$f%'") match {
       case s if s.isEmpty => "1 = 1"
       case xs => xs.reduceLeft((acc, f) => acc + " and " + f)
     }
     val query: String = s"select distinct substr(name, 1, $subnameLength) as subname from mat where name is not null and name like '$subname' and ($renderedFilters) order by subname asc"
-    val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
+    val cursor = db.rawQuery(query, Array())
 
     iterate[String](cursor, extractString)
   }
@@ -85,33 +89,33 @@ class SQLiteDAO(context: Context) extends DAO {
 
   def transitionsLaterThan(date: Date) = {
     val query: String = "select trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat, trd_price from trade_src where trd_date > ? order by trd_date desc"
-    val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array(date.getTime.toString))
+    val cursor = db.rawQuery(query, Array(date.getTime.toString))
 
     iterate[NoCGLibTransition](cursor, extractTransition)
   }
 
   def transitionsByJournal(journalId: String @@ SaleId) = {
     val query: String = "select trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat, trd_price from trade_src order by trd_date desc"
-    val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
+    val cursor = db.rawQuery(query, Array())
 
     iterate[NoCGLibTransition](cursor, extractTransition)
   }
 
   def allMats = {
     val query = s"select m.seq_m, m.name from mat m"
-    val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
+    val cursor = db.rawQuery(query, Array())
     iterate[NoCGLibGood](cursor, extractGood).toSet
   }
 
   def allSales = {
     val query = "select dep_name, dep_seq from dep order by dep_name"
-    val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array())
+    val cursor = db.rawQuery(query, Array())
     iterate[NoCGLibSale](cursor, extractSale)
   }
 
   def goodByName(goodName: String) = {
     val query = s"select m.seq_m, m.name from mat m where m.name = ?"
-    val cursor = new DBHelper(context).getReadableDatabase.rawQuery(query, Array(goodName))
+    val cursor = db.rawQuery(query, Array(goodName))
     iterate[NoCGLibGood](cursor, extractGood).head
   }
 
@@ -120,6 +124,7 @@ class SQLiteDAO(context: Context) extends DAO {
     val id = cursor.getString(1) |> NoCGLibSale.saleId
     NoCGLibSale(id, name)
   }
+
   private def extractGood(cursor: Cursor) = {
     val id = cursor.getString(0) |> NoCGLibGood.id
     val name = cursor.getString(1)
@@ -128,7 +133,7 @@ class SQLiteDAO(context: Context) extends DAO {
 
   def insertTransition(transition: NoCGLibTransition) {
     val query = """insert into trade_src(trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat) values (?, ?, ?, ?, ?, ?, ?)"""
-    new DBHelper(context).getWritableDatabase.execSQL(query, Array[AnyRef](
+    db.execSQL(query, Array[AnyRef](
       transition.id,
       transition.from,
       transition.to,
@@ -141,12 +146,12 @@ class SQLiteDAO(context: Context) extends DAO {
 
   def insertGood(good: NoCGLibGood) = {
     val query = """insert into MAT(seq_m, name) values(?, ?)"""
-    new DBHelper(context).getWritableDatabase.execSQL(query, Array(good.id, good.name))
+    db.execSQL(query, Array(good.id, good.name))
   }
 
   def insertSale(sale: NoCGLibSale) = {
     val query = """insert into dep(dep_seq, dep_name) values(?, ?)"""
-    new DBHelper(context).getWritableDatabase.execSQL(query, Array(sale.id, sale.name))
+    db.execSQL(query, Array(sale.id, sale.name))
   }
 
   private def iterate[T](cursor: Cursor, item: (Cursor) => T): List[T] = {
@@ -162,6 +167,18 @@ class SQLiteDAO(context: Context) extends DAO {
 
     cursor.close()
     items.toList
+  }
+
+  def updateTransitionId(oldId: String, newId: String) {
+    val query = "update trade_src set trd_seq = ? where trd_seq = ?"
+    db.execSQL(query, Array(oldId, newId))
+  }
+}
+
+object SQLiteDAO {
+  def apply(activity: Activity): SQLiteDAO = {
+    val sqliteDB = new DBHelper(activity).getWritableDatabase()
+    new SQLiteDAO(sqliteDB)
   }
 }
 

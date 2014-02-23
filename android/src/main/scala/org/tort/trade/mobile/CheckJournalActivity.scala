@@ -34,7 +34,7 @@ class CheckJournalActivity extends TypedActivity {
 class TransitionAdapter(context: Context, activity: Activity, journalId: String @@ SaleId) extends BaseAdapter {
   private lazy val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).asInstanceOf[LayoutInflater]
 
-  private val items = new SQLiteDAO(activity).transitionsByJournal(journalId)
+  private val items = SQLiteDAO(activity).transitionsByJournal(journalId)
 
   def getCount = items.size
 

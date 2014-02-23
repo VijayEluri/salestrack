@@ -130,7 +130,7 @@ class GoodsActivity extends TypedActivity {
     viewObserverTo(goodsGrid, () => setRowCount(goodsGrid))
     val filters = activityState.shortcutFilters.filter(_._2).map(_._1).toSet
     goodsGrid.removeAllViews()
-    new GoodsTask(activityState.searchHistory.last, filters, this, goodsGrid, getTransitionSession).execute()
+    new GoodsTask(activityState.searchHistory.last, filters, this, goodsGrid, getTransitionSession, SQLiteDAO(activity)).execute()
   }
 
   private def viewObserverTo(view: GridLayout, action: () => Unit) {
@@ -174,7 +174,8 @@ class GoodsTask(subname: String,
                 filters: Set[String],
                 goodsActivity: GoodsActivity,
                 goodsGrid: GridLayout,
-                transitionSession: TransitionSession) extends AsyncTask[AnyRef, Int, Seq[String]] {
+                transitionSession: TransitionSession,
+                localDAO: SQLiteDAO) extends AsyncTask[AnyRef, Int, Seq[String]] {
   def doInBackground(params: AnyRef*) = {
     val goods = findGoods(subname)
     goodsActivity.runOnUiThread(new Runnable() {
@@ -250,7 +251,7 @@ class GoodsTask(subname: String,
     view.setClickable(true)
     view.setOnLongClickListener(new OnLongClickListener {
       def onLongClick(v: View) = {
-        lazy val good = new SQLiteDAO(goodsActivity).goodByName(goodName)
+        lazy val good = localDAO.goodByName(goodName)
         for {
           from <- transitionSession.from
           fromId = from.id
@@ -260,7 +261,7 @@ class GoodsTask(subname: String,
           journalId = journal.id
           quantity <- goodsActivity.activityState.quantity
         } yield {
-          new SQLiteDAO(goodsActivity).insertTransition(
+          localDAO.insertTransition(
             NoCGLibTransition(fromId, toId, NoCGLibTransition.quantity(quantity), new Date(), journalId, good.id)
           )
           goodsActivity.nextActivity()
@@ -279,7 +280,7 @@ class GoodsTask(subname: String,
         val substr = v.asInstanceOf[TextView].getText.toString
         goodsActivity.addStage(substr)
         goodsGrid.removeAllViews()
-        new GoodsTask(substr, filters, goodsActivity, goodsGrid, transitionSession).execute()
+        new GoodsTask(substr, filters, goodsActivity, goodsGrid, transitionSession, localDAO).execute()
       }
     })
     goodsGrid.addView(view)
@@ -296,10 +297,8 @@ class GoodsTask(subname: String,
     mats(subnameLength, subname, 0)
   }
 
-  private val dao: DAO = new SQLiteDAO(goodsActivity)
-
   private def mats(subnameLength: Int, subname: String, prevSize: Int): List[String] = {
-    dao.matsBy(subnameLength, subname, filters) match {
+    localDAO.matsBy(subnameLength, subname, filters) match {
       case Nil => Nil
       case goodsNames if goodsNames.size < 15 && maxLength(goodsNames) > prevSize =>
         mats(subnameLength + 1, subname, maxLength(goodsNames))

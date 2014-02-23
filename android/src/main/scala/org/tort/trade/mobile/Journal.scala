@@ -12,7 +12,6 @@ import Scalaz._
 import NoCGLibSale._
 import GoodsActivity.TextHeightKey
 import Journal._
-import android.util.Log
 
 class Journal extends TypedActivity {
 
@@ -65,11 +64,11 @@ class Journal extends TypedActivity {
 
     setContentView(R.layout.main)
 
-    createAndUpdateAllViews
+    createAndUpdateAllViews()
   }
 
 
-  private def createAndUpdateAllViews {
+  private def createAndUpdateAllViews() {
     val textViews = saleTextViews()
     reCreateSaleViews(textViews)
     updateAll(textViews.toMap)
@@ -90,7 +89,8 @@ class Journal extends TypedActivity {
   }
 
   private def saleTextViews(): Seq[(NoCGLibSale, TextView)] = {
-    new SQLiteDAO(this).allSales collect {
+    val localDAO = SQLiteDAO(context)
+    localDAO.allSales collect {
       case sale if saleViewIds.keySet.contains(sale) =>
         sale -> (saleViewIds(sale) |> findViewById).asInstanceOf[TextView]
       case sale =>
@@ -127,7 +127,7 @@ class Journal extends TypedActivity {
     super.onRestart()
     transitionSession = transitionSession.copy(to = None)
 
-    createAndUpdateAllViews
+    createAndUpdateAllViews()
   }
 
   override def onRestoreInstanceState(savedInstanceState: Bundle) = {

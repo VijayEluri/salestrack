@@ -7,58 +7,71 @@ import android.content.{DialogInterface, Intent, Context}
 import scalaz._
 import Scalaz._
 import Settings._
-import org.h2.jdbc.JdbcSQLException
 import android.content.DialogInterface.OnClickListener
+import scala.slick.session.Database
 
 class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
   def doInBackground(params: AnyRef*) = {
-    syncMaterials
+    syncAll()
   }
 
-  def syncMaterials = {
-    val ipH2 = Option(activity.getSharedPreferences(PreferencesFileName, Context.MODE_PRIVATE).getString(Settings.RemoteServerIpKey, null))
+  def syncAll() = {
+    val ip = Option(activity.getSharedPreferences(PreferencesFileName, Context.MODE_PRIVATE).getString(Settings.RemoteServerIpKey, null))
     val path = Option(activity.getSharedPreferences(PreferencesFileName, Context.MODE_PRIVATE).getString(Settings.RemoteServerPathKey, null))
-    (ipH2, path) match {
-      case (Some(ip), Some(p)) => sync(ip, p)
-      case _ => new Intent(activity, classOf[EditRemoteServerIpActivity]) |> activity.startActivity
+    val user = none
+    val password = none
+    val dbType = "Oracle"
+    (ip, path, dbType, user, password) match {
+      case (Some(i), Some(sid), "Oracle", user, password) =>
+        val DbUrl: String = s"""jdbc:oracle:thin:@${i}:1521/${sid}"""
+        Class.forName("oracle.jdbc.OracleDriver")
+        val db = Database.forURL(DbUrl, user.getOrElse("torhriph"), password.getOrElse("nfufymqjhr"), driver = "oracle.jdbc.OracleDriver")
+        val slickDAO = new OracleDAO(db)
+        sync(syncTransitionsOracle)(slickDAO)
+      case _ =>
+        new Intent(activity, classOf[EditRemoteServerIpActivity]) |> activity.startActivity
     }
   }
 
-  private def sync(ipH2: String, path: String) {
-    val sqliteDAO: SQLiteDAO = new SQLiteDAO(activity)
-    val h2DAO = H2DBDAO(ipH2, path)
+  private def sync(syncTransitions: (SlickDAO, SQLiteDAO) => Unit)(remoteDAO: SlickDAO) {
+    val sqliteDB = new DBHelper(activity).getWritableDatabase()
+    val localDAO: SQLiteDAO = new SQLiteDAO(sqliteDB)
 
     try {
-      h2DAO.db.withSession {
-        syncGoods(h2DAO, sqliteDAO)
-        syncSales(h2DAO, sqliteDAO)
-        syncTransitions(h2DAO, sqliteDAO)
+      sqliteDB.beginTransaction()
+      remoteDAO.db.withSession {
+        syncGoods(remoteDAO, localDAO)
+        syncSales(remoteDAO, localDAO)
+        syncTransitions(remoteDAO, localDAO)
       }
+      sqliteDB.endTransaction()
       greetingDialog()
     } catch {
-      case e: JdbcSQLException =>
+      case e: Exception =>
         activity.runOnUiThread(new Runnable() {
-          def run {
+          def run() {
             val builder = new AlertDialog.Builder(activity)
-            builder.setPositiveButton("Close", doNothing)
+            builder.setPositiveButton("Close", doNothing())
             val dialog = builder.create()
             dialog.setTitle("Ошибка работы с базой")
             dialog.setMessage(e.getMessage)
             dialog.show()
           }
         })
+    } finally {
+      sqliteDB.close()
     }
   }
 
-  def doNothing = new OnClickListener {
+  def doNothing() = new OnClickListener {
     def onClick(dialog: DialogInterface, which: Int): Unit = {}
   }
 
   private def greetingDialog() {
     activity.runOnUiThread(new Runnable() {
-      def run {
+      def run() {
         val builder = new AlertDialog.Builder(activity)
-        builder.setPositiveButton("Close", doNothing)
+        builder.setPositiveButton("Close", doNothing())
         val dialog = builder.create()
         dialog.setMessage("Синхронизация прошла успешно")
         dialog.show()
@@ -66,26 +79,44 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
     })
   }
 
-  private def syncTransitions(h2DAO: H2DBDAO, sqliteDAO: SQLiteDAO) {
+  private def syncTransitionsH2(h2DAO: SlickDAO, sqliteDAO: SQLiteDAO) {
     val maxRemoteTransitionDate = h2DAO.maxTransitionDate
     val localToSync = sqliteDAO.transitionsLaterThan(maxRemoteTransitionDate)
-    localToSync.foreach(h2DAO.insertTransition)
+    localToSync foreach h2DAO.insertTransition
   }
 
-  private def syncSales(h2DAO: H2DBDAO, sqliteDAO: SQLiteDAO) {
+  private def syncTransitionsOracle(remoteDAO: SlickDAO, localDAO: SQLiteDAO) {
+    val localTransitionsToSync = remoteDAO.maxTransitionDate |> localDAO.transitionsLaterThan
+    val updatedTransitions = localTransitionsToSync |> replaceIds(remoteDAO)
+    updatedTransitions foreach remoteDAO.insertTransition
+
+    localTransitionsToSync zip updatedTransitions map {
+      case (local, remote) =>
+        localDAO.updateTransitionId(local.id, remote.id)
+    }
+  }
+
+  private def replaceIds(remoteDAO: SlickDAO)(transitions: Seq[NoCGLibTransition]): Seq[NoCGLibTransition] = {
+    val freeIds = remoteDAO.getFreeIds(transitions.size)
+    transitions zip freeIds map {
+      case (t, id) => NoCGLibTransition(t.from, t.to, t.quant, t.date, t.me, t.good)
+    }
+  }
+
+  private def syncSales(h2DAO: SlickDAO, sqliteDAO: SQLiteDAO) {
     val remoteSales = h2DAO.allSales
     val localSales = sqliteDAO.allSales
     def ids(coll: Set[NoCGLibSale]) = coll.map(_.id)
-    val diff = ids(remoteSales.toSet) -- (ids(localSales.toSet))
+    val diff = ids(remoteSales.toSet) -- ids(localSales.toSet)
     val diffSales = remoteSales.filter(s => diff.contains(s.id))
     diffSales foreach sqliteDAO.insertSale
   }
 
-  private def syncGoods(h2DAO: H2DBDAO, sqliteDAO: SQLiteDAO) {
+  private def syncGoods(h2DAO: SlickDAO, sqliteDAO: SQLiteDAO) {
     val remoteMats: Set[NoCGLibGood] = h2DAO.allMats
     val localMats: Set[NoCGLibGood] = sqliteDAO.allMats
     def ids(coll: Set[NoCGLibGood]) = coll.map(_.id)
-    val diff = ids(remoteMats) -- (ids(localMats))
+    val diff = ids(remoteMats) -- ids(localMats)
     val diffGoods = remoteMats.filter(m => diff.contains(m.id))
     diffGoods foreach sqliteDAO.insertGood
   }

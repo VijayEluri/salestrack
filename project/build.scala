@@ -53,7 +53,6 @@ object AndroidSettings {
       AndroidMarketPublish.settings ++ Seq(
       keyalias in Android := "change-me",
       libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
-      libraryDependencies += "com.h2database" % "h2" % "1.3.168",
       libraryDependencies += "org.scalaz" % "scalaz-core_2.10" % "7.0.5",
       libraryDependencies += "com.typesafe" % "slick_2.10" % "1.0.0-RC2",
       libraryDependencies += "com.fasterxml.uuid" % "java-uuid-generator" % "3.1.3"

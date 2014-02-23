@@ -7,7 +7,7 @@
 
     <session-factory name="srcSessionFactory">
     	<property name="connection.url">jdbc:oracle:thin:@localhost:1521:trade</property>
-		<property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+		<property name="connection.driver_class">oracle.jdbc.OracleDriver</property>
 		<property name="connection.username">torhriph</property>
 		<property name="connection.password">rfhrfcysq</property>
         
