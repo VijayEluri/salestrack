@@ -1,0 +1,6 @@
+rm -r distr
+mkdir distr
+cp `find target -name replicator*.jar` distr/replicator.jar
+cp `find ../lib_managed/jars -name *.jar` distr/
+cp lib/*.jar distr/
+cp run distr/

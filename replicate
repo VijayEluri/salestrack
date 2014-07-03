@@ -1,4 +1,0 @@
-#!/bin/sh
-
-sbt assembly
-java -jar dbreplicator/target/replicator-assembly-0.2-SNAPSHOT.jar

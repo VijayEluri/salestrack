@@ -4,21 +4,26 @@ import android.database.sqlite.{SQLiteDatabase, SQLiteOpenHelper}
 import android.content.Context
 import scala.slick.jdbc.{StaticQuery => Q}
 import Q.interpolation
-import scala.slick.session.Database
-import Database.threadLocalSession
 import android.database.Cursor
 import scalaz._
 import Scalaz._
 import java.util.Date
 import NoCGLibSale._
 import android.app.Activity
+import scala.slick.jdbc.JdbcBackend.Database
+import com.typesafe.slick.driver.oracle.OracleDriver
+import scala.slick.driver.JdbcProfile
 
-class SlickDAO(val db: Database) extends DAO {
+class SlickDAO(val db: Database, val driver: JdbcProfile) extends DAO {
+  import driver.simple._
+
   def matsBy(subnameLength: Int, subname: String, filters: Set[String]): List[String] = db withSession {
+    implicit session: Session =>
     sql"select distinct substring(name, 0, $subnameLength) as subname from MAT where name is not null and name like $subname order by subname asc".as[String].list
   }
 
   def allMats = db withSession {
+    implicit session: Session =>
     val list: Set[(String, String)] = sql"select m1.seq_m, m1.name from mat m1".as[(String, String)].list.toSet
     list.map {
       case (goodId, goodName) =>
@@ -27,6 +32,7 @@ class SlickDAO(val db: Database) extends DAO {
   }
 
   def allSales = db withSession {
+    implicit session: Session =>
     val list = sql"select dep_seq, dep_name from dep".as[(String, String)].list
     list map {
       case (sid, sname) =>
@@ -35,10 +41,12 @@ class SlickDAO(val db: Database) extends DAO {
   }
 
   def maxTransitionDate: Date = db withSession {
+    implicit session: Session =>
     sql"select max(trd_date) from trade_src".as[java.sql.Timestamp].list.head
   }
 
   def insertTransition(transition: NoCGLibTransition) = db withSession {
+    implicit session: Session =>
     val tdate = new java.sql.Timestamp(transition.date.getTime)
     sqlu"""insert into trade_src(trd_seq, trd_from, trd_to, trd_quant, trd_date, trd_jref, trd_mat) values (${transition.id}, ${transition.from}, ${transition.to}, ${transition.quant}, $tdate, ${transition.me}, ${transition.good})""".first()
   }
@@ -46,12 +54,10 @@ class SlickDAO(val db: Database) extends DAO {
   def getFreeIds(number: Int): Seq[String] = throw new RuntimeException("not implemented")
 }
 
-object SlickDAO {
-  def apply(db: Database) = new SlickDAO(db)
-}
-
-class OracleDAO(db: Database) extends SlickDAO(db) {
+class OracleDAO(db: Database) extends SlickDAO(db, OracleDriver) {
+  import OracleDriver.simple._
   override def getFreeIds(number: Int): Seq[String] = db withSession {
+    implicit session: Session =>
     (1 to number) map {
       case i =>
         sql"select seq.nextval from dual".as[(String)].list.head
@@ -77,11 +83,11 @@ class SQLiteDAO(db: SQLiteDatabase) extends DAO {
       id = cursor.getString(0) |> id,
       from = cursor.getString(1) |> saleId,
       to = cursor.getString(2) |> saleId,
-      quant = cursor.getInt(3) |> quantity,
+      quant = cursor.getLong(3) |> quantity,
       date = new Date(cursor.getLong(4)),
       me = cursor.getString(5) |> saleId,
       good = cursor.getString(6) |> NoCGLibGood.id,
-      sellPrice = if (cursor.isNull(7)) None else cursor.getInt(7) |> price |> some
+      sellPrice = if (cursor.isNull(7)) None else cursor.getLong(7).some |> price
     )
   }
 
@@ -151,7 +157,7 @@ class SQLiteDAO(db: SQLiteDatabase) extends DAO {
 
   def insertSale(sale: NoCGLibSale) = {
     val query = """insert into dep(dep_seq, dep_name) values(?, ?)"""
-    db.execSQL(query, Array(sale.id, sale.name))
+    db.execSQL(query, Array(sale.id, sale.name.toString))
   }
 
   private def iterate[T](cursor: Cursor, item: (Cursor) => T): List[T] = {

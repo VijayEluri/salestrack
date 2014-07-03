@@ -25,4 +25,8 @@ object NoCGLibSale {
   implicit def saleIdEquality: Equal[String @@ SaleId] = Equal.equal(_ == _)
 
   def apply(id: String @@ SaleId, name: String @@ SaleName) = new NoCGLibSale(id, name)
+
+  def unapply(sale: NoCGLibSale): Option[Tuple2[String, String]] = Some((sale.id, sale.name))
+
+  def tupled(tuple: (String, String)) = new NoCGLibSale(saleId(tuple._1), saleName(tuple._2))
 }

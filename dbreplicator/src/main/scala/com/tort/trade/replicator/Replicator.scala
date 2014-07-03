@@ -1,75 +1,54 @@
 package com.tort.trade.replicator
 
-import org.squeryl.{Table, Session}
-import org.squeryl.adapters.H2Adapter
-import org.squeryl.PrimitiveTypeMode._
-import com.tort.trade.model.SalestrackSchema._
-import com.tort.trade.model.Transition
-import scalaz._
-import Scalaz._
+import scala.slick.jdbc.JdbcBackend.Database
+import java.util.Properties
+import com.tort.trade.model.Schema
+import scala.slick.driver.H2Driver
+import com.typesafe.slick.driver.oracle.OracleDriver
 
 class Replicator(val ip: String, sid: String) {
-  Class.forName("org.h2.Driver")
+  val oracle = Database.forURL("jdbc:oracle:thin:@%s:1521/%s".format(ip, sid), "torhriph", "nfufymqjhr", new Properties(), "oracle.jdbc.OracleDriver")
+  val h2 = Database.forURL("jdbc:h2:trade;AUTO_SERVER=TRUE", "sa", "", new Properties(), "org.h2.Driver")
 
-  createSchema
-  replicate(good)
-  replicate(sales)
-  replicate(transition, transform)
+  createSchema()
+  replicate()
 
-  private def transform: (Seq[Transition]) => Seq[Transition] = {
-    (x) => x.map(transition =>
-      new Transition(
-        transition.id,
-        transition.from,
-        transition.to,
-        transition.quant,
-        transition.date,
-        transition.me,
-        transition.good,
-        transition.sellPrice)
-    )
-  }
+  private def replicate() {
+    val oracleSession = oracle.createSession()
+    val h2Session = h2.createSession()
 
-  private def h2Session = {
-    val connection = java.sql.DriverManager.getConnection(
-      "jdbc:h2:trade;AUTO_SERVER=TRUE",
-      "sa",
-      ""
-    )
-    connection.setAutoCommit(false)
-    Session.create(connection, new H2Adapter)
-  }
+    oracleSession.withTransaction {
+      h2Session.withTransaction {
+        val oracleSchema = new Schema(OracleDriver)
+        val h2Schema = new Schema(H2Driver)
 
-  private def oracleSession = {
-    val connection = java.sql.DriverManager.getConnection(
-      "jdbc:oracle:thin:@%s:1521:%s".format(ip, sid),
-      "torhriph",
-      "nfufymqjhr"
-    )
-    connection.setAutoCommit(false)
-    Session.create(connection, new H2Adapter)
-  }
+        oracleSchema.listGoods(oracleSession) foreach {
+          case good => h2Schema.insertGood(good)(h2Session)
+        }
 
-  private def replicate[T](table: Table[T], transform: Seq[T] => Seq[T] = (x: Seq[T]) => x) = {
-    println("copying " + table.name)
+        oracleSchema.listSales(oracleSession) foreach {
+          case sales => h2Schema.insertSale(sales)(h2Session)
+        }
 
-    transaction(oracleSession) {
-      val entities = from(table)((e) => select(e)).toSeq
-      println("finished reading")
-
-      transaction(h2Session) {
-        val t: Seq[T] = entities |> transform
-        table.insert(t)
+        oracleSchema.listTransitions(oracleSession) foreach {
+          case transition => h2Schema.insertTransition(transition)(h2Session)
+        }
       }
-      println("finished inserting")
     }
   }
 
-  private def createSchema = transaction(h2Session) {
-    drop
-    println("schema droppped")
-    create
-    println("schema created")
+  private def createSchema() = {
+    val h2Schema = new Schema(H2Driver)
+    import h2Schema.driver.simple._
+
+    h2.withSession {
+      implicit session: Session =>
+
+        h2Schema.drop
+        println("schema droppped")
+        h2Schema.create
+        println("schema created")
+    }
   }
 }
 

@@ -1,0 +1,1 @@
+java -cp replicator.jar:* com.tort.trade.replicator.Runner $@

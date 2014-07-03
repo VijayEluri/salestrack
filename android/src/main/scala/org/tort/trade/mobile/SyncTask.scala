@@ -2,13 +2,13 @@ package org.tort.trade.mobile
 
 import android.app.{AlertDialog, Activity}
 import android.os.AsyncTask
-import com.fasterxml.uuid.{Generators, EthernetAddress}
 import android.content.{DialogInterface, Intent, Context}
 import scalaz._
 import Scalaz._
 import Settings._
 import android.content.DialogInterface.OnClickListener
-import scala.slick.session.Database
+import scala.slick.jdbc.JdbcBackend.Database
+import com.fasterxml.uuid.{Generators, EthernetAddress}
 
 class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
   def doInBackground(params: AnyRef*) = {
@@ -20,18 +20,21 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
     val path = Option(activity.getSharedPreferences(PreferencesFileName, Context.MODE_PRIVATE).getString(Settings.RemoteServerPathKey, null))
     val user = none
     val password = none
-    val dbType = "Oracle"
+    val dbType = OracleDb
     (ip, path, dbType, user, password) match {
-      case (Some(i), Some(sid), "Oracle", user, password) =>
+      case (Some(i), Some(sid), OracleDb, user, password) =>
         val DbUrl: String = s"""jdbc:oracle:thin:@${i}:1521/${sid}"""
         Class.forName("oracle.jdbc.OracleDriver")
         val db = Database.forURL(DbUrl, user.getOrElse("torhriph"), password.getOrElse("nfufymqjhr"), driver = "oracle.jdbc.OracleDriver")
-        val slickDAO = new OracleDAO(db)
-        sync(syncTransitionsOracle)(slickDAO)
+        val oracleDAO = new OracleDAO(db)
+        sync(syncTransitionsOracle)(oracleDAO)
       case _ =>
         new Intent(activity, classOf[EditRemoteServerIpActivity]) |> activity.startActivity
     }
   }
+
+  trait DbType
+  case class OracleDb() extends DbType
 
   private def sync(syncTransitions: (SlickDAO, SQLiteDAO) => Unit)(remoteDAO: SlickDAO) {
     val sqliteDB = new DBHelper(activity).getWritableDatabase()
@@ -39,7 +42,7 @@ class SyncTask(activity: Activity) extends AsyncTask[AnyRef, Int, Unit] {
 
     try {
       sqliteDB.beginTransaction()
-      remoteDAO.db.withSession {
+      remoteDAO.db.withDynSession {
         syncGoods(remoteDAO, localDAO)
         syncSales(remoteDAO, localDAO)
         syncTransitions(remoteDAO, localDAO)

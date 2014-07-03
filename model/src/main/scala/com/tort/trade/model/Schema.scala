@@ -1,98 +1,62 @@
 package com.tort.trade.model
 
-import java.util.Date
-import scalaz._
-import Scalaz._
-import org.squeryl.Schema
-import org.squeryl.annotations.Column
+import scala.slick.driver.JdbcProfile
+import java.sql.Timestamp
+import org.tort.trade.mobile.{NoCGLibTransition, NoCGLibSale, NoCGLibGood}
 
-object SalestrackSchema extends Schema {
+class Schema(val driver: JdbcProfile) {
+  import driver.simple._
 
-  trait SalesIdTag
+  class Transitions(tag: Tag) extends Table[NoCGLibTransition](tag, "TRADE_SRC"){
+    def id = column[String]("TRD_SEQ", O.PrimaryKey)
+    def from = column[String]("TRD_FROM")
+    def to = column[String]("TRD_TO")
+    def quant = column[Long]("TRD_QUANT")
+    def date = column[Timestamp]("TRD_DATE")
+    def me = column[String]("TRD_JREF")
+    def good = column[String]("TRD_MAT")
+    def sellPrice = column[Option[Long]]("TRD_PRICE")
 
-  trait GoodIdTag
+    def * = (id, from, to, quant, date, me, good, sellPrice) <> (NoCGLibTransition.tupled, NoCGLibTransition.unapply)
+  }
 
-  trait SalesNameTag
+  class Sales(tag: Tag) extends Table[NoCGLibSale](tag, "DEP") {
+    def id = column[String]("DEP_SEQ", O.PrimaryKey)
+    def name = column[String]("DEP_NAME")
 
-  trait SalesAliasIdTag
+    def * = (id, name) <> (NoCGLibSale.tupled, NoCGLibSale.unapply)
+  }
 
-  trait GoodNameTag
+  class Goods(tag: Tag) extends Table[NoCGLibGood](tag, "MAT") {
+    def id = column[String]("SEQ_M", O.PrimaryKey)
+    def name = column[String]("NAME")
 
-  trait TransitionIdTag
+    def * = (id, name) <> (NoCGLibGood.tupled, NoCGLibGood.unapply)
+  }
 
-  trait QuantityTag
+  val transitions: TableQuery[Transitions] = TableQuery[Transitions]
+  val sales = TableQuery[Sales]
+  val goods = TableQuery[Goods]
 
-  type SalesId = String @@ SalesIdTag
-  type GoodId = String @@ GoodIdTag
-  type SalesName = String @@ SalesNameTag
-  type SalesAliasId = String @@ SalesAliasIdTag
-  type GoodName = String @@ GoodNameTag
-  type TransitionId = String @@ TransitionIdTag
-  type Quantity = Long @@ QuantityTag
+  def listGoods(implicit session: Session) = goods.list()
+  def listSales(implicit session: Session) = sales.list()
+  def listTransitions(implicit session: Session) = transitions.list()
+  def insertGood(g: NoCGLibGood)(implicit session: Session) = goods.insert(g)
+  def insertSale(s: NoCGLibSale)(implicit session: Session) = sales.insert(s)
+  def insertTransition(t: NoCGLibTransition)(implicit session: Session) = transitions.insert(t)
 
-  def salesId(id: String) = Tag[String, SalesIdTag](id)
+  def drop(implicit session: Session) {
+    (transitions.ddl ++ goods.ddl ++ sales.ddl).drop
+  }
 
-  def goodId(id: String) = Tag[String, GoodIdTag](id)
+  def create(implicit session: Session) {
+    (goods.ddl ++ sales.ddl ++ transitions.ddl).create
+  }
 
-  def salesName(name: String) = Tag[String, SalesNameTag](name)
-
-  def salesAliasId(id: String) = Tag[String, SalesAliasIdTag](id)
-
-  def goodName(name: String) = Tag[String, GoodNameTag](name)
-
-  def transitionId(id: String) = Tag[String, TransitionIdTag](id)
-
-  def quantity(quantity: Long) = Tag[Long, QuantityTag](quantity)
-
-  val transition = table[Transition]("TRADE_SRC")
-  val sales = table[Sales]("DEP")
-  val good = table[Good]("MAT")
-  val salesAlias = table[SalesAlias]("SALESALIAS")
+//  class SalesAlias(tag: Tag) extends Table[SalesAlias](tag, "SALESALIAS") {
+//    def id = column[String]("ID")
+//    def sales = column[String]("SALES")
+//
+//    def * = (id, sales) <> (SalesAlias.tupled, SalesAlias.unapply)
+//  }
 }
-
-import SalestrackSchema._
-
-class Transition(
-                  @Column("TRD_SEQ") val id: TransitionId,
-                  @Column("TRD_FROM") val from: SalesId,
-                  @Column("TRD_TO") val to: SalesId,
-                  @Column("TRD_QUANT") val quant: Quantity,
-                  @Column("TRD_DATE") val date: Date,
-                  @Column("TRD_JREF") val me: SalesId,
-                  @Column("TRD_MAT") val good: GoodId,
-                  @Column("TRD_PRICE") val sellPrice: Option[Long] = Some(0L))
-
-object Transition {
-  def apply(from: SalesId,
-            to: SalesId,
-            quant: Quantity,
-            date: Date,
-            me: SalesId,
-            good: GoodId,
-            sellPrice: Option[Long],
-            buyPrice: Option[Long]) = new Transition(id, from, to, quant, date, me, good, sellPrice)
-
-  def unapply(transition: Transition) = Some((
-    transition.id,
-    transition.from,
-    transition.to,
-    transition.quant,
-    transition.date,
-    transition.me,
-    transition.good,
-    transition.sellPrice))
-
-  def id = UUIDGenerator.generate.toString |> transitionId
-}
-
-class Sales(
-             @Column(name = "DEP_SEQ") val id: SalesId,
-             @Column(name = "DEP_NAME") val name: SalesName
-             )
-
-class SalesAlias(val id: SalesAliasId, val sales: SalesId)
-
-class Good(
-            @Column(name = "SEQ_M") val id: GoodId,
-            @Column(name = "NAME") val name: Option[GoodName]
-            )
