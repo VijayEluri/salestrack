@@ -28,7 +28,8 @@ object SalesTrack extends Build {
   ) dependsOn (model)
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
-    scalaVersion := "2.10.0"
+    scalaVersion := "2.10.0",
+    retrieveManaged := true
   )
 }
 
