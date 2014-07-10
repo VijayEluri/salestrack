@@ -7,9 +7,7 @@ object SalesTrack extends Build {
   lazy val root = Project(
     id = "root",
     base = file("."),
-    settings = buildSettings ++ packSettings ++ Seq(
-      packMain := Map("dbreplicator" -> "com.tort.trade.replicator.Runner")
-    )
+    settings = buildSettings
   ) aggregate(model, android, replicator)
 
   lazy val model = Project(
@@ -31,6 +29,8 @@ object SalesTrack extends Build {
       libraryDependencies += "com.typesafe.slick" %% "slick-extensions" % "2.0.2",
       libraryDependencies += "com.h2database" % "h2" % "1.3.168",
       resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/maven-releases/"
+    ) ++ packSettings ++ Seq(
+      packMain := Map("dbreplicator" -> "com.tort.trade.replicator.Runner")
     )
   ) dependsOn (model)
 
