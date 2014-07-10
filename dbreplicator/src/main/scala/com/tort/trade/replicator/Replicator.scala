@@ -5,6 +5,7 @@ import java.util.Properties
 import com.tort.trade.model.Schema
 import scala.slick.driver.H2Driver
 import com.typesafe.slick.driver.oracle.OracleDriver
+import scala.slick.jdbc.meta.MTable
 
 class Replicator(val ip: String, sid: String) {
   val oracle = Database.forURL("jdbc:oracle:thin:@%s:1521/%s".format(ip, sid), "torhriph", "nfufymqjhr", new Properties(), "oracle.jdbc.OracleDriver")
@@ -43,9 +44,10 @@ class Replicator(val ip: String, sid: String) {
 
     h2.withSession {
       implicit session: Session =>
-
-        h2Schema.drop
-        println("schema droppped")
+        if(!MTable.getTables(h2Schema.sales.baseTableRow.tableName).list().isEmpty) {
+          h2Schema.drop
+          println("schema droppped")
+        }
         h2Schema.create
         println("schema created")
     }

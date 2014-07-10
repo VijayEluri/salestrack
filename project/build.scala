@@ -1,12 +1,15 @@
 import sbt._
 import Keys._
-import AndroidKeys._
+import android.Keys._
+import xerial.sbt.Pack._
 
 object SalesTrack extends Build {
   lazy val root = Project(
     id = "root",
     base = file("."),
-    settings = buildSettings
+    settings = buildSettings ++ packSettings ++ Seq(
+      packMain := Map("dbreplicator" -> "com.tort.trade.replicator.Runner")
+    )
   ) aggregate(model, android, replicator)
 
   lazy val model = Project(
@@ -26,13 +29,13 @@ object SalesTrack extends Build {
     base = file("dbreplicator"),
     settings = buildSettings ++ Seq(
       libraryDependencies += "com.typesafe.slick" %% "slick-extensions" % "2.0.2",
+      libraryDependencies += "com.h2database" % "h2" % "1.3.168",
       resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/maven-releases/"
     )
   ) dependsOn (model)
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
-    scalaVersion := "2.10.0",
-    retrieveManaged := true,
+    scalaVersion := "2.10.4",
     libraryDependencies += "org.scalaz" % "scalaz-core_2.10" % "7.0.5"
   )
 
@@ -45,25 +48,19 @@ object SalesTrack extends Build {
 object AndroidSettings {
   val settings = Defaults.defaultSettings ++ Seq(
     name := "android",
-    version := "0.1",
-    versionCode := 0,
-    platformName in Android := "android-16"
+    version := "0.1"
   )
 
   val proguardSettings = Seq(
-    proguardOption in Android := "-keep class scala.collection.SeqLike {public protected *;}"
+    proguardOptions in Android := Seq("-keep class scala.collection.SeqLike {public protected *;}")
   )
 
   lazy val full =
     AndroidSettings.settings ++
-      AndroidProject.androidSettings ++
-      TypedResources.settings ++
       proguardSettings ++
-      AndroidManifestGenerator.settings ++
-      AndroidMarketPublish.settings ++ Seq(
-      keyalias in Android := "change-me",
+      Seq(
       libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
       libraryDependencies += "com.typesafe.slick" %% "slick-extensions" % "2.0.2"
-    )
+    ) ++ android.Plugin.androidBuild ++ Seq(platformTarget in Android := "android-16")
 }
 
