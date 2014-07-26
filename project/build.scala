@@ -26,7 +26,6 @@ object SalesTrack extends Build {
     id = "dbreplicator",
     base = file("dbreplicator"),
     settings = buildSettings ++ Seq(
-      libraryDependencies += "com.typesafe.slick" %% "slick-extensions" % "2.0.2",
       libraryDependencies += "com.h2database" % "h2" % "1.3.168",
       resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/maven-releases/"
     ) ++ packSettings ++ Seq(
@@ -41,6 +40,7 @@ object SalesTrack extends Build {
 
   val dbCommons = Seq(
       libraryDependencies += "com.typesafe.slick" %% "slick" % "2.0.2",
+      libraryDependencies += "com.typesafe.slick" %% "slick-extensions" % "2.0.2",
       libraryDependencies += "com.fasterxml.uuid" % "java-uuid-generator" % "3.1.3"
     )
 }
