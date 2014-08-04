@@ -33,6 +33,16 @@ object SalesTrack extends Build {
     )
   ) dependsOn (model)
 
+  lazy val service = Project(
+    id = "service",
+    base = file("service"),
+    settings = buildSettings ++ dbCommons ++ packSettings ++ Seq(
+      packMain := Map("service" -> "org.tort.trade.service.Runner")
+    ) ++ Seq(
+      libraryDependencies += "com.h2database" % "h2" % "1.3.168"
+    )
+  ) dependsOn (model)
+
   val buildSettings = Defaults.defaultSettings ++ Seq(
     scalaVersion := "2.10.4",
     libraryDependencies += "org.scalaz" % "scalaz-core_2.10" % "7.0.5"
@@ -42,7 +52,7 @@ object SalesTrack extends Build {
       libraryDependencies += "com.typesafe.slick" %% "slick" % "2.0.2",
       libraryDependencies += "com.typesafe.slick" %% "slick-extensions" % "2.0.2",
       libraryDependencies += "com.fasterxml.uuid" % "java-uuid-generator" % "3.1.3"
-    )
+  )
 }
 
 object AndroidSettings {

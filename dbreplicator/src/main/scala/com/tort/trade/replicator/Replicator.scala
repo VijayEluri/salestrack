@@ -8,7 +8,7 @@ import com.typesafe.slick.driver.oracle.OracleDriver
 import scala.slick.jdbc.meta.MTable
 
 class Replicator(val ip: String, sid: String) {
-  val oracle = Database.forURL("jdbc:oracle:thin:@%s:1521/%s".format(ip, sid), "torhriph", "nfufymqjhr", new Properties(), "oracle.jdbc.OracleDriver")
+  val oracle = Database.forURL("jdbc:oracle:oci8:@%s:1521:%s".format(ip, sid), "torhriph", "nfufymqjhr", new Properties(), "oracle.jdbc.OracleDriver")
   val h2 = Database.forURL("jdbc:h2:trade;AUTO_SERVER=TRUE", "sa", "", new Properties(), "org.h2.Driver")
 
   createSchema()
