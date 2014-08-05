@@ -25,6 +25,17 @@ object Runner {
           natasha,
           NoCGLibGood.id("232")
         ) |> service.addTransition
+      case "goods" :: xs =>
+        goodsSearch(xs)
+    }
+  }
+
+  private def goodsSearch(xs: List[String]) {
+    xs match {
+      case Nil =>
+        println("usage: goods regex")
+      case xs =>
+        service.goodsBy(xs).foreach(g => println(g.name))
     }
   }
 }

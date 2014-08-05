@@ -3,6 +3,8 @@ package com.tort.trade.model
 import scala.slick.driver.JdbcProfile
 import java.sql.Timestamp
 import org.tort.trade.mobile.{NoCGLibTransition, NoCGLibSale, NoCGLibGood}
+import scalaz._
+import Scalaz._
 
 class Schema(val driver: JdbcProfile) {
   import driver.simple._
@@ -29,14 +31,21 @@ class Schema(val driver: JdbcProfile) {
 
   class Goods(tag: Tag) extends Table[NoCGLibGood](tag, "MAT") {
     def id = column[String]("SEQ_M", O.PrimaryKey)
-    def name = column[String]("NAME")
+    def name = column[String]("NAME", O.Nullable)
 
     def * = (id, name) <> (NoCGLibGood.tupled, NoCGLibGood.unapply)
   }
 
   val transitions: TableQuery[Transitions] = TableQuery[Transitions]
   val sales = TableQuery[Sales]
-  val goods = TableQuery[Goods]
+  val goods: TableQuery[Goods] = TableQuery[Goods]
+
+  private def assembleLikeExpr(base: Seq[String]) = "%" + base.reduce((acc, i) => acc + "%" + i) + "%"
+
+  def goodsBy(substrings: Seq[String])(implicit session: Session): Seq[NoCGLibGood] = {
+    val likeExpr = substrings |> assembleLikeExpr
+    goods.filter(_.name like likeExpr).list()
+  }
 
   def listGoods(implicit session: Session) = goods.list()
   def listSales(implicit session: Session) = sales.list()
