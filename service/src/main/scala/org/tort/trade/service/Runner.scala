@@ -35,7 +35,7 @@ object Runner {
       case Nil =>
         println("usage: goods regex")
       case xs =>
-        service.goodsBy(xs).foreach(g => println(g.name))
+        service.goodsBy(xs).foreach(g => println(s"${g.id}\t${g.name}"))
     }
   }
 }
