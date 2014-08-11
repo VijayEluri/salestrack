@@ -44,7 +44,7 @@ class Schema(val driver: JdbcProfile) {
 
   def goodsBy(substrings: Seq[String])(implicit session: Session): Seq[NoCGLibGood] = {
     val likeExpr = substrings |> assembleLikeExpr
-    goods.filter(_.name like likeExpr).list()
+    goods.filter(_.name.toLowerCase like likeExpr.toLowerCase).list()
   }
 
   def listGoods(implicit session: Session) = goods.list()
