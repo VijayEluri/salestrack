@@ -18,7 +18,7 @@ object Runner {
       case Nil => println("usage trans")
       case "trans" :: Nil => addTransition
       case "goods" :: xs => goodsSearch(xs)
-      case "check" :: Nil => service.matchJournals.foreach(t => s"${t.date} ${t.from} ${t.to} ${t.good} ${t.quant}" |> println)
+      case "check" :: Nil => service.matchJournals.foreach(t => s"${t.date}\t${t.from}\t${t.to}\t${t.good}\t${t.quant}" |> println)
     }
   }
 
