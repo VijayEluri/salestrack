@@ -21,4 +21,10 @@ class Service(db: DatabaseDef) {
       schema.goodsBy(substrings)
     }
   }
+
+  def matchJournals = {
+    db.withDynSession {
+      schema.matchJournals
+    }
+  }
 }

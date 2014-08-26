@@ -16,18 +16,22 @@ object Runner {
   def main(args: Array[String]) {
     args.toList match {
       case Nil => println("usage trans")
-      case "trans" :: Nil =>
-        NoCGLibTransition(
-          provider,
-          natasha,
-          NoCGLibTransition.quantity(1),
-          new Date(),
-          natasha,
-          NoCGLibGood.id("232")
-        ) |> service.addTransition
-      case "goods" :: xs =>
-        goodsSearch(xs)
+      case "trans" :: Nil => addTransition
+      case "goods" :: xs => goodsSearch(xs)
+      case "check" :: Nil => service.matchJournals.foreach(t => s"${t.date} ${t.good} ${t.from} ${t.to} ${t.quant}" |> println)
     }
+  }
+
+
+  def addTransition {
+    NoCGLibTransition(
+      provider,
+      natasha,
+      NoCGLibTransition.quantity(1),
+      new Date(),
+      natasha,
+      NoCGLibGood.id("232")
+    ) |> service.addTransition
   }
 
   private def goodsSearch(xs: List[String]) {

@@ -1,10 +1,12 @@
 package com.tort.trade.model
 
 import scala.slick.driver.JdbcProfile
-import java.sql.Timestamp
+import java.sql.{Date, Timestamp}
 import org.tort.trade.mobile.{NoCGLibTransition, NoCGLibSale, NoCGLibGood}
 import scalaz._
 import Scalaz._
+import scala.slick.jdbc.{GetResult, StaticQuery => Q}
+import Q.interpolation
 
 class Schema(val driver: JdbcProfile) {
   import driver.simple._
@@ -61,6 +63,20 @@ class Schema(val driver: JdbcProfile) {
   def create(implicit session: Session) {
     (goods.ddl ++ sales.ddl ++ transitions.ddl).create
   }
+
+  def matchJournals(implicit session: Session): Seq[SuspiciousTransition] = {
+    implicit val toSuspiciousTransitions = GetResult(r => SuspiciousTransition(r.<<, r.<<, r.<<, r.<<, r.<<))
+    sql"""select trd_from, trd_to, trd_date, trd_mat, trd_quant, count(trd_seq)
+          from trade_src
+          where trd_from > 2
+          and trd_to > 2
+          and trd_jref > 2
+          group by trd_from, trd_to, trd_date, trd_mat, trd_quant
+          having (count(trd_seq) % 2) <> 0
+          order by trd_date desc, trd_mat, trd_from, trd_to""".as[SuspiciousTransition].list()
+  }
+
+  case class SuspiciousTransition(from: String, to: String, date: Date, good: String, quant: Int)
 
 //  class SalesAlias(tag: Tag) extends Table[SalesAlias](tag, "SALESALIAS") {
 //    def id = column[String]("ID")
