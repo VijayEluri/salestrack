@@ -66,14 +66,19 @@ class Schema(val driver: JdbcProfile) {
 
   def matchJournals(implicit session: Session): Seq[SuspiciousTransition] = {
     implicit val toSuspiciousTransitions = GetResult(r => SuspiciousTransition(r.<<, r.<<, r.<<, r.<<, r.<<))
-    sql"""select trd_from, trd_to, trd_date, trd_mat, trd_quant, count(trd_seq)
+    sql"""select df.dep_name, dt.dep_name, d, mm.name, q, c
+          from (
+          select trd_from as f, trd_to as t, trd_date as d, trd_mat as m, trd_quant as q, count(trd_seq) as c
           from trade_src
           where trd_from > 2
           and trd_to > 2
           and trd_jref > 2
           group by trd_from, trd_to, trd_date, trd_mat, trd_quant
           having (count(trd_seq) % 2) <> 0
-          order by trd_date desc, trd_mat, trd_from, trd_to""".as[SuspiciousTransition].list()
+          ) st join dep df on df.dep_seq = st.f
+          join dep dt on dt.dep_seq = st.t
+          join mat mm on mm.seq_m = m
+          order by d desc, mm.name, df.dep_name, dt.dep_name""".as[SuspiciousTransition].list()
   }
 
   case class SuspiciousTransition(from: String, to: String, date: Date, good: String, quant: Int)
