@@ -1,6 +1,6 @@
 package org.tort.trade.service
 
-import org.tort.trade.mobile.NoCGLibTransition
+import org.tort.trade.mobile.{NoCGLibGood, NoCGLibTransition}
 import com.tort.trade.model.Schema
 import scala.slick.driver.H2Driver
 import scala.slick.jdbc.JdbcBackend.DatabaseDef
@@ -25,6 +25,12 @@ class Service(db: DatabaseDef) {
   def matchJournals = {
     db.withDynSession {
       schema.matchJournals
+    }
+  }
+
+  def balance(journalId: Long): Map[NoCGLibGood, Long] = {
+    db.withDynSession {
+      schema.balance(journalId).map(x => x._1 -> x._2.getOrElse(0L))
     }
   }
 }

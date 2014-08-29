@@ -83,6 +83,42 @@ class Schema(val driver: JdbcProfile) {
 
   case class SuspiciousTransition(from: String, to: String, date: Date, good: String, quant: Int)
 
+  def balance(journalId: Long)(implicit session: Session): Map[NoCGLibGood, Option[Long]] = {
+    val groupedIncome = for {
+      (t, g) <- transitions innerJoin goods on (_.good === _.id)
+      if (t.me === journalId.toString)
+      if (t.date <= today)
+      if (t.from != t.me)
+      if (t.to === t.me)
+    } yield (g, t.quant)
+
+    val income = groupedIncome.groupBy(_._1).map {
+      case (good, css) => good -> css.map(_._2).sum
+    }
+
+    val groupedOutcome = for {
+      (t, g) <- transitions innerJoin goods on (_.good === _.id)
+      if (t.me === journalId.toString)
+      if (t.date <= today)
+      if (t.from === t.me)
+      if (t.to != t.me)
+    } yield (g, t.quant)
+
+    val outcome = groupedOutcome.groupBy(_._1).map {
+      case (good, css) => good -> css.map(_._2).sum
+    }
+
+    val res = for {
+      (i, o) <- income innerJoin outcome on (_._1.id === _._1.id)
+      if (i._2 - o._2) > 0L
+    } yield (i._1, i._2 - o._2)
+
+    println(res.selectStatement)
+    res.toMap
+  }
+
+  private def today = new Timestamp(new java.util.Date().getTime)
+
 //  class SalesAlias(tag: Tag) extends Table[SalesAlias](tag, "SALESALIAS") {
 //    def id = column[String]("ID")
 //    def sales = column[String]("SALES")

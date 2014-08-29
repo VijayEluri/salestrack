@@ -19,6 +19,7 @@ object Runner {
       case "trans" :: Nil => addTransition
       case "goods" :: xs => goodsSearch(xs)
       case "check" :: Nil => service.matchJournals.foreach(t => s"${t.date}\t${t.from}\t${t.to}\t${t.good}\t${t.quant}" |> println)
+      case "balance" :: journalId :: Nil => service.balance(journalId.toLong).foreach(x => s"${x._1.name}\t${x._2}" |> println)
     }
   }
 
@@ -43,4 +44,3 @@ object Runner {
     }
   }
 }
-
