@@ -17,6 +17,8 @@ object NoCGLibSale {
   trait SaleId
   trait SaleName
 
+  val CustomerSaleId = saleId("2")
+
   def saleId(id: String): String @@ SaleId = Tag(id)
   def saleName(name: String): String @@ SaleName = Tag(name)
 

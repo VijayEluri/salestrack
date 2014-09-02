@@ -1,5 +1,9 @@
 package org.tort.trade.service
 
+import java.sql.Timestamp
+
+import org.joda.time.DateTime
+
 import scala.slick.jdbc.JdbcBackend.Database
 import java.util.{Date, Properties}
 import org.tort.trade.mobile.{NoCGLibGood, NoCGLibSale, NoCGLibTransition}
@@ -19,10 +23,23 @@ object Runner {
       case "trans" :: Nil => addTransition
       case "goods" :: xs => goodsSearch(xs)
       case "check" :: Nil => service.matchJournals.foreach(t => s"${t.date}\t${t.from}\t${t.to}\t${t.good}\t${t.quant}" |> println)
-      case "balance" :: journalId :: Nil => service.balance(journalId.toLong).foreach(x => s"${x._1.name}\t${x._2}" |> println)
+      case "balance" :: journalId :: Nil =>
+        service
+          .balance(journalId.toLong)
+          .foreach(x => s"${x._1.name}\t${x._2}" |> println)
+      case "overall" :: month :: Nil =>
+        service
+          .overall(parsePeriod(month.toInt))
+          .foreach(x => s"${x._1}\t${x._2}" |> println)
     }
   }
 
+  private def parsePeriod(month: Int): (DateTime, DateTime) = {
+    if (month > 0)
+      (new DateTime(), new DateTime().plusMonths(month))
+    else
+      (new DateTime().plusMonths(month), new DateTime())
+  }
 
   def addTransition {
     NoCGLibTransition(

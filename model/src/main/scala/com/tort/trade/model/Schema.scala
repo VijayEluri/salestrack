@@ -1,12 +1,16 @@
 package com.tort.trade.model
 
-import scala.slick.driver.JdbcProfile
 import java.sql.{Date, Timestamp}
-import org.tort.trade.mobile.{NoCGLibTransition, NoCGLibSale, NoCGLibGood}
-import scalaz._
-import Scalaz._
+
+import org.joda.time.DateTime
+import org.tort.trade.mobile.NoCGLibSale.SaleName
+import org.tort.trade.mobile.{NoCGLibGood, NoCGLibSale, NoCGLibTransition}
+
+import scala.slick.driver.JdbcProfile
+import scala.slick.jdbc.StaticQuery.interpolation
 import scala.slick.jdbc.{GetResult, StaticQuery => Q}
-import Q.interpolation
+import scalaz.Scalaz._
+import scalaz._
 
 class Schema(val driver: JdbcProfile) {
   import driver.simple._
@@ -113,11 +117,27 @@ class Schema(val driver: JdbcProfile) {
       if (i._2 - o._2) > 0L
     } yield (i._1, i._2 - o._2)
 
-    println(res.selectStatement)
     res.toMap
   }
 
   private def today = new Timestamp(new java.util.Date().getTime)
+
+  def overall(period: Tuple2[DateTime, DateTime])(implicit session: Session): Map[String @@ SaleName, Long] = {
+    val query = transitions.innerJoin(sales).on(_.me === _.id)
+      .filter { case (t, s) => t.to === "2" }
+      .filter { case (t, s) => t.date < toTimestamp(period._2) }
+      .filter { case (t, s) => t.date >= toTimestamp(period._1) }
+      .map { case (t, s) => s.name -> t.quant * t.sellPrice }
+      .groupBy(_._1)
+      .map(x => x._1 -> x._2.map(t => t._2).sum)
+      .sortBy(_._1)
+
+    println(query.selectStatement)
+
+    query.toMap.map(x => NoCGLibSale.saleName(x._1) -> x._2.getOrElse(0L))
+  }
+
+  private def toTimestamp(dateTime: DateTime) = new Timestamp(dateTime.getMillis)
 
 //  class SalesAlias(tag: Tag) extends Table[SalesAlias](tag, "SALESALIAS") {
 //    def id = column[String]("ID")

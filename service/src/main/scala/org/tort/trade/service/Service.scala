@@ -1,11 +1,14 @@
 package org.tort.trade.service
 
-import org.tort.trade.mobile.{NoCGLibGood, NoCGLibTransition}
 import com.tort.trade.model.Schema
+import org.joda.time.DateTime
+import org.tort.trade.mobile.NoCGLibSale.SaleName
+import org.tort.trade.mobile.{NoCGLibGood, NoCGLibTransition}
+
 import scala.slick.driver.H2Driver
-import scala.slick.jdbc.JdbcBackend.DatabaseDef
 import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
-import scala.util.matching.Regex
+import scala.slick.jdbc.JdbcBackend.DatabaseDef
+import scalaz.@@
 
 class Service(db: DatabaseDef) {
   val schema = new Schema(H2Driver)
@@ -31,6 +34,12 @@ class Service(db: DatabaseDef) {
   def balance(journalId: Long): Map[NoCGLibGood, Long] = {
     db.withDynSession {
       schema.balance(journalId).map(x => x._1 -> x._2.getOrElse(0L))
+    }
+  }
+
+  def overall(period: (DateTime, DateTime)): Map[String @@ SaleName, Long] = {
+    db.withDynSession {
+      schema.overall(period)
     }
   }
 }

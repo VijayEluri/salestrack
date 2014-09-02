@@ -51,7 +51,8 @@ object SalesTrack extends Build {
   val dbCommons = Seq(
       libraryDependencies += "com.typesafe.slick" %% "slick" % "2.0.2",
       libraryDependencies += "com.typesafe.slick" %% "slick-extensions" % "2.0.2",
-      libraryDependencies += "com.fasterxml.uuid" % "java-uuid-generator" % "3.1.3"
+      libraryDependencies += "com.fasterxml.uuid" % "java-uuid-generator" % "3.1.3",
+      libraryDependencies += "joda-time" % "joda-time" % "2.4"
   )
 }
 
