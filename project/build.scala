@@ -45,7 +45,9 @@ object SalesTrack extends Build {
 
   val buildSettings = Defaults.defaultSettings ++ Seq(
     scalaVersion := "2.10.4",
-    libraryDependencies += "org.scalaz" % "scalaz-core_2.10" % "7.0.5"
+    libraryDependencies += "org.scalaz" % "scalaz-core_2.10" % "7.0.6",
+    resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
+    libraryDependencies += "org.scalaz.stream" %% "scalaz-stream" % "0.5"
   )
 
   val dbCommons = Seq(
