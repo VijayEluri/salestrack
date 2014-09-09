@@ -10,6 +10,7 @@ import scala.io.Source
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.jdbc.JdbcBackend.Database
 import scalaz.Scalaz._
+import scalaz.{ValidationNel, Failure, Success, Validation}
 
 object Runner {
 
@@ -18,9 +19,9 @@ object Runner {
 
   def main(args: Array[String]) {
     readConfig map database match {
-      case Left(msg) =>
-        println(msg)
-      case Right(db) =>
+      case Failure(msgs) =>
+        msgs foreach println
+      case Success(db) =>
         parseAndExecute(args, db)
     }
   }
@@ -56,15 +57,11 @@ object Runner {
       Database.forURL(s"jdbc:h2:tcp://$ip/$url;IFEXISTS=TRUE", "sa", "", new Properties(), "org.h2.Driver")
   }
 
-  def readConfig: Either[String, Config] = {
+  def readConfig: ValidationNel[String, Config] = {
     val lines = Source.fromFile(cfgFile).getLines().toList
-    def url = lines.find(line => line.startsWith("url=")).map(_.split('=')(1))
-    def ip = lines.find(line => line.startsWith("ip=")).map(_.split('=')(1))
-    (ip, url) match {
-      case (None, _) => Left("IP not found in config")
-      case (_, None) => Left("URL not found in config")
-      case x => Right(Config(x._1.get, x._2.get))
-    }
+    def url = lines.find(line => line.startsWith("url=")).map(_.split('=')(1)).toSuccess("IP not found in config").toValidationNel
+    def ip = lines.find(line => line.startsWith("ip=")).map(_.split('=')(1)).toSuccess("URL not found in config").toValidationNel
+    (ip |@| url) {Config(_, _)}
   }
 
   private def parsePeriod(month: Int): (DateTime, DateTime) = {
