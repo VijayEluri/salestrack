@@ -28,7 +28,6 @@ object Runner {
 
   def parseAndExecute(args: Array[String], db: JdbcBackend.DatabaseDef) {
     args.toList match {
-      case Nil => println("usage trans")
       case "trans" :: Nil => db |> service |> addTransition
       case "goods" :: xs => db |> service |> goodsSearch(xs)
       case "check" :: Nil =>
@@ -41,6 +40,12 @@ object Runner {
         service(db)
           .overall(parsePeriod(month.toInt))
           .foreach(x => s"${x._1}\t${x._2}" |> println)
+      case _ => println(
+        """Usage:
+          |goods substring - поиск товаров по названию. example: goods беж
+          |check - сравнение журналов на сегодня. показывает передачи, не подтверждающиеся другими журналами
+          |balance - остатки по журналу на сегодня. example: balance 8
+          |overall - оборот за месяц. месяц относительно текущего. example: overall -1   - оборот запрошлый месяц""".stripMargin)
     }
   }
 
