@@ -132,8 +132,6 @@ class Schema(val driver: JdbcProfile) {
       .map(x => x._1 -> x._2.map(t => t._2).sum)
       .sortBy(_._1)
 
-    println(query.selectStatement)
-
     query.toMap.map(x => NoCGLibSale.saleName(x._1) -> x._2.getOrElse(0L))
   }
 
