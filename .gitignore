@@ -1,3 +1,5 @@
 .idea
 .idea_modules
 target
+.cabal-sandbox
+cabal.sandbox.config

@@ -1,0 +1,28 @@
+@CHARSET "UTF-8";
+
+a {
+	color: rgb(0, 156, 255);
+	text-decoration: none;
+}
+
+table.menu td {
+	padding-left: 10px; 
+	padding-right: 10px;
+	color: rgb(0, 156, 255);			 	
+}
+
+table.menu td:hover {
+	text-decoration: underline;
+}
+
+table.menu td.active {
+	font-weight: bold; 	
+	color: rgb(0, 0, 0);
+	text-decoration: none;
+}
+
+table.menu td.active a {
+	font-weight: bold;
+	color: rgb(0, 0, 0);
+	text-decoration: none;
+}

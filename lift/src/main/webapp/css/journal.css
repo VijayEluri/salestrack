@@ -1,0 +1,13 @@
+@CHARSET "UTF-8";
+
+div {
+	width: 100%;
+}
+
+table.journal input {
+	width: 30em;
+}
+
+table.journal input.badTransitionText {
+	background-color: rgb(255, 136, 136);
+}
