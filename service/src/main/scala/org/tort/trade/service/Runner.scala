@@ -1,32 +1,24 @@
 package org.tort.trade.service
 
-import java.io.File
 import java.util.{Date, Properties}
 
 import org.joda.time.DateTime
 import org.tort.trade.mobile.{NoCGLibGood, NoCGLibSale, NoCGLibTransition}
 
-import scala.io.Source
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.jdbc.JdbcBackend.Database
 import scalaz.Scalaz._
-import scalaz.{ValidationNel, Failure, Success, Validation}
 
-object Runner {
+object Runner extends DBHelper {
 
   val provider = NoCGLibSale.saleId("1")
   val natasha = NoCGLibSale.saleId("5")
 
   def main(args: Array[String]) {
-    readConfig map database match {
-      case Failure(msgs) =>
-        msgs foreach println
-      case Success(db) =>
-        parseAndExecute(args, db)
-    }
+    initDB(parseAndExecute(args))
   }
 
-  def parseAndExecute(args: Array[String], db: JdbcBackend.DatabaseDef) {
+  def parseAndExecute(args: Array[String])(db: JdbcBackend.DatabaseDef) {
     args.toList match {
       case "trans" :: Nil => db |> service |> addTransition
       case "goods" :: xs => db |> service |> goodsSearch(xs)
@@ -45,28 +37,17 @@ object Runner {
           |goods substring - поиск товаров по названию. example: goods беж
           |check - сравнение журналов на сегодня. показывает передачи, не подтверждающиеся другими журналами
           |balance - остатки по журналу на сегодня. example: balance 8
-          |overall - оборот за месяц. месяц относительно текущего. example: overall -1   - оборот запрошлый месяц""".stripMargin)
+          |overall - оборот за месяц. месяц относительно текущего. example: overall -1   - оборот за прошлый месяц""".stripMargin)
     }
   }
-
-  def homeDir = new File(System.getProperty("user.home"))
-
-  def cfgFile = new File(homeDir, "trade.cfg")
 
   def service(db: Database) = {
     new Service(db)
   }
 
-  def database: (Config) => JdbcBackend.DatabaseDef = {
+  override def database: (Config) => JdbcBackend.DatabaseDef = {
     case Config(ip, url) =>
       Database.forURL(s"jdbc:h2:tcp://$ip/$url;IFEXISTS=TRUE", "sa", "", new Properties(), "org.h2.Driver")
-  }
-
-  def readConfig: ValidationNel[String, Config] = {
-    val lines = Source.fromFile(cfgFile).getLines().toList
-    def url = lines.find(line => line.startsWith("url=")).map(_.split('=')(1)).toSuccess("IP not found in config").toValidationNel
-    def ip = lines.find(line => line.startsWith("ip=")).map(_.split('=')(1)).toSuccess("URL not found in config").toValidationNel
-    (ip |@| url) {Config(_, _)}
   }
 
   private def parsePeriod(month: Int): (DateTime, DateTime) = {
@@ -81,6 +62,7 @@ object Runner {
       provider,
       natasha,
       NoCGLibTransition.quantity(1),
+      NoCGLibTransition.price(Some(250)),
       new Date(),
       natasha,
       NoCGLibGood.id("232")

@@ -47,8 +47,7 @@
             <!-- PRICE -->
             <td style="height: 100%;">
                 <div style="text-align: left; margin-top: 20px; margin-bottom: 5px; height: 20px;">
-                    <input type="text" style="width: 18em;" class="filter" id="filter"
-                           onkeydown="return journal.goodsSearchFilter(event);" onkeyup="journal.refreshGoods();"/>
+                    <input type="text" style="width: 18em;" class="filter" id="filter"/>
                     <span id="goodCount"></span>
                 </div>
                 <div style="height: 630px;">
@@ -65,7 +64,7 @@
             <td style="height: 100%;">
                 <div style="text-align: left; margin-top: 20px; margin-bottom: 5px; height: 20px;">
                     <input id="today" type="date" style="font-size: 16px; font-family: serif; padding: 1px 0px 1px 0px;"/>
-                    <span><input type="button" value="Очистить" onclick="journal.clear();"/></span>
+                    <span><input type="button" value="Очистить"/></span>
                 </div>
                 <div style="height: 630px;">
                     <table border="1px;" class="journal">
@@ -85,7 +84,6 @@
     Ошибка ввода: джинсы синие полосатые, 15 мая, неизвестный продавец
 </div>
 <script>
-    journal.init(7);
 </script>
 </body>
 </html>

@@ -43,6 +43,16 @@ object SalesTrack extends Build {
     )
   ) dependsOn (model)
 
+  lazy val lift = Project(
+    id = "lift",
+    base = file("lift"),
+    settings = Seq(
+        libraryDependencies += "net.liftweb" %% "lift-webkit" % "2.6" % "compile->default",
+        libraryDependencies += "net.liftweb" %% "lift-webkit" % "2.6" % "compile" classifier("sources"),
+        javaOptions ++= Seq("-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005")
+    )
+  ) dependsOn (service)
+
   val buildSettings = Defaults.defaultSettings ++ Seq(
     scalaVersion := "2.10.4",
     libraryDependencies += "org.scalaz" % "scalaz-core_2.10" % "7.0.6",

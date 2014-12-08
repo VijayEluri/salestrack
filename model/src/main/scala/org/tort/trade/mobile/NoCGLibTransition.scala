@@ -29,6 +29,7 @@ object NoCGLibTransition {
   def apply(from: String @@ SaleId,
             to: String @@ SaleId,
             quant: Long @@ Quantity,
+            price: Option[Long @@ Price],
             date: Date,
             me: String @@ SaleId,
             good: String @@ NoCGLibGood.Id): NoCGLibTransition = new NoCGLibTransition(
@@ -39,7 +40,7 @@ object NoCGLibTransition {
     date = date,
     me = me,
     good = good,
-    sellPrice = None
+    sellPrice = price
   )
 
   def tupled(transition: (String, String, String, Long, Date, String, String, Option[Long])) = new NoCGLibTransition(

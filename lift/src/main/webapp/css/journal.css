@@ -9,5 +9,5 @@ table.journal input {
 }
 
 table.journal input.badTransitionText {
-	background-color: rgb(255, 136, 136);
+	background: rgb(255, 136, 136);
 }

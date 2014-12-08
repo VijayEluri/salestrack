@@ -11,3 +11,5 @@ resolvers += Resolver.url("xerial", new URL("http://repo1.maven.org/maven2/org/x
 addSbtPlugin("org.xerial.sbt" % "sbt-pack" % "0.5.1")
 
 addSbtPlugin("com.hanhuy.sbt" % "android-sdk-plugin" % "1.2.20")
+
+addSbtPlugin("com.earldouglas" % "xsbt-web-plugin" % "1.0.0")
