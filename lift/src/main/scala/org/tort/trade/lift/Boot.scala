@@ -41,6 +41,8 @@ object JournalMapping extends RestHelper with DBHelper {
             val list = substr.split(" ").toList
             service.goodsBy(list).map(good => GoodDTO(good.id, good.name)) |> Extraction.decompose
         }
+      case JsonGet("compareJournals" :: Nil, req) =>
+        service.matchJournals.map(x => SuspiciousTransitionDTO(x.from, x.to, x.date.toString, x.good, x.quant.toString)) |> Extraction.decompose
       case JsonReq("test1" :: Nil, req) => {
         req.toString
         println(req._1.method)
@@ -50,10 +52,6 @@ object JournalMapping extends RestHelper with DBHelper {
       }
     }
   }
-
-//  def toTransition(dto: TransitionDTO):  NoCGLibTransition = {
-//    NoCGLibTransition(from, to, quant, new Date(), NoCGLibSale.saleId(dto.me), NoCGLibGood.id(dto.good.id))
-//  }
 
   val SellOnePattern = """(\d+)""".r
   val SellPattern = """(\d+)\*(\d+)""".r
@@ -160,14 +158,32 @@ object JournalMapping extends RestHelper with DBHelper {
   def fixStatuses(json: JValue): JValue = {
     json.map {
       case JField("status", JString(status)) => JField("status", JObject(List(JField("instance", JString(status)))))
-      case x => x
+      case x =>
+        println(x)
+        x
     }
+  }
+
+  def filterOuter(json: JValue): JValue = json.remove {
+    case JField("driver", _) => true
+    case _ => false
   }
 }
 
 case class TransitionDTO(lid: String, good: GoodDTO, me: SalesDTO, formula: String, date: Long, status: String)
 case class SalesDTO(salesId: String, salesName: String)
 case class GoodDTO(instance: String, id: String, name: String)
+case class SuspiciousTransitionDTO(instance: String, from: String, to: String, date: String, good: String, quant: String)
 object GoodDTO {
   def apply(id: String, name: String): GoodDTO = GoodDTO("Good", id, name)
+}
+object SuspiciousTransitionDTO {
+  def apply(from: String, to: String, date: String, good: String, quant: String): SuspiciousTransitionDTO = SuspiciousTransitionDTO(
+    "Transition",
+    from = from,
+    to = to,
+    date = date,
+    good = good,
+    quant = quant
+  )
 }
