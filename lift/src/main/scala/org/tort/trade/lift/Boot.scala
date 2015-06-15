@@ -42,7 +42,7 @@ object JournalMapping extends RestHelper with DBHelper {
             service.goodsBy(list).map(good => GoodDTO(good.id, good.name)) |> Extraction.decompose
         }
       case JsonGet("compareJournals" :: Nil, req) =>
-        service.matchJournals.map(x => SuspiciousTransitionDTO(x.from, x.to, x.date.toString, x.good, x.quant.toString)) |> Extraction.decompose
+        service.matchJournals.map(x => SuspiciousTransitionDTO(x.from, x.to, x.date.getTime, x.good, x.quant.toString)) |> Extraction.decompose
       case JsonReq("test1" :: Nil, req) => {
         req.toString
         println(req._1.method)
@@ -173,12 +173,12 @@ object JournalMapping extends RestHelper with DBHelper {
 case class TransitionDTO(lid: String, good: GoodDTO, me: SalesDTO, formula: String, date: Long, status: String)
 case class SalesDTO(salesId: String, salesName: String)
 case class GoodDTO(instance: String, id: String, name: String)
-case class SuspiciousTransitionDTO(instance: String, from: String, to: String, date: String, good: String, quant: String)
+case class SuspiciousTransitionDTO(instance: String, from: String, to: String, date: Long, good: String, quant: String)
 object GoodDTO {
   def apply(id: String, name: String): GoodDTO = GoodDTO("Good", id, name)
 }
 object SuspiciousTransitionDTO {
-  def apply(from: String, to: String, date: String, good: String, quant: String): SuspiciousTransitionDTO = SuspiciousTransitionDTO(
+  def apply(from: String, to: String, date: Long, good: String, quant: String): SuspiciousTransitionDTO = SuspiciousTransitionDTO(
     "Transition",
     from = from,
     to = to,
