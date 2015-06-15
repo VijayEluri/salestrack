@@ -6,10 +6,11 @@ import FFI
 import JQuery hiding (filter, not)
 import Fay.Text.Type
 import Data.Var
+import Data.Ord
 
 data Transition = Transition { from :: String
                              , to :: String
-                             , date :: String
+                             , date :: Int
                              , good :: String
                              , quant :: Int
                              } deriving Eq
@@ -34,11 +35,11 @@ redrawTransitions ts = do
     element <- select $ fromString "#transitions"
     append (fromString $ tabled renderTransitions) element
     return ()
-    where renderTransitions = foldText $ map renderTransition ts
+    where renderTransitions = foldText $ map renderTransition (sortBy (flip $ comparing date) ts)
           foldText = foldl (++) ""
 
 renderTransition :: Transition -> String
-renderTransition t = "<tr>" ++ "<td><div style='text-align: center'>" ++ good t ++ "<div></div>" ++ from t ++ " -> " ++ show (quant t)  ++ " -> " ++ to t ++ " # " ++ date t ++ "</div></td></tr>"
+renderTransition t = "<tr>" ++ "<td><div style='text-align: center'>" ++ good t ++ "<div></div>" ++ from t ++ " -> " ++ show (quant t)  ++ " -> " ++ to t ++ " # " ++ show (date t) ++ "</div></td></tr>"
 
 compareJournals :: ([Transition] -> Fay ()) -> Fay ()
 compareJournals onSuccess = ajax url onSuccess onFail
