@@ -1,24 +1,29 @@
 {-# LANGUAGE EmptyDataDecls #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RebindableSyntax #-}
 module Compare where
 
 import FFI
 import JQuery hiding (filter, not)
-import Fay.Text.Type
+import Fay.Text (Text, fromString)
 import Data.Var
 import Data.Ord
-import Data.Time
+import qualified Fay.Text as T
+import Prelude hiding ((++))
 
-data Transition = Transition { from :: String
-                             , to :: String
-                             , date :: Day
-                             , good :: String
+(++) = T.append
+
+data Transition = Transition { from :: Text
+                             , to :: Text
+                             , date :: Int
+                             , renderedDate :: Text
+                             , good :: Text
                              , quant :: Int
                              } deriving Eq
 
 main :: Fay()
 main = do
-    putStrLn "Starting..."
+    putStrLn $ T.unpack "Starting..."
     ready initCompare
 
 initCompare :: Fay ()
@@ -28,29 +33,29 @@ initCompare = do
     compareJournals $ set transVar
     return ()
 
-tabled :: String -> String
+tabled :: Text -> Text
 tabled content = "<table border=1>" ++ content ++ "</table>"
 
 redrawTransitions :: [Transition] -> Fay ()
 redrawTransitions ts = do
-    element <- select $ fromString "#transitions"
-    append (fromString $ tabled renderTransitions) element
+    element <- select "#transitions"
+    append (tabled renderTransitions) element
     return ()
     where renderTransitions = foldText $ map renderTransition (sortBy (flip $ comparing date) ts)
           foldText = foldl (++) ""
 
-renderTransition :: Transition -> String
-renderTransition t = "<tr>" ++ "<td><div style='text-align: center'>" ++ good t ++ "<div></div>" ++ from t ++ " -> " ++ show (quant t)  ++ " -> " ++ to t ++ " # " ++ (unpack . showDay $ date t) ++ "</div></td></tr>"
+renderTransition :: Transition -> Text
+renderTransition t = "<tr>" ++ "<td><div style='text-align: center'>" ++ (good t) ++ "<div></div>" ++ (from t) ++ " -> " ++ (T.pack . show $ quant t)  ++ " -> " ++ (to t) ++ "</div></td><td>" ++ renderedDate t ++ "</td></tr>"
 
 compareJournals :: ([Transition] -> Fay ()) -> Fay ()
 compareJournals onSuccess = ajax url onSuccess onFail
-    where url = fromString "/compareJournals"
+    where url = "/compareJournals"
 
 onFail :: JQXHR -> Maybe Text -> Maybe Text -> Fay ()
 onFail _ err status = do
     _ <- errorElement >>= setHtml message
     return ()
-    where message = fromString "Call for developers"
+    where message = "Call for developers"
 
 errorElement :: Fay JQuery
-errorElement = select $ fromString "div[class=error]"
+errorElement = select "div[class=error]"

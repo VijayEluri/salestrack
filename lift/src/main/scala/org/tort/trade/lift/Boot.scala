@@ -1,5 +1,6 @@
 package org.tort.trade.lift
 
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import net.liftweb.http.rest.RestHelper
@@ -173,7 +174,7 @@ object JournalMapping extends RestHelper with DBHelper {
 case class TransitionDTO(lid: String, good: GoodDTO, me: SalesDTO, formula: String, date: Long, status: String)
 case class SalesDTO(salesId: String, salesName: String)
 case class GoodDTO(instance: String, id: String, name: String)
-case class SuspiciousTransitionDTO(instance: String, from: String, to: String, date: Long, good: String, quant: String)
+case class SuspiciousTransitionDTO(instance: String, from: String, to: String, date: Long, renderedDate: String, good: String, quant: String)
 object GoodDTO {
   def apply(id: String, name: String): GoodDTO = GoodDTO("Good", id, name)
 }
@@ -183,6 +184,7 @@ object SuspiciousTransitionDTO {
     from = from,
     to = to,
     date = date,
+    renderedDate = new SimpleDateFormat("dd-MM-yyyy").format(date),
     good = good,
     quant = quant
   )
