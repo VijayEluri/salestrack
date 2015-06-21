@@ -29,11 +29,9 @@ main = do
 
 initCompare :: Fay ()
 initCompare = do
-    activeSaleVar <- newVar defaultSales
-    _ <- subscribeChangeAndRead activeSaleVar $ renderSales (updateActiveSales activeSaleVar)
     transVar <- newVar []
     _ <- subscribeChange transVar redrawTransitions
-    _ <- subscribeChangeAndRead activeSaleVar $ compareJournals (set transVar)
+    compareJournals (set transVar)
     return ()
 
 tabled :: Text -> Text
