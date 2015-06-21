@@ -18,6 +18,6 @@ main = ready initBalance
 
 initBalance :: Fay ()
 initBalance = do
-    activeSalesVar <- newVar defaultSale
+    activeSalesVar <- newVar defaultSales
     _ <- subscribeChangeAndRead activeSalesVar $ renderSales (updateActiveSales activeSalesVar)
     return ()

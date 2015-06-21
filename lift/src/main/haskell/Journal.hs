@@ -1,15 +1,17 @@
 {-# LANGUAGE EmptyDataDecls #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RebindableSyntax #-}
 module Journal where
 
 import FFI
 import JQuery hiding (filter, not)
-import Fay.Text.Type
+import Fay.Text hiding (head, empty, append, map, null)
 import Data.Var
 import Menu
+import Prelude
 
-data Good = Good { id :: String
-                 , name :: String
+data Good = Good { id :: Text
+                 , name :: Text
                  } deriving (Eq)
 data Transition = Transition { lid :: LID
                              , good :: Good
@@ -19,7 +21,7 @@ data Transition = Transition { lid :: LID
                              , status :: Status 
                              } deriving Eq
 newtype Formula = Formula Text deriving Eq
-newtype LID = LID Text deriving (Eq, Show)
+newtype LID = LID Text deriving (Eq)
 data Status = New | ReadyToSync | Synchronized | Error deriving Eq
 
 class Eventable a
@@ -27,15 +29,13 @@ instance Eventable Element
 
 main :: Fay()
 main = do
-    putStrLn "Starting..."
     ready initJournal
 
 initJournal :: Fay ()
 initJournal = do
-    putStrLn "Ready..."
     initCalendar
     activeSalesVar <- newVar $ Sales "3" "Гена"
-    _ <- subscribeChangeAndRead activeSalesVar (renderSales (updateActiveSales activeSalesVar))
+    _ <- subscribeChangeAndRead activeSalesVar $ renderSales (updateActiveSales activeSalesVar)
     goodVar <- newVar []
     _ <- subscribeChange goodVar redrawGoods
     transVar <- newVar []
@@ -54,7 +54,7 @@ filterBySales :: Sales -> [Transition] -> [Transition]
 filterBySales activeSales ts = filter (\x -> (me x) == activeSales) ts
 
 goodsFilterInput :: Fay JQuery
-goodsFilterInput = select $ fromString  "#filter"
+goodsFilterInput = select "#filter"
 
 signalKeyUp :: Var Int -> Var [Good] -> Fay ()
 signalKeyUp timeVar goodsVar = do
@@ -70,7 +70,7 @@ loadGoods :: Var [Good] -> Fay()
 loadGoods goodsVar = do
     substr <- goodsFilterInput >>= getVal
     ajax (url substr) (onGoodsSuccess goodsVar) onFail
-    where url substr = fromString ("/goods?substr=" ++ unpack(substr))
+    where url substr = "/goods?substr=" <> substr
 
 onGoodsSuccess :: Var [Good] -> [Good] -> Fay ()
 onGoodsSuccess goodsVar goods = set goodsVar goods
@@ -79,10 +79,10 @@ appendGood :: JQuery -> (Maybe Int, Good) -> Fay JQuery
 appendGood element good = append (renderGood good) element
 
 goodsContainerElem :: Fay JQuery
-goodsContainerElem = select $ fromString "#goods"
+goodsContainerElem = select "#goods"
 
 renderGood :: (Maybe Int, Good) -> Text
-renderGood (index, Good id goodName) = fromString ("<tr><td>" ++ showIndex index ++ "</td><td class='priceItem' number='1' good_id='goodid'>" ++ goodName ++ "</td></tr>")
+renderGood (index, Good id goodName) = "<tr><td>" <> showIndex index <> "</td><td class='priceItem' number='1' good_id='goodid'>" <> goodName <> "</td></tr>"
  
 redrawGoods :: [Good] -> Fay ()
 redrawGoods goods = do
@@ -93,11 +93,11 @@ redrawGoods goods = do
 
 appendGoodHeader :: Fay JQuery
 appendGoodHeader = goodsContainerElem >>= append header
-    where header = fromString ("<tr><th>№</th><th>Товар</th></tr>")
+    where header = "<tr><th>№</th><th>Товар</th></tr>"
 
 redrawTransitions :: (LID -> Fay ()) -> [Transition] -> Fay ()
 redrawTransitions onEnter transitions = do
-    select (fromString "table > tbody > tr[lid]") >>= remove
+    select ("table > tbody > tr[lid]") >>= remove
     mapM_ (appendTransition onEnter) transitions
     _ <- focusFirstErrorOrGoodsFilter transitions
     return ()
@@ -113,20 +113,20 @@ focusFirstErrorOrGoodsFilter transitions = elementToFocus >>= focus
 optionalIndex :: [Maybe Int]
 optionalIndex = map (\x -> Just x) [0..9] ++ repeat Nothing
 
-showIndex :: Maybe Int -> String
-showIndex (Just i) = show i
+showIndex :: Maybe Int -> Text
+showIndex (Just i) = pack $ show i
 showIndex Nothing = ""
 
 appendTransition :: (LID -> Fay()) -> Transition -> Fay ()
 appendTransition onEnter t@(Transition lid _ _ _ _ status) = do
-    element <- select $ fromString "#journal"
+    element <- select "#journal"
     _ <- append (renderTransition t) element
     formulaElem <- transitionInput lid
     keydown onKeyDown formulaElem
         where onKeyDown e = when (eventKeyCode e == 13) $ onEnter lid
 
 renderTransition :: Transition -> Text
-renderTransition (Transition lid good _ formula date status) = fromString ("<tr lid=" ++ show lid ++ "><td>11.05.09</td><td>" ++ name good ++ "</td><td><input type='text' class='newTransition " ++ errorClass ++ "' value=" ++ show formula ++ " " ++ disabled ++ "></td><td><a href='#'>Удалить</a></td></tr>" )
+renderTransition (Transition (LID lid) good _ formula date status) = "<tr lid=" <> lid <> "><td>11.05.09</td><td>" <> name good <> "</td><td><input type='text' class='newTransition " <> errorClass <> "' value=" <> pack (show formula) <> " " <> disabled <> "></td><td><a href='#'>Удалить</a></td></tr>"
     where errorClass = if status == Error then "badTransitionText" else ""
           disabled = if status == Synchronized then "disabled" else ""
 
@@ -139,7 +139,7 @@ onGoodsFilterKeyDown :: Var [Transition] -> Var [Good] -> Var Sales -> Event -> 
 onGoodsFilterKeyDown transVar goodsVar activeSalesVar e = do
     when (keycode > 47 && keycode < 58) addtrans
     where keycode = eventKeyCode e
-          emptyFormula = Formula $ fromString ""
+          emptyFormula = Formula ""
           addtrans = do
             activeSales <- get activeSalesVar
             goods <- get goodsVar
@@ -172,7 +172,7 @@ syncTransitions vts old new = do
 
 sync :: Var [Transition] -> [Transition] -> Fay ()
 sync vts transitions = ajaxPost url transitions onSyncSuccess onFail
-    where url = fromString "/sync-transitions"
+    where url = "/sync-transitions"
           onSyncSuccess ts = modify vts $ map (updateTransitionStatus ts)
 
 updateTransitionStatus :: [Transition] -> Transition -> Transition
@@ -184,21 +184,21 @@ onFail :: JQXHR -> Maybe Text -> Maybe Text -> Fay ()
 onFail _ err status = do
                 _ <- errorElement >>= setHtml message
                 return ()
-                where message = fromString "Call for developers"
+                where message = "Call for developers"
 
 errorElement :: Fay JQuery
-errorElement = select $ fromString "div[class=error]"
+errorElement = select "div[class=error]"
 
 transitionInput :: LID -> Fay JQuery
-transitionInput lid = select $ fromString ("tr[lid = " ++ show lid ++ "] > td > input")
+transitionInput lid = select ("tr[lid = " <> pack (show lid) <> "] > td > input")
 
 transitionTR :: LID -> Fay JQuery
-transitionTR lid = select $ fromString ("tr[lid = " ++ show lid ++ "]")
+transitionTR lid = select $ "tr[lid = " <> pack (show lid) <> "]"
 
 guid :: Fay LID
 guid = do
     n <- now
-    return $ LID (fromString (show n))
+    return $ LID (pack $ show n)
 
 setTimeout :: Int -> Fay () -> Fay ()
 setTimeout = ffi "window.setTimeout(%2, %1)"
@@ -212,7 +212,7 @@ initCalendar = ffi "jQuery('#today').dateinput({selectors: true, trigger: true, 
 now :: Fay Int
 now = ffi "(new Date).getTime()"
 
-regex :: String -> Text -> Fay Bool
+regex :: Text -> Text -> Fay Bool
 regex = ffi "new RegExp(%1).test(%2)"
 
 checkTransition :: Text -> Fay Bool
@@ -231,4 +231,4 @@ removeByLid :: LID -> [Transition] -> [Transition]
 removeByLid lid transitions= filter (\(Transition l _ _ _ _ _) -> l == lid) transitions
 
 badTransitionClass :: Text
-badTransitionClass = fromString "badTransitionText"
+badTransitionClass = "badTransitionText"

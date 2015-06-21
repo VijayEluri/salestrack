@@ -9,10 +9,8 @@ import Fay.Text (Text, fromString)
 import Data.Var
 import Data.Ord
 import qualified Fay.Text as T
-import Prelude hiding ((++))
+import Prelude
 import Menu
-
-(++) = T.append
 
 data Transition = Transition { from :: Text
                              , to :: Text
@@ -34,19 +32,16 @@ initCompare = do
     compareJournals (set transVar)
     return ()
 
-tabled :: Text -> Text
-tabled content = "<table border=1>" ++ content ++ "</table>"
-
 redrawTransitions :: [Transition] -> Fay ()
 redrawTransitions ts = do
     element <- select "#transitions"
     append (tabled renderTransitions) element
     return ()
     where renderTransitions = foldText $ map renderTransition (sortBy (flip $ comparing date) ts)
-          foldText = foldl (++) ""
+          foldText = foldl (<>) ""
 
 renderTransition :: Transition -> Text
-renderTransition t = "<tr>" ++ "<td><div style='text-align: center'>" ++ (good t) ++ "<div></div>" ++ (from t) ++ " -> " ++ (T.pack . show $ quant t)  ++ " -> " ++ (to t) ++ "</div></td><td>" ++ renderedDate t ++ "</td></tr>"
+renderTransition t = "<tr>" <> "<td><div style='text-align: center'>" <> (good t) <> "<div></div>" <> (from t) <> " -> " <> (T.pack . show $ quant t)  <> " -> " <> (to t) <> "</div></td><td>" <> renderedDate t <> "</td></tr>"
 
 compareJournals :: ([Transition] -> Fay ()) -> Fay ()
 compareJournals onSuccess = ajax url onSuccess onFail
