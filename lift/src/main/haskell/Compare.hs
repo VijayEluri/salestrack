@@ -10,6 +10,7 @@ import Data.Var
 import Data.Ord
 import qualified Fay.Text as T
 import Prelude hiding ((++))
+import Menu
 
 (++) = T.append
 
@@ -28,6 +29,8 @@ main = do
 
 initCompare :: Fay ()
 initCompare = do
+    activeSaleVar <- newVar defaultSales
+    _ <- subscribeChangeAndRead activeSaleVar $ renderSales (updateActiveSales activeSaleVar)
     transVar <- newVar []
     _ <- subscribeChange transVar redrawTransitions
     compareJournals $ set transVar
