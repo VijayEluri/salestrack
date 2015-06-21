@@ -33,7 +33,7 @@ initCompare = do
     _ <- subscribeChangeAndRead activeSaleVar $ renderSales (updateActiveSales activeSaleVar)
     transVar <- newVar []
     _ <- subscribeChange transVar redrawTransitions
-    compareJournals $ set transVar
+    _ <- subscribeChangeAndRead activeSaleVar $ compareJournals (set transVar)
     return ()
 
 tabled :: Text -> Text
