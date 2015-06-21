@@ -1,0 +1,78 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <link type="text/css" href="css/menu.css" rel="stylesheet">
+    <link type="text/css" href="css/journal.css" rel="stylesheet">
+    <link type="text/css" href="css/datepicker.css" rel="stylesheet">
+    <script type="text/javascript" src="js/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="js/balance.js"></script>
+    <script type="text/javascript" src="js/menu.js"></script>
+    <script type="text/javascript" src="js/jquery.tools.min.js"></script>
+</head>
+<body>
+<div id="menu">
+    <table style="background-color: #EFEFEF; width: 100%;">
+        <tr>
+            <td id="mainMenuWrapper">
+                <table class="menu">
+                    <tr>
+                        <td class="active">Журналы продаж</td>
+                        <td><a name="balance" href="balance.html">Остаток</a></td>
+                        <td>Вал</td>
+                        <td>Продавцы</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td id="salesMenuFragmentWrapper">
+                <table id="sales" class="menu">
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+<div>
+    <table>
+        <tr>
+            <!-- PRICE -->
+            <td style="height: 100%;">
+                <div style="text-align: left; margin-top: 20px; margin-bottom: 5px; height: 20px;">
+                    <input type="text" style="width: 18em;" class="filter" id="filter" />
+                    <span id="goodCount"></span>
+                </div>
+                <div style="height: 630px;">
+                    <table class="price" border="1px" id="goods">
+                        <tr>
+                            <th>№</th>
+                            <th>Товар</th>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td style="width: 30px;"></td>
+            <!-- JOURNAL -->
+            <td style="height: 100%;">
+                <div style="text-align: left; margin-top: 20px; margin-bottom: 5px; height: 20px;">
+                    <input id="today" type="date" style="font-size: 16px; font-family: serif; padding: 1px 0px 1px 0px;"/>
+                    <span><input type="button" value="Очистить" /></span>
+                </div>
+                <div style="height: 630px;">
+                    <table border="1px;" id="balance" class="journal">
+                        <tr>
+                            <th>Дата</th>
+                            <th style="width: 300px;">Товар</th>
+                            <th>Сколько, Кому, Почем</th>
+                            <th></th>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div style="background-color: #EFEFEF; text-align: left;" class="error">
+    Ошибка ввода: джинсы синие полосатые, 15 мая, неизвестный продавец
+</div>
+</body>
+</html>
