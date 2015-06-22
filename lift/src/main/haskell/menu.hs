@@ -12,6 +12,10 @@ import Prelude
 
 (<>) = T.append
 
+data Good = Good { id :: Text
+                 , name :: Text
+                 } deriving (Eq)
+
 data Sales = Sales { salesId :: Text
                    , salesName :: Text
                    } deriving (Eq)
@@ -40,3 +44,6 @@ renderSales updateActiveSales activeSale = do
 
 tabled :: Text -> Text
 tabled content = "<table border=1>" <> content <> "</table>"
+
+foldText :: [Text] -> Text
+foldText = foldl (<>) ""

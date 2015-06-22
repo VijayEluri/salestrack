@@ -10,9 +10,6 @@ import Data.Var
 import Menu
 import Prelude
 
-data Good = Good { id :: Text
-                 , name :: Text
-                 } deriving (Eq)
 data Transition = Transition { lid :: LID
                              , good :: Good
                              , me :: Sales

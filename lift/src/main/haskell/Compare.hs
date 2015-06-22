@@ -22,7 +22,6 @@ data Transition = Transition { from :: Text
 
 main :: Fay()
 main = do
-    putStrLn $ T.unpack "Starting..."
     ready initCompare
 
 initCompare :: Fay ()
@@ -38,7 +37,6 @@ redrawTransitions ts = do
     append (tabled renderTransitions) element
     return ()
     where renderTransitions = foldText $ map renderTransition (sortBy (flip $ comparing date) ts)
-          foldText = foldl (<>) ""
 
 renderTransition :: Transition -> Text
 renderTransition t = "<tr>" <> "<td><div style='text-align: center'>" <> (good t) <> "<div></div>" <> (from t) <> " -> " <> (T.pack . show $ quant t)  <> " -> " <> (to t) <> "</div></td><td>" <> renderedDate t <> "</td></tr>"
