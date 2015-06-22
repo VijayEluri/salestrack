@@ -26,7 +26,7 @@ object Runner extends DBHelper {
         service(db).matchJournals.foreach(t => s"${t.date}\t${t.from}\t${t.to}\t${t.good}\t${t.quant}" |> println)
       case "balance" :: journalId :: Nil =>
         service(db)
-          .balance(journalId.toLong)
+          .balance(journalId.toLong, Nil)
           .foreach(x => s"${x._1.name}\t${x._2}" |> println)
       case "overall" :: month :: Nil =>
         service(db)

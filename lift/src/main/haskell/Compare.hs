@@ -10,6 +10,8 @@ import Data.Var
 import Data.Ord
 import qualified Fay.Text as T
 import Prelude
+import Model
+import GoodsList
 import Menu
 
 data Transition = Transition { from :: Text

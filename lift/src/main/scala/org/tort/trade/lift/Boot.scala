@@ -45,16 +45,25 @@ object JournalMapping extends RestHelper with DBHelper {
       case JsonGet("compareJournals" :: Nil, req) =>
         service.matchJournals.map(x => SuspiciousTransitionDTO(x.from, x.to, x.date.getTime, x.good, x.quant.toString)) |> Extraction.decompose
       case JsonGet("journalBalance" :: Nil, req) =>
-        req.params.get("me").map {
-          case List(me) =>
-            Try(service.balance(me.toLong)) match {
+        val maybeTuple: Option[(List[String], List[String])] = (req.params.get("me"), req.params.get("fltr")) match {
+          case (Some(m), Some(l)) => Some((m, l))
+          case (Some(m), None) => Some((m, List("")))
+        }
+        val balanceParams = for {
+          (List(me), List(fltr)) <- maybeTuple
+        } yield (me, fltr)
+
+        balanceParams.map {
+          case (me, fltr) =>
+            val fltrSeq = fltr.split(" ").toList
+            Try(service.balance(me.toLong, fltrSeq)) match {
               case Success(b) =>
                 b.map(x => BalanceDTO("Balance", GoodDTO(x._1.id, x._1.name), x._2)) |> Extraction.decompose
               case Failure(ex) =>
                 println(ex)
                 JString("error 505")
             }
-        }
+          case _ => JString("error 505") }
       case JsonReq("test1" :: Nil, req) => {
         req.toString
         println(req._1.method)

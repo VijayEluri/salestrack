@@ -87,13 +87,15 @@ class Schema(val driver: JdbcProfile) {
 
   case class SuspiciousTransition(from: String, to: String, date: Date, good: String, quant: Int)
 
-  def balance(journalId: Long)(implicit session: Session): List[(NoCGLibGood, Option[Long])] = {
+  def balance(journalId: Long, fltr: Seq[String])(implicit session: Session): List[(NoCGLibGood, Option[Long])] = {
+    val likeExpr = fltr |> assembleLikeExpr
     val groupedIncome = for {
       (t, g) <- transitions innerJoin goods on (_.good === _.id)
       if (t.me === journalId.toString)
       if (t.date <= today)
       if (t.from != t.me)
       if (t.to === t.me)
+      if (g.name.toLowerCase like likeExpr.toLowerCase)
     } yield (g, t.quant)
 
     val income = groupedIncome.groupBy(_._1).map {
@@ -106,6 +108,7 @@ class Schema(val driver: JdbcProfile) {
       if (t.date <= today)
       if (t.from === t.me)
       if (t.to != t.me)
+      if (g.name.toLowerCase like likeExpr.toLowerCase)
     } yield (g, t.quant)
 
     val outcome = groupedOutcome.groupBy(_._1).map {
@@ -117,7 +120,7 @@ class Schema(val driver: JdbcProfile) {
       if (i._2 - o._2) > 0L
     } yield (i._1, i._2 - o._2)
 
-    res.sortBy(_._2.desc).list
+    res.sortBy(_._2.desc).take(25).list
   }
 
   private def today = new Date(new java.util.Date().getTime)
