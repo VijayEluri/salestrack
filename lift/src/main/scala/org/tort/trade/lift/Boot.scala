@@ -44,6 +44,17 @@ object JournalMapping extends RestHelper with DBHelper {
         }
       case JsonGet("compareJournals" :: Nil, req) =>
         service.matchJournals.map(x => SuspiciousTransitionDTO(x.from, x.to, x.date.getTime, x.good, x.quant.toString)) |> Extraction.decompose
+      case JsonGet("journalBalance" :: Nil, req) =>
+        req.params.get("me").map {
+          case List(me) =>
+            Try(service.balance(me.toLong)) match {
+              case Success(b) =>
+                b.map(x => BalanceDTO("Balance", GoodDTO(x._1.id, x._1.name), x._2)) |> Extraction.decompose
+              case Failure(ex) =>
+                println(ex)
+                JString("error 505")
+            }
+        }
       case JsonReq("test1" :: Nil, req) => {
         req.toString
         println(req._1.method)
@@ -175,6 +186,7 @@ case class TransitionDTO(lid: String, good: GoodDTO, me: SalesDTO, formula: Stri
 case class SalesDTO(salesId: String, salesName: String)
 case class GoodDTO(instance: String, id: String, name: String)
 case class SuspiciousTransitionDTO(instance: String, from: String, to: String, date: Long, renderedDate: String, good: String, quant: String)
+case class BalanceDTO(instance: String, good: GoodDTO, number: Long)
 object GoodDTO {
   def apply(id: String, name: String): GoodDTO = GoodDTO("Good", id, name)
 }

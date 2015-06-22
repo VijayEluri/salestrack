@@ -31,7 +31,7 @@ class Service(db: DatabaseDef) {
     }
   }
 
-  def balance(journalId: Long): Map[NoCGLibGood, Long] = {
+  def balance(journalId: Long): List[(NoCGLibGood, Long)] = {
     db.withDynSession {
       schema.balance(journalId).map(x => x._1 -> x._2.getOrElse(0L))
     }

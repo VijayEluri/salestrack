@@ -177,15 +177,6 @@ updateTransitionStatus ts t = maybe t repl $ find (\x -> lid x == lid t) ts
     where lids = map lid ts
           repl x = Transition (lid t) (good t) (me t) (formula t) (date t) (status x)
 
-onFail :: JQXHR -> Maybe Text -> Maybe Text -> Fay ()
-onFail _ err status = do
-                _ <- errorElement >>= setHtml message
-                return ()
-                where message = "Call for developers"
-
-errorElement :: Fay JQuery
-errorElement = select "div[class=error]"
-
 transitionInput :: LID -> Fay JQuery
 transitionInput lid = select ("tr[lid = " <> pack (show lid) <> "] > td > input")
 

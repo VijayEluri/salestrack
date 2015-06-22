@@ -54,12 +54,12 @@ object NoCGLibTransition {
     price(transition._8)
   )
   
-  def unapply(transition: NoCGLibTransition): Option[Tuple8[String, String, String, Long, Timestamp, String, String, Option[Long]]] = Some((
+  def unapply(transition: NoCGLibTransition): Option[Tuple8[String, String, String, Long, java.sql.Date, String, String, Option[Long]]] = Some((
     transition.id,
     transition.from,
     transition.to,
     transition.quant,
-    new Timestamp(transition.date.getTime),
+    new java.sql.Date(transition.date.getTime),
     transition.me,
     transition.good,
     transition.sellPrice

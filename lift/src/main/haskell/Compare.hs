@@ -44,12 +44,3 @@ renderTransition t = "<tr>" <> "<td><div style='text-align: center'>" <> (good t
 compareJournals :: ([Transition] -> Fay ()) -> Fay ()
 compareJournals onSuccess = ajax url onSuccess onFail
     where url = "/compareJournals"
-
-onFail :: JQXHR -> Maybe Text -> Maybe Text -> Fay ()
-onFail _ err status = do
-    _ <- errorElement >>= setHtml message
-    return ()
-    where message = "Call for developers"
-
-errorElement :: Fay JQuery
-errorElement = select "div[class=error]"

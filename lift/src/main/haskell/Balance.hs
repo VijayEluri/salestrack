@@ -28,7 +28,7 @@ initBalance = do
 
 renderBalance :: [Balance] -> Fay ()
 renderBalance balance = do
-    select "#balance > tr" >>= remove
+    select "#balance > tbody > tr:not(:has(th))" >>= remove
     element <- select "#balance"
     append renderAll element
     return ()
@@ -36,5 +36,5 @@ renderBalance balance = do
           render b = "<tr><td>" <> (name . good $ b) <> "</td><td>" <> (pack . show $ number b) <> "</td></tr>"
 
 loadBalance :: Var [Balance] -> Sales -> Fay ()
-loadBalance balanceVar sales  = do
-    set balanceVar [Balance (Good "1" "name") 3]
+loadBalance balanceVar activeSales  = ajax url (set balanceVar) onFail
+    where url = "/journalBalance?me=" <> salesId activeSales

@@ -47,3 +47,12 @@ tabled content = "<table border=1>" <> content <> "</table>"
 
 foldText :: [Text] -> Text
 foldText = foldl (<>) ""
+
+onFail :: JQXHR -> Maybe Text -> Maybe Text -> Fay ()
+onFail _ err status = do
+                _ <- errorElement >>= setHtml message
+                return ()
+                where message = "Call for developers"
+
+errorElement :: Fay JQuery
+errorElement = select "div[class=error]"

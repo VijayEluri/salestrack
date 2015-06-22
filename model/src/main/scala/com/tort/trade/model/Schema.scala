@@ -20,10 +20,10 @@ class Schema(val driver: JdbcProfile) {
     def from = column[String]("TRD_FROM")
     def to = column[String]("TRD_TO")
     def quant = column[Long]("TRD_QUANT")
-    def date = column[Timestamp]("TRD_DATE")
+    def date = column[Date]("TRD_DATE")
     def me = column[String]("TRD_JREF")
     def good = column[String]("TRD_MAT")
-    def sellPrice = column[Option[Long]]("TRD_PRICE")
+    def sellPrice = column[Option[Long]]("TRD_PRICE", O.Nullable)
 
     def * = (id, from, to, quant, date, me, good, sellPrice) <> (NoCGLibTransition.tupled, NoCGLibTransition.unapply)
   }
@@ -87,7 +87,7 @@ class Schema(val driver: JdbcProfile) {
 
   case class SuspiciousTransition(from: String, to: String, date: Date, good: String, quant: Int)
 
-  def balance(journalId: Long)(implicit session: Session): Map[NoCGLibGood, Option[Long]] = {
+  def balance(journalId: Long)(implicit session: Session): List[(NoCGLibGood, Option[Long])] = {
     val groupedIncome = for {
       (t, g) <- transitions innerJoin goods on (_.good === _.id)
       if (t.me === journalId.toString)
@@ -117,16 +117,16 @@ class Schema(val driver: JdbcProfile) {
       if (i._2 - o._2) > 0L
     } yield (i._1, i._2 - o._2)
 
-    res.toMap
+    res.sortBy(_._2.desc).list
   }
 
-  private def today = new Timestamp(new java.util.Date().getTime)
+  private def today = new Date(new java.util.Date().getTime)
 
   def overall(period: Tuple2[DateTime, DateTime])(implicit session: Session): Map[String @@ SaleName, Long] = {
     val query = transitions.innerJoin(sales).on(_.me === _.id)
       .filter { case (t, s) => t.to === "2" }
-      .filter { case (t, s) => t.date < toTimestamp(period._2) }
-      .filter { case (t, s) => t.date >= toTimestamp(period._1) }
+      .filter { case (t, s) => t.date < toDate(period._2) }
+      .filter { case (t, s) => t.date >= toDate(period._1) }
       .map { case (t, s) => s.name -> t.quant * t.sellPrice }
       .groupBy(_._1)
       .map(x => x._1 -> x._2.map(t => t._2).sum)
@@ -136,6 +136,7 @@ class Schema(val driver: JdbcProfile) {
   }
 
   private def toTimestamp(dateTime: DateTime) = new Timestamp(dateTime.getMillis)
+  private def toDate(dateTime: DateTime) = new Date(dateTime.getMillis)
 
 //  class SalesAlias(tag: Tag) extends Table[SalesAlias](tag, "SALESALIAS") {
 //    def id = column[String]("ID")
