@@ -27,6 +27,8 @@ initBalance :: Fay ()
 initBalance = do
     goodsFilterElement <- goodsFilterInput
     filterVar <- newVar ""
+    timeStampVar <- now >>= newVar
+    keyup (delayedSetFilterVar timeStampVar (onTimeout timeStampVar filterVar goodsFilterElement)) goodsFilterElement
     balanceVar <- newVar []
     _ <- subscribeChange balanceVar renderBalance
     activeSalesVar <- newVar defaultSales
@@ -34,6 +36,17 @@ initBalance = do
     bpVar <- mergeVars' (\s f -> BalanceParams s f) Nothing activeSalesVar filterVar
     _ <- subscribeChangeAndRead bpVar $ loadBalance (set balanceVar)
     return ()
+
+onTimeout :: Var Int -> Var Text -> JQuery -> Int -> Fay ()
+onTimeout timeStampVar filterVar filterElement timestamp = do
+    ts <- get timeStampVar
+    when (ts == timestamp) $ getVal filterElement >>=  set filterVar 
+
+delayedSetFilterVar :: Var Int -> (Int -> Fay ()) -> Event -> Fay ()
+delayedSetFilterVar timestampVar onTimeout _ = do
+    ts <- now
+    set timestampVar ts
+    setTimeout 1000 $ onTimeout ts
 
 renderBalance :: [Balance] -> Fay ()
 renderBalance balance = do
