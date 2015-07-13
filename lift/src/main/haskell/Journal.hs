@@ -28,13 +28,11 @@ instance Eventable Element
 
 main :: Fay()
 main = do
-    ready initJournal
+    ready $ initMenu initJournal
 
-initJournal :: Fay ()
-initJournal = do
+initJournal :: Var Sales -> Fay ()
+initJournal activeSalesVar = do
     initCalendar
-    activeSalesVar <- newVar defaultSales
-    _ <- subscribeChangeAndRead activeSalesVar $ renderSales (updateActiveSales activeSalesVar)
     goodVar <- newVar []
     _ <- subscribeChange goodVar redrawGoods
     transVar <- newVar []

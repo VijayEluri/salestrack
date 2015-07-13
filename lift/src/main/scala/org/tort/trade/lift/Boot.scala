@@ -44,6 +44,8 @@ object JournalMapping extends RestHelper with DBHelper {
         }
       case JsonGet("compareJournals" :: Nil, req) =>
         service.matchJournals.map(x => SuspiciousTransitionDTO(x.from, x.to, x.date.getTime, x.good, x.quant.toString)) |> Extraction.decompose
+      case JsonGet("sales" :: Nil, req) =>
+        service.sales.map(s => SalesDTO(s.id, s.name)) |> Extraction.decompose
       case JsonGet("journalBalance" :: Nil, req) =>
         val maybeTuple: Option[(List[String], List[String])] = (req.params.get("me"), req.params.get("fltr")) match {
           case (Some(m), Some(l)) => Some((m, l))

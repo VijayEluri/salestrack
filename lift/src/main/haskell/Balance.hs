@@ -21,18 +21,16 @@ data BalanceParams = BalanceParams { sale :: Sales
                                    } deriving Eq
 
 main :: Fay ()
-main = ready initBalance
+main = ready $ initMenu initBalance
 
-initBalance :: Fay ()
-initBalance = do
+initBalance :: Var Sales -> Fay ()
+initBalance activeSalesVar = do
     goodsFilterElement <- goodsFilterInput
     filterVar <- newVar ""
     timeStampVar <- now >>= newVar
     keyup (delayedSetFilterVar timeStampVar (onTimeout timeStampVar filterVar goodsFilterElement)) goodsFilterElement
     balanceVar <- newVar []
     _ <- subscribeChange balanceVar renderBalance
-    activeSalesVar <- newVar defaultSales
-    _ <- subscribeChangeAndRead activeSalesVar $ renderSales (updateActiveSales activeSalesVar)
     bpVar <- mergeVars' (\s f -> BalanceParams s f) Nothing activeSalesVar filterVar
     _ <- subscribeChangeAndRead bpVar $ loadBalance (set balanceVar)
     return ()

@@ -54,7 +54,7 @@ class Schema(val driver: JdbcProfile) {
   }
 
   def listGoods(implicit session: Session) = goods.list()
-  def listSales(implicit session: Session) = sales.list()
+  def listSales(implicit session: Session) = sales.list().filter(s => !Set("1", "2").contains(s.id))
   def listTransitions(implicit session: Session) = transitions.list()
   def insertGood(g: NoCGLibGood)(implicit session: Session) = goods.insert(g)
   def insertSale(s: NoCGLibSale)(implicit session: Session) = sales.insert(s)

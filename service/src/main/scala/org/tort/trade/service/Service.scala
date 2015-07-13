@@ -3,7 +3,7 @@ package org.tort.trade.service
 import com.tort.trade.model.Schema
 import org.joda.time.DateTime
 import org.tort.trade.mobile.NoCGLibSale.SaleName
-import org.tort.trade.mobile.{NoCGLibGood, NoCGLibTransition}
+import org.tort.trade.mobile.{NoCGLibSale, NoCGLibGood, NoCGLibTransition}
 
 import scala.slick.driver.H2Driver
 import scala.slick.jdbc.JdbcBackend.Database.dynamicSession
@@ -40,6 +40,12 @@ class Service(db: DatabaseDef) {
   def overall(period: (DateTime, DateTime)): Map[String @@ SaleName, Long] = {
     db.withDynSession {
       schema.overall(period)
+    }
+  }
+
+  def sales: List[NoCGLibSale] = {
+    db.withDynSession {
+      schema.listSales
     }
   }
 }
