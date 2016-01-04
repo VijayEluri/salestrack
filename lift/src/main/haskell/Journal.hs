@@ -30,9 +30,15 @@ main :: Fay()
 main = do
     ready $ initMenu initJournal
 
+alert :: Text -> Fay ()
+alert = ffi "alert(%1)"
+
+testOnChange :: Automatic String -> Automatic Text -> Fay ()
+testOnChange event date = alert date
+
 initJournal :: Var Sales -> Fay ()
 initJournal activeSalesVar = do
-    initCalendar
+    initCalendar testOnChange
     goodVar <- newVar []
     _ <- subscribeChange goodVar redrawGoods
     transVar <- newVar []
@@ -137,8 +143,8 @@ guid = do
 calendarDate :: Fay Int
 calendarDate = ffi "jQuery(':date').data('dateinput').getValue().getTime()"
 
-initCalendar :: Fay ()
-initCalendar = ffi "jQuery('#today').dateinput({selectors: true, trigger: true, format: 'dd/mm/yyyy'}).data('dateinput').setValue(0)"
+initCalendar :: (Automatic String -> Automatic Text -> Fay ()) -> Fay ()
+initCalendar = ffi "jQuery('#today').dateinput({ selectors: true , trigger: true , format: 'dd/mm/yyyy' , change: %1 }).data('dateinput').setValue(0)"
 
 regex :: Text -> Text -> Fay Bool
 regex = ffi "new RegExp(%1).test(%2)"
